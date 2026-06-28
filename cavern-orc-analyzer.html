@@ -1000,6 +1000,7 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 .clan-result-after{color:#c7ecd6;}
 .clan-result-gain{font-size:30px;font-weight:900;color:#7fe0a6;}
 .clan-result-moves{font-size:30px;font-weight:900;color:#f1f1f1;}
+.clan-step{flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--g1),var(--g4));color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--glow);}
 @media(max-width:760px){.clan-grid{grid-template-columns:1fr;}}
 
 /* ── Legal footer ── */
@@ -1322,7 +1323,7 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 <section id="clan-swaps" class="mode-section" data-mode-section="clan">
   <div class="wrap">
     <div class="lbl">Swap Plan</div>
-    <div class="ttl">Trade Orcs <em>Between Wallets</em></div>
+    <div class="ttl">Step-by-Step <em>Trade Chain</em></div>
     <div class="desc" id="clanSwapMeta">Recommended orc transfers between members that raise total clan power through team synergies.</div>
     <div class="clan-result" id="clanSwapSummary" style="display:none;">
       <div class="clan-result-col">
@@ -5011,16 +5012,18 @@ function renderClanSwaps(transfers, totalGain, before, after) {
     document.getElementById("clanResMoves").textContent = transfers.length;
   }
   document.getElementById("clanSwapMeta").textContent = transfers.length
-    ? `Apply these ${transfers.length} move(s) for about +${formatNumber(totalGain)} clan power. A one-way transfer never lowers the giver; a swap (⇄) raises at least one side and lowers neither.`
+    ? `Execute these ${transfers.length} step(s) in order — the chain builds on each previous trade for +${formatNumber(totalGain)} total clan power. A one-way transfer (→) never lowers the giver; a swap (⇄) raises at least one side and lowers neither.`
     : "No beneficial moves — the clan is already well distributed.";
   if (!transfers.length) { grid.innerHTML = `<div class="empty-state">No beneficial swaps found.</div>`; return; }
 
-  grid.innerHTML = transfers.map((t) => {
+  grid.innerHTML = transfers.map((t, i) => {
     const toneLabel = (t.tone || "").replace(/\b\w/g, (c) => c.toUpperCase());
+    const step = `<div class="clan-step">${i + 1}</div>`;
     if (t.kind === "swap") {
       return `
       <details class="clan-swap">
         <summary class="clan-swap-row">
+          ${step}
           <div class="clan-swap-orc">
             <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
             <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.aIndex))} · ${formatNumber(t.orcA.power)} PWR</div></div>
@@ -5043,6 +5046,7 @@ function renderClanSwaps(transfers, totalGain, before, after) {
     return `
     <details class="clan-swap">
       <summary class="clan-swap-row">
+        ${step}
         <div class="clan-swap-orc">
           <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
           <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${formatNumber(t.orcA.power)} PWR · ${escapeHtml(t.orcA.emotion)}</div></div>
