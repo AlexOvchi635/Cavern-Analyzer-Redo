@@ -949,8 +949,19 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 .clan-swap>summary::-webkit-details-marker{display:none;}
 .clan-swap-row{display:flex;align-items:center;gap:14px;padding:14px 16px;flex-wrap:wrap;}
 .clan-swap .clan-swap-row{background:transparent;border:none;border-radius:0;margin:0;}
-.clan-exp{margin-left:6px;color:var(--g3);font-size:13px;transition:transform .2s;}
-.clan-swap[open] .clan-exp{transform:rotate(180deg);}
+.clan-exp{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  margin-left:6px;flex-shrink:0;
+  height:32px;padding:0 14px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid var(--bd2);
+  color:#eaeaea;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  transition:background .2s,border-color .2s;
+}
+.clan-exp::after{content:"▾";font-size:12px;transition:transform .2s;}
+.clan-exp::before{content:"Before / After";}
+.clan-swap>summary:hover .clan-exp{background:rgba(255,255,255,.12);border-color:var(--g3);}
+.clan-swap[open] .clan-exp::after{transform:rotate(180deg);}
+.clan-swap[open] .clan-exp::before{content:"Hide";}
 .clan-ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 16px 16px;}
 @media(max-width:760px){.clan-ba{grid-template-columns:1fr;}}
 .clan-ba-col{background:var(--bg4);border:1px solid var(--bd);border-radius:12px;padding:12px;}
@@ -4730,7 +4741,7 @@ function renderClanSwaps(transfers, totalGain) {
         <div class="arrow">→</div>
         <div class="ow">Member ${t.toIndex + 1}</div>
         <div class="clan-gain">+${formatNumber(t.gain)} PWR</div>
-        <span class="clan-exp">▾</span>
+        <span class="clan-exp"></span>
       </summary>
       <div class="clan-ba">
         <div class="clan-ba-col">
