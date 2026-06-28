@@ -992,6 +992,14 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 .clan-buy-price{font-size:13px;font-weight:800;color:#f2dfba;}
 .clan-buy-group{background:var(--bg3);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:16px;}
 .clan-buy-group h4{font-size:14px;font-weight:900;margin-bottom:12px;color:#f1f1f1;word-break:break-all;}
+.clan-result{display:flex;gap:16px;flex-wrap:wrap;align-items:stretch;background:linear-gradient(180deg,#16221a,#121512);border:1px solid rgba(77,184,122,.3);border-radius:16px;padding:18px 22px;margin-bottom:20px;box-shadow:0 0 32px rgba(77,184,122,.08);}
+.clan-result-col{flex:1;min-width:150px;}
+.clan-result-k{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#8fbfa3;margin-bottom:8px;}
+.clan-result-flow{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:900;color:#cfcfcf;}
+.clan-result-arrow{color:#4db87a;}
+.clan-result-after{color:#c7ecd6;}
+.clan-result-gain{font-size:30px;font-weight:900;color:#7fe0a6;}
+.clan-result-moves{font-size:30px;font-weight:900;color:#f1f1f1;}
 @media(max-width:760px){.clan-grid{grid-template-columns:1fr;}}
 
 /* ── Legal footer ── */
@@ -1316,6 +1324,20 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
     <div class="lbl">Swap Plan</div>
     <div class="ttl">Trade Orcs <em>Between Wallets</em></div>
     <div class="desc" id="clanSwapMeta">Recommended orc transfers between members that raise total clan power through team synergies.</div>
+    <div class="clan-result" id="clanSwapSummary" style="display:none;">
+      <div class="clan-result-col">
+        <div class="clan-result-k">Clan Power</div>
+        <div class="clan-result-flow"><span id="clanResBefore">0</span><span class="clan-result-arrow">→</span><span class="clan-result-after" id="clanResAfter">0</span></div>
+      </div>
+      <div class="clan-result-col">
+        <div class="clan-result-k">Total Gain</div>
+        <div class="clan-result-gain" id="clanResGain">+0 PWR</div>
+      </div>
+      <div class="clan-result-col">
+        <div class="clan-result-k">Moves</div>
+        <div class="clan-result-moves" id="clanResMoves">0</div>
+      </div>
+    </div>
     <div id="clanSwapGrid">
       <div class="empty-state">Press “Swap Analysis” after the clan scan.</div>
     </div>
@@ -4924,7 +4946,7 @@ async function runClanSwapAnalysis() {
     clanState.swapDone = true;
     const mkt = document.getElementById("clanMarketBtn");
     if (mkt) { mkt.disabled = false; mkt.classList.add("ready"); }
-    renderClanSwaps(transfers, after - baseline);
+    renderClanSwaps(transfers, after - baseline, baseline, after);
     document.getElementById("clan-swaps").scrollIntoView({ behavior: "smooth", block: "start" });
     setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial move(s): +${formatNumber(after - baseline)} clan PWR. Market analysis unlocked.` : "No beneficial swaps found — the clan is already well distributed. Market analysis unlocked.", "ok", 100);
   } catch (error) {
@@ -4965,8 +4987,16 @@ function baBlock(label, beforeTeam, afterTeam, beforeScore, afterScore) {
     </div>`;
 }
 
-function renderClanSwaps(transfers, totalGain) {
+function renderClanSwaps(transfers, totalGain, before, after) {
   const grid = document.getElementById("clanSwapGrid");
+  const summary = document.getElementById("clanSwapSummary");
+  if (summary && before != null) {
+    summary.style.display = "flex";
+    document.getElementById("clanResBefore").textContent = formatNumber(before);
+    document.getElementById("clanResAfter").textContent = formatNumber(after);
+    document.getElementById("clanResGain").textContent = `+${formatNumber(totalGain)} PWR`;
+    document.getElementById("clanResMoves").textContent = transfers.length;
+  }
   document.getElementById("clanSwapMeta").textContent = transfers.length
     ? `Apply these ${transfers.length} move(s) for about +${formatNumber(totalGain)} clan power. A one-way transfer never lowers the giver; a swap (⇄) raises at least one side and lowers neither.`
     : "No beneficial moves — the clan is already well distributed.";
