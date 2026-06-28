@@ -960,6 +960,9 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 @media(max-width:600px){.ba-row{grid-template-columns:repeat(4,1fr);}}
 .ba-cell{position:relative;background:var(--bg3);border:1px solid var(--bd2);border-radius:8px;padding:6px 4px;text-align:center;}
 .ba-cell.added{border-color:var(--green);box-shadow:0 0 0 1px var(--green),0 0 14px rgba(77,184,122,.2);}
+.ba-cell.removed{border-color:#c26262;box-shadow:0 0 0 1px #c26262,0 0 14px rgba(194,98,98,.2);opacity:.85;}
+.ba-tag.removed{background:#c26262;color:#fff;}
+.ba-tag.added{background:var(--green);color:#0c0c0c;}
 .ba-cell img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:6px;}
 .ba-em{font-size:8px;color:#9b9b9b;margin-top:3px;line-height:1.1;text-transform:uppercase;letter-spacing:.3px;}
 .ba-pw{font-size:11px;font-weight:900;color:#efe2bf;}
@@ -4712,6 +4715,10 @@ function renderClanSwaps(transfers, totalGain) {
   if (!transfers.length) { grid.innerHTML = `<div class="empty-state">No beneficial swaps found.</div>`; return; }
   grid.innerHTML = transfers.map((t) => {
     const toneLabel = (t.tone || "").replace(/\b\w/g, (c) => c.toUpperCase());
+    const beforeAddrs = new Set((t.beforeTeam || []).filter(Boolean).map((it) => it.address));
+    const afterAddrs = new Set((t.afterTeam || []).filter(Boolean).map((it) => it.address));
+    const removed = new Set([...beforeAddrs].filter((a) => !afterAddrs.has(a)));
+    const added = new Set([...afterAddrs].filter((a) => !beforeAddrs.has(a)));
     return `
     <details class="clan-swap">
       <summary class="clan-swap-row">
@@ -4728,27 +4735,31 @@ function renderClanSwaps(transfers, totalGain) {
       <div class="clan-ba">
         <div class="clan-ba-col">
           <div class="clan-ba-lbl">Member ${t.toIndex + 1} · ${escapeHtml(toneLabel)} team — Before · ${formatNumber(t.beforeScore)} PWR</div>
-          ${swapTeamMiniHTML(t.beforeTeam, null)}
+          ${swapTeamMiniHTML(t.beforeTeam, removed, "removed")}
         </div>
         <div class="clan-ba-col">
           <div class="clan-ba-lbl">After · ${formatNumber(t.afterScore)} PWR <span class="clan-ba-gain">+${formatNumber(t.gain)}</span></div>
-          ${swapTeamMiniHTML(t.afterTeam, t.orc.address)}
+          ${swapTeamMiniHTML(t.afterTeam, added, "added")}
         </div>
       </div>
     </details>`;
   }).join("");
 }
 
-function swapTeamMiniHTML(team, addedAddr) {
+function swapTeamMiniHTML(team, markSet, mode) {
   const list = (team || []).filter(Boolean);
   if (!list.length) return `<div class="ow" style="padding:6px 2px;">No full team.</div>`;
-  const cells = list.map((it) => `
-    <div class="ba-cell ${it.address === addedAddr ? "added" : ""}">
+  const tag = mode === "removed" ? "OUT" : "NEW";
+  const cells = list.map((it) => {
+    const hit = markSet && markSet.has(it.address);
+    return `
+    <div class="ba-cell ${hit ? mode : ""}">
       <img src="${escapeHtml(it.image)}" onerror="this.src='c-logo-nobg.png'">
       <div class="ba-em">${escapeHtml(it.emotion)}</div>
       <div class="ba-pw">${formatNumber(it.power)}</div>
-      ${it.address === addedAddr ? '<div class="ba-tag">NEW</div>' : ""}
-    </div>`).join("");
+      ${hit ? `<div class="ba-tag ${mode}">${tag}</div>` : ""}
+    </div>`;
+  }).join("");
   return `<div class="ba-row">${cells}</div>`;
 }
 
