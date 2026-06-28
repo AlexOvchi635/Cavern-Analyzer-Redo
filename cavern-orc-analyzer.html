@@ -4419,25 +4419,42 @@ async function fetchListedClanMarketItems(onProgress) {
   return matched;
 }
 
-// up to N unique strongest teams (lighter version of buildTopTeams)
-async function buildTopNTeams(items, config, n, onProgress) {
-  const teams = [];
-  const used = new Set();
-  for (let t = 0; t < n; t += 1) {
-    const remaining = items.filter((it) => !used.has(it.address));
-    if (remaining.length < 1) break;
-    const best = await buildBeamBestTeam(remaining, config, onProgress);
-    if (!best || best.result.coverage === 0) break;
-    teams.push(best);
-    best.team.filter(Boolean).forEach((it) => used.add(it.address));
+// ── skin tone (tribe) helpers — a team must be one single color ──
+function orcTone(item) { return norm(getAttributeValue(item, "Skin Tone") || ""); }
+function groupByTone(items) {
+  const map = new Map();
+  for (const it of items) {
+    const t = orcTone(it);
+    if (!t) continue;
+    if (!map.has(t)) map.set(t, []);
+    map.get(t).push(it);
   }
-  return teams;
+  return map;
 }
 
-// fast beam team scorer for swap/market deltas
-function fastTeamScore(items, config) {
+// up to N unique strongest teams — EACH team is a single skin tone (one tribe)
+async function buildClanMemberTeams(items, config, n, onProgress) {
+  const teams = [];
+  for (const [, group] of groupByTone(items)) {
+    const used = new Set();
+    // build successive unique teams inside this one color
+    for (let safety = 0; safety < n + 1; safety += 1) {
+      const remaining = group.filter((it) => !used.has(it.address));
+      if (remaining.length < 1) break;
+      const best = await buildBeamBestTeam(remaining, config, onProgress);
+      if (!best || best.result.coverage === 0) break;
+      best.tone = orcTone(best.team.filter(Boolean)[0]);
+      teams.push(best);
+      best.team.filter(Boolean).forEach((it) => used.add(it.address));
+    }
+  }
+  return teams.sort((a, b) => b.result.totalScore - a.result.totalScore).slice(0, n);
+}
+
+// fast beam scorer over a SINGLE color group
+function fastMonoBeam(group, config) {
   const groups = EMOTIONS.map((e) =>
-    items.filter((i) => i.emotion === e).sort((a, b) => b.power - a.power).slice(0, 6)
+    group.filter((i) => i.emotion === e).sort((a, b) => b.power - a.power).slice(0, 6)
   );
   let beam = [[]];
   for (const cand of groups) {
@@ -4452,6 +4469,16 @@ function fastTeamScore(items, config) {
   return { score: best, team: bestTeam.filter(Boolean) };
 }
 
+// best single-color team across all of this roster's colors
+function fastTeamScore(items, config) {
+  let best = { score: 0, team: [] };
+  for (const [, group] of groupByTone(items)) {
+    const r = fastMonoBeam(group, config);
+    if (r.score > best.score) best = r;
+  }
+  return best;
+}
+
 function orcSynergyTokens(item) {
   const s = new Set();
   const e = getAttributeValue(item, "Earrings"); if (e) s.add("e:" + norm(e));
@@ -4464,7 +4491,12 @@ function orcSharesToken(item, set) { for (const t of orcSynergyTokens(item)) if 
 
 function clanTeamCardHTML(entry, rank) {
   const signals = computeTeamSignals(entry.team);
-  const badges = [`<span class="team-pill orange">${formatNumber(entry.result.totalScore)} PWR</span>`];
+  const tone = entry.tone || orcTone((entry.team.filter(Boolean)[0]) || {});
+  const toneLabel = tone ? tone.replace(/\b\w/g, (c) => c.toUpperCase()) : "Mixed";
+  const badges = [
+    `<span class="team-pill green">${escapeHtml(toneLabel)} tribe</span>`,
+    `<span class="team-pill orange">${formatNumber(entry.result.totalScore)} PWR</span>`
+  ];
   entry.result.synergyDetails.filter((d) => !d.trait.startsWith("Full team:")).slice(0, 2).forEach((d) => {
     const lbl = d.trait.replace(/^Logo:\s*/i, "Logo: ").replace(/^Earrings:\s*/i, "Earring: ").replace(/^Bracelet:\s*/i, "Bracelet: ");
     badges.push(`<span class="team-pill blue">${escapeHtml(lbl)} x${d.count} +${formatNumber(d.bonus)}</span>`);
@@ -4570,7 +4602,7 @@ async function runClanAnalysis() {
       const items = raw.map((it) => normalizeItem(it, config));
       if (!items.length) { setClanCellState(w.index, "warn"); continue; }
       setClanStatus(`Member ${w.index + 1}: building top 3 teams from ${items.length} orcs...`, "warn", base + 3);
-      const teams = await buildTopNTeams(items, config, 3, () => {});
+      const teams = await buildClanMemberTeams(items, config, 3, () => {});
       members.push({ index: w.index, addr: w.addr, items, teams });
       setClanCellState(w.index, "ok");
     }
@@ -4617,9 +4649,10 @@ async function runClanSwapAnalysis() {
         if (!spares.length) continue;
         for (let b = 0; b < rosters.length; b += 1) {
           if (a === b) continue;
-          const bTokens = rosterTokenSet(rosters[b].items);
+          const bTones = new Set(rosters[b].items.map(orcTone));
           for (const o of spares) {
-            if (!orcSharesToken(o, bTokens)) continue;
+            // a team is single-color: the orc only helps B if B already has its tribe
+            if (!bTones.has(orcTone(o))) continue;
             const nb = fastTeamScore([...rosters[b].items, o], config).score;
             const gain = nb - info[b].score;
             if (gain > 0 && (!best || gain > best.gain)) best = { a, b, o, gain };
@@ -4690,10 +4723,10 @@ async function runClanMarketAnalysis() {
       const m = clanState.members[i];
       setClanActionStatus(`Market analysis: member ${i + 1}/${clanState.members.length}...`, "warn", 70 + Math.round((i / clanState.members.length) * 28));
       const cur = fastTeamScore(m.items, config).score;
-      const tokens = rosterTokenSet(m.items);
+      const memberTones = new Set(m.items.map(orcTone));
       const picks = market
         .filter((o) => !owned.has(o.address))
-        .filter((o) => orcSharesToken(o, tokens) || m.items.filter((x) => x.emotion === o.emotion).length === 0)
+        .filter((o) => memberTones.has(orcTone(o))) // single-color teams: only buy orcs of a tribe the member already runs
         .map((o) => ({ orc: o, gain: fastTeamScore([...m.items, o], config).score - cur }))
         .filter((x) => x.gain > 0)
         .sort((a, b) => (b.gain / Math.max(1, b.orc.salePriceValue)) - (a.gain / Math.max(1, a.orc.salePriceValue)) || b.gain - a.gain)
