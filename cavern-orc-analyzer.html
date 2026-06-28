@@ -944,7 +944,27 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 .clan-member-stats{display:flex;gap:8px;flex-wrap:wrap;}
 .clan-teams{display:grid;grid-template-columns:1fr;gap:14px;}
 .clan-teams .variant-card{align-self:stretch;}
-.clan-swap-row,.clan-buy-row{display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;margin-bottom:10px;flex-wrap:wrap;}
+.clan-swap{background:var(--bg3);border:1px solid var(--bd);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.clan-swap>summary{list-style:none;cursor:pointer;}
+.clan-swap>summary::-webkit-details-marker{display:none;}
+.clan-swap-row{display:flex;align-items:center;gap:14px;padding:14px 16px;flex-wrap:wrap;}
+.clan-swap .clan-swap-row{background:transparent;border:none;border-radius:0;margin:0;}
+.clan-exp{margin-left:6px;color:var(--g3);font-size:13px;transition:transform .2s;}
+.clan-swap[open] .clan-exp{transform:rotate(180deg);}
+.clan-ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 16px 16px;}
+@media(max-width:760px){.clan-ba{grid-template-columns:1fr;}}
+.clan-ba-col{background:var(--bg4);border:1px solid var(--bd);border-radius:12px;padding:12px;}
+.clan-ba-lbl{font-size:11px;font-weight:800;letter-spacing:.4px;color:#bdbdbd;margin-bottom:10px;}
+.clan-ba-gain{color:#c7ecd6;background:rgba(77,184,122,.14);border:1px solid rgba(77,184,122,.28);border-radius:999px;padding:1px 7px;font-size:10px;margin-left:4px;}
+.ba-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+@media(max-width:600px){.ba-row{grid-template-columns:repeat(4,1fr);}}
+.ba-cell{position:relative;background:var(--bg3);border:1px solid var(--bd2);border-radius:8px;padding:6px 4px;text-align:center;}
+.ba-cell.added{border-color:var(--green);box-shadow:0 0 0 1px var(--green),0 0 14px rgba(77,184,122,.2);}
+.ba-cell img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:6px;}
+.ba-em{font-size:8px;color:#9b9b9b;margin-top:3px;line-height:1.1;text-transform:uppercase;letter-spacing:.3px;}
+.ba-pw{font-size:11px;font-weight:900;color:#efe2bf;}
+.ba-tag{position:absolute;top:3px;right:3px;background:var(--green);color:#0c0c0c;font-size:7px;font-weight:900;padding:1px 4px;border-radius:4px;letter-spacing:.4px;}
+.clan-buy-row{display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;margin-bottom:10px;flex-wrap:wrap;}
 .clan-swap-row .arrow{font-size:20px;color:var(--g3);}
 .clan-swap-orc{display:flex;align-items:center;gap:10px;}
 .clan-swap-orc img,.clan-buy-row img{width:46px;height:46px;border-radius:10px;object-fit:cover;border:1px solid var(--bd2);}
@@ -4661,9 +4681,15 @@ async function runClanSwapAnalysis() {
         await sleep(0);
       }
       if (!best) break;
+      const beforeTeam = info[best.b].team;
+      const beforeScore = info[best.b].score;
+      const afterCalc = fastTeamScore([...rosters[best.b].items, best.o], config);
       rosters[best.a].items = rosters[best.a].items.filter((it) => it.address !== best.o.address);
       rosters[best.b].items = [...rosters[best.b].items, best.o];
-      transfers.push({ fromIndex: rosters[best.a].index, toIndex: rosters[best.b].index, orc: best.o, gain: best.gain });
+      transfers.push({
+        fromIndex: rosters[best.a].index, toIndex: rosters[best.b].index, orc: best.o, gain: best.gain,
+        tone: orcTone(best.o), beforeTeam, afterTeam: afterCalc.team, beforeScore, afterScore: afterCalc.score
+      });
     }
     const after = rosters.reduce((s, r) => s + fastTeamScore(r.items, config).score, 0);
     renderClanSwaps(transfers, after - baseline);
@@ -4684,17 +4710,46 @@ function renderClanSwaps(transfers, totalGain) {
     ? `Apply these ${transfers.length} transfer(s) to gain about +${formatNumber(totalGain)} total clan power from synergies.`
     : "No beneficial transfers — every member already keeps the orcs that serve their synergies best.";
   if (!transfers.length) { grid.innerHTML = `<div class="empty-state">No beneficial swaps found.</div>`; return; }
-  grid.innerHTML = transfers.map((t) => `
-    <div class="clan-swap-row">
-      <div class="clan-swap-orc">
-        <img src="${escapeHtml(t.orc.image)}" onerror="this.src='c-logo-nobg.png'">
-        <div><div class="nm">${escapeHtml(t.orc.name)}</div><div class="ow">${formatNumber(t.orc.power)} PWR · ${escapeHtml(t.orc.emotion)}</div></div>
+  grid.innerHTML = transfers.map((t) => {
+    const toneLabel = (t.tone || "").replace(/\b\w/g, (c) => c.toUpperCase());
+    return `
+    <details class="clan-swap">
+      <summary class="clan-swap-row">
+        <div class="clan-swap-orc">
+          <img src="${escapeHtml(t.orc.image)}" onerror="this.src='c-logo-nobg.png'">
+          <div><div class="nm">${escapeHtml(t.orc.name)}</div><div class="ow">${formatNumber(t.orc.power)} PWR · ${escapeHtml(t.orc.emotion)}</div></div>
+        </div>
+        <div class="ow">Member ${t.fromIndex + 1}</div>
+        <div class="arrow">→</div>
+        <div class="ow">Member ${t.toIndex + 1}</div>
+        <div class="clan-gain">+${formatNumber(t.gain)} PWR</div>
+        <span class="clan-exp">▾</span>
+      </summary>
+      <div class="clan-ba">
+        <div class="clan-ba-col">
+          <div class="clan-ba-lbl">Member ${t.toIndex + 1} · ${escapeHtml(toneLabel)} team — Before · ${formatNumber(t.beforeScore)} PWR</div>
+          ${swapTeamMiniHTML(t.beforeTeam, null)}
+        </div>
+        <div class="clan-ba-col">
+          <div class="clan-ba-lbl">After · ${formatNumber(t.afterScore)} PWR <span class="clan-ba-gain">+${formatNumber(t.gain)}</span></div>
+          ${swapTeamMiniHTML(t.afterTeam, t.orc.address)}
+        </div>
       </div>
-      <div class="ow">Member ${t.fromIndex + 1}</div>
-      <div class="arrow">→</div>
-      <div class="ow">Member ${t.toIndex + 1}</div>
-      <div class="clan-gain">+${formatNumber(t.gain)} PWR</div>
+    </details>`;
+  }).join("");
+}
+
+function swapTeamMiniHTML(team, addedAddr) {
+  const list = (team || []).filter(Boolean);
+  if (!list.length) return `<div class="ow" style="padding:6px 2px;">No full team.</div>`;
+  const cells = list.map((it) => `
+    <div class="ba-cell ${it.address === addedAddr ? "added" : ""}">
+      <img src="${escapeHtml(it.image)}" onerror="this.src='c-logo-nobg.png'">
+      <div class="ba-em">${escapeHtml(it.emotion)}</div>
+      <div class="ba-pw">${formatNumber(it.power)}</div>
+      ${it.address === addedAddr ? '<div class="ba-tag">NEW</div>' : ""}
     </div>`).join("");
+  return `<div class="ba-row">${cells}</div>`;
 }
 
 async function runClanMarketAnalysis() {
