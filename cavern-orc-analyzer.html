@@ -1167,19 +1167,19 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
           <h3>Clan Wars</h3>
         </div>
         <p style="margin-bottom:18px;">
-          Build a clan of up to <b>20 members</b>. Paste each member's TON wallet — the engine scans <b>all of their Unstoppable Tribe orcs</b>
-          (not only Caverns), then shows every player's <b>3 strongest teams</b> by power and synergies. After that you can run a
-          <b>swap analysis</b> (redistribute orcs between wallets to raise total clan power) and a <b>market analysis</b>
-          (which listed orcs to buy per wallet to boost synergy).
+          Собери клан до <b>20 участников</b>. Вставь TON-кошелёк каждого — движок сканирует <b>всех их орков Unstoppable Tribe</b>
+          (не только Cavern) и показывает <b>3 сильнейшие команды</b> каждого по силе и синергиям. Затем запусти
+          <b>анализ обменов</b> (перераспределить орков между кошельками ради общей силы клана) и <b>анализ рынка</b>
+          (каких орков докупить на каждый кошелёк для синергии).
         </p>
         <div class="clan-grid" id="clanWalletGrid"></div>
         <div class="actions" style="margin-top:16px;gap:10px;flex-wrap:wrap;">
-          <button type="button" class="btn-m" id="analyzeClanBtn">Analyze Clan</button>
-          <button type="button" class="btn-o" id="clanFillDemoBtn">Clear All</button>
+          <button type="button" class="btn-m" id="analyzeClanBtn">Анализ клана</button>
+          <button type="button" class="btn-o" id="clanFillDemoBtn">Очистить всё</button>
         </div>
         <div class="status" id="clanStatus">
-          <div class="status-title">Current Step</div>
-          <div class="status-text">Paste wallets and press Analyze Clan.</div>
+          <div class="status-title">Текущий шаг</div>
+          <div class="status-text">Вставьте кошельки и нажмите «Анализ клана».</div>
           <div class="status-bar">
             <div class="status-fill"></div>
             <div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div>
@@ -1295,18 +1295,18 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 <section id="clan-summary" class="mode-section" data-mode-section="clan">
   <div class="wrap">
     <div class="metrics-grid">
-      <div class="metric"><div class="n" id="clanMemberCount">0</div><div class="k">Members Analyzed</div><div class="v">Wallets with at least one orc.</div></div>
-      <div class="metric"><div class="n" id="clanOrcCount">0</div><div class="k">Total Clan Orcs</div><div class="v">All Unstoppable Tribe orcs owned.</div></div>
-      <div class="metric"><div class="n" id="clanPower">0 PWR</div><div class="k">Clan Power</div><div class="v">Sum of every member's top 3 teams.</div></div>
-      <div class="metric"><div class="n" id="clanTopMember">—</div><div class="k">Strongest Member</div><div class="v">Highest top-3 team power.</div></div>
+      <div class="metric"><div class="n" id="clanMemberCount">0</div><div class="k">Участников</div><div class="v">Кошельки, где есть хотя бы один орк.</div></div>
+      <div class="metric"><div class="n" id="clanOrcCount">0</div><div class="k">Орков в клане</div><div class="v">Все орки Unstoppable Tribe на кошельках.</div></div>
+      <div class="metric"><div class="n" id="clanPower">0 PWR</div><div class="k">Сила клана</div><div class="v">Сумма топ-3 команд каждого участника.</div></div>
+      <div class="metric"><div class="n" id="clanTopMember">—</div><div class="k">Сильнейший</div><div class="v">Наибольшая сила топ-3 команд.</div></div>
     </div>
     <div class="actions" style="margin-top:18px;gap:10px;flex-wrap:wrap;">
-      <button type="button" class="btn-m" id="clanSwapBtn" disabled>① Swap Analysis (synergy trades)</button>
-      <button type="button" class="btn-m" id="clanMarketBtn" disabled>② Market Analysis (orcs to buy)</button>
+      <button type="button" class="btn-m" id="clanSwapBtn" disabled>① Анализ обменов (синергии)</button>
+      <button type="button" class="btn-m" id="clanMarketBtn" disabled>② Анализ рынка (что докупить)</button>
     </div>
     <div class="status" id="clanActionStatus" style="margin-top:14px;">
-      <div class="status-title">Analysis</div>
-      <div class="status-text">Run the clan scan first, then use the two analysis buttons.</div>
+      <div class="status-title">Анализ</div>
+      <div class="status-text">Сначала просканируйте клан, затем используйте две кнопки анализа.</div>
       <div class="status-bar"><div class="status-fill"></div><div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div></div>
     </div>
   </div>
@@ -1316,11 +1316,11 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 
 <section id="clan-members" class="mode-section" data-mode-section="clan">
   <div class="wrap">
-    <div class="lbl">Roster</div>
-    <div class="ttl">Each Member's <em>3 Strongest Teams</em></div>
+    <div class="lbl">Состав</div>
+    <div class="ttl">3 сильнейшие <em>команды каждого</em></div>
     <div class="desc">Top three unique teams per wallet, ranked by personal power plus Earring / Bracelet / Logo synergies.</div>
     <div id="clanMembersGrid">
-      <div class="empty-state">No clan analysis yet. Add wallets in the Clan Wars tab and press Analyze Clan.</div>
+      <div class="empty-state">Анализа клана ещё нет. Добавьте кошельки во вкладке Clan Wars и нажмите «Анализ клана».</div>
     </div>
   </div>
 </section>
@@ -1329,25 +1329,25 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 
 <section id="clan-swaps" class="mode-section" data-mode-section="clan">
   <div class="wrap">
-    <div class="lbl">Swap Plan</div>
-    <div class="ttl">Step-by-Step <em>Trade Chain</em></div>
-    <div class="desc" id="clanSwapMeta">Recommended orc transfers between members that raise total clan power through team synergies.</div>
+    <div class="lbl">План обменов</div>
+    <div class="ttl">Пошаговая <em>цепочка обменов</em></div>
+    <div class="desc" id="clanSwapMeta">Обмены орками между участниками, повышающие общую силу клана через синергии команд.</div>
     <div class="clan-result" id="clanSwapSummary" style="display:none;">
       <div class="clan-result-col">
-        <div class="clan-result-k">Clan Power</div>
+        <div class="clan-result-k">Сила клана</div>
         <div class="clan-result-flow"><span id="clanResBefore">0</span><span class="clan-result-arrow">→</span><span class="clan-result-after" id="clanResAfter">0</span></div>
       </div>
       <div class="clan-result-col">
-        <div class="clan-result-k">Total Gain</div>
+        <div class="clan-result-k">Прирост</div>
         <div class="clan-result-gain" id="clanResGain">+0 PWR</div>
       </div>
       <div class="clan-result-col">
-        <div class="clan-result-k">Moves</div>
+        <div class="clan-result-k">Ходов</div>
         <div class="clan-result-moves" id="clanResMoves">0</div>
       </div>
     </div>
     <div id="clanSwapGrid">
-      <div class="empty-state">Press “Swap Analysis” after the clan scan.</div>
+      <div class="empty-state">Нажмите «Анализ обменов» после сканирования клана.</div>
     </div>
   </div>
 </section>
@@ -1356,11 +1356,11 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 
 <section id="clan-market" class="mode-section" data-mode-section="clan">
   <div class="wrap">
-    <div class="lbl">Market Plan</div>
-    <div class="ttl">Orcs to <em>Buy Per Wallet</em></div>
-    <div class="desc" id="clanMarketMeta">Live listed orcs that would most increase each member's team power and synergy.</div>
+    <div class="lbl">План закупок</div>
+    <div class="ttl">Каких орков <em>докупить на кошелёк</em></div>
+    <div class="desc" id="clanMarketMeta">Живые листинги, которые сильнее всего поднимут силу и синергию команд участников.</div>
     <div id="clanMarketGrid">
-      <div class="empty-state">Press “Market Analysis” after the clan scan.</div>
+      <div class="empty-state">Нажмите «Анализ рынка» после сканирования клана.</div>
     </div>
   </div>
 </section>
@@ -2293,14 +2293,14 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 <div class="terms-pop" id="clanGatePop" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="terms-card">
     <div class="terms-ic">🔁</div>
-    <h3>Run Swap Analysis first</h3>
+    <h3>Сначала «Анализ обменов»</h3>
     <p>
-      The <b>Swap Analysis</b> has priority — it redistributes orcs you already own between wallets for free power.
-      Run it first, then the <b>Market Analysis</b> will suggest what to buy on top of the optimized rosters.
+      <b>Анализ обменов</b> в приоритете — он перераспределяет уже имеющихся орков между кошельками и даёт силу бесплатно.
+      Запусти его первым, затем <b>Анализ рынка</b> подскажет, что докупить поверх оптимизированных составов.
     </p>
     <div class="terms-actions">
-      <button type="button" class="btn-m" id="clanGateRunSwap">① Run Swap Analysis</button>
-      <button type="button" class="btn-o" id="clanGateClose" style="padding:13px 22px;">Close</button>
+      <button type="button" class="btn-m" id="clanGateRunSwap">① Запустить анализ обменов</button>
+      <button type="button" class="btn-o" id="clanGateClose" style="padding:13px 22px;">Закрыть</button>
     </div>
   </div>
 </div>
@@ -4557,7 +4557,7 @@ async function fetchWalletClanItems(walletAddress, onProgress) {
     const url = `https://tonapi.io/v2/accounts/${encodeURIComponent(walletAddress)}/nfts?collection=${encodeURIComponent(col)}&limit=${limit}&offset=${offset}`;
     const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
       maxAttempts: 5,
-      onRetry(waitMs, attempt) { onProgress(`Wallet scan retry ${attempt}/5...`); }
+      onRetry(waitMs, attempt) { onProgress(`Скан кошелька: повтор ${attempt}/5...`); }
     });
     const batch = Array.isArray(data?.nft_items) ? data.nft_items : [];
     for (const rawItem of batch) {
@@ -4566,7 +4566,7 @@ async function fetchWalletClanItems(walletAddress, onProgress) {
       seen.add(key);
       items.push(rawItem);
     }
-    onProgress(`Scanning wallet · page ${page + 1} · ${items.length} orcs found...`);
+    onProgress(`Скан кошелька · страница ${page + 1} · найдено орков: ${items.length}...`);
     if (!batch.length || batch.length < limit) break;
     offset += batch.length; page += 1; await sleep(100);
   }
@@ -4583,7 +4583,7 @@ async function fetchListedClanMarketItems(onProgress) {
     const url = `https://tonapi.io/v2/nfts/collections/${encodeURIComponent(KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe)}/items?limit=${limit}&offset=${offset}`;
     const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
       maxAttempts: 6,
-      onRetry(waitMs, attempt) { onProgress(`Market scan retry ${attempt}/6...`, checked, totalCount); }
+      onRetry(waitMs, attempt) { onProgress(`Скан рынка: повтор ${attempt}/6...`, checked, totalCount); }
     });
     const batch = Array.isArray(data?.nft_items) ? data.nft_items : [];
     for (const rawItem of batch) {
@@ -4725,7 +4725,7 @@ function clanTeamCardHTML(entry, rank) {
   const tone = entry.tone || orcTone((entry.team.filter(Boolean)[0]) || {});
   const toneLabel = tone ? tone.replace(/\b\w/g, (c) => c.toUpperCase()) : "Mixed";
   const badges = [
-    `<span class="team-pill green">${escapeHtml(toneLabel)} tribe</span>`,
+    `<span class="team-pill green">племя ${escapeHtml(toneLabel)}</span>`,
     `<span class="team-pill orange">${formatNumber(entry.result.totalScore)} PWR</span>`
   ];
   entry.result.synergyDetails.filter((d) => !d.trait.startsWith("Full team:")).slice(0, 2).forEach((d) => {
@@ -4769,13 +4769,13 @@ function renderClanMembers() {
   const grid = document.getElementById("clanMembersGrid");
   const members = clanState.members;
   if (!members.length) {
-    grid.innerHTML = `<div class="empty-state">No members with Unstoppable Tribe orcs were found in the pasted wallets.</div>`;
+    grid.innerHTML = `<div class="empty-state">В указанных кошельках не найдено орков Unstoppable Tribe.</div>`;
     return;
   }
   grid.innerHTML = members.map((m, mi) => {
     const teams = m.teams.length
       ? `<div class="clan-teams">${m.teams.map((t, i) => clanTeamCardHTML(t, i + 1)).join("")}</div>`
-      : `<div class="empty-state">Owns ${m.items.length} orc(s) — not enough to field a full team.</div>`;
+      : `<div class="empty-state">Орков: ${m.items.length} — недостаточно для полной команды (нужно 7 одного цвета).</div>`;
     return `
       <div class="clan-member">
         <div class="clan-member-head">
@@ -4784,8 +4784,8 @@ function renderClanMembers() {
             <div class="clan-member-sub">${escapeHtml(m.addr)}</div>
           </div>
           <div class="clan-member-stats">
-            <span class="team-pill dark">${m.items.length} orcs</span>
-            <span class="team-pill orange">${formatNumber(memberTop3Total(m))} PWR (top 3)</span>
+            <span class="team-pill dark">${m.items.length} орков</span>
+            <span class="team-pill orange">${formatNumber(memberTop3Total(m))} PWR (топ-3)</span>
           </div>
         </div>
         ${teams}
@@ -4811,7 +4811,7 @@ async function runClanAnalysis() {
   if (!wallets.length) { setClanStatus("Paste at least one TON wallet first.", "err", 100); return; }
   clanState.running = true;
   const btn = document.getElementById("analyzeClanBtn");
-  btn.disabled = true; btn.textContent = "Analyzing...";
+  btn.disabled = true; btn.textContent = "Анализ...";
   document.getElementById("clanSwapBtn").disabled = true;
   document.getElementById("clanMarketBtn").disabled = true;
   resetStatusProgress("clanStatus");
@@ -4822,7 +4822,7 @@ async function runClanAnalysis() {
       const w = wallets[i];
       setClanCellState(w.index, "run");
       const base = Math.round((i / wallets.length) * 100);
-      setClanStatus(`Member ${w.index + 1}/${wallets.length}: scanning wallet...`, "warn", base);
+      setClanStatus(`Участник ${w.index + 1}/${wallets.length}: сканирование кошелька...`, "warn", base);
       let raw;
       try {
         raw = await fetchWalletClanItems(w.addr, (msg) => setClanStatus(`Member ${w.index + 1}: ${msg}`, "warn", base));
@@ -4832,7 +4832,7 @@ async function runClanAnalysis() {
       }
       const items = raw.map((it) => normalizeItem(it, config));
       if (!items.length) { setClanCellState(w.index, "warn"); continue; }
-      setClanStatus(`Member ${w.index + 1}: building top 3 teams from ${items.length} orcs...`, "warn", base + 3);
+      setClanStatus(`Участник ${w.index + 1}: строим топ-3 команды из ${items.length} орков...`, "warn", base + 3);
       const teams = await buildClanMemberTeams(items, config, 3, () => {});
       members.push({ index: w.index, addr: w.addr, nick: w.nick, items, teams });
       setClanCellState(w.index, "ok");
@@ -4843,21 +4843,21 @@ async function runClanAnalysis() {
     renderClanSummary();
     renderClanMembers();
     if (!members.length) {
-      setClanStatus("No Unstoppable Tribe orcs found in any of the pasted wallets.", "err", 100);
+      setClanStatus("В кошельках не найдено орков Unstoppable Tribe.", "err", 100);
     } else {
       document.getElementById("clanSwapBtn").disabled = false;
       const mkt = document.getElementById("clanMarketBtn");
       mkt.disabled = false; mkt.classList.remove("ready"); // clickable, but guarded by popup until swap done
-      setClanStatus(`Done: ${members.length} member(s) analyzed. Run ① Swap Analysis first.`, "ok", 100);
-      setClanActionStatus("Clan scanned. Run ① Swap Analysis first — Market unlocks after it.", "ok", 100);
+      setClanStatus(`Готово: проанализировано участников — ${members.length}. Сначала запустите ① Анализ обменов.`, "ok", 100);
+      setClanActionStatus("Клан просканирован. Сначала ① Анализ обменов — рынок откроется после него.", "ok", 100);
       document.getElementById("clan-members").scrollIntoView({ behavior: "smooth", block: "start" });
     }
   } catch (error) {
     console.error(error);
-    setClanStatus(error.message || "Clan analysis failed.", "err", 100);
+    setClanStatus(error.message || "Анализ клана не удался.", "err", 100);
   } finally {
     clanState.running = false;
-    btn.disabled = false; btn.textContent = "Analyze Clan";
+    btn.disabled = false; btn.textContent = "Анализ клана";
   }
 }
 
@@ -4871,10 +4871,10 @@ function moveReason(beforeTeam, afterTeam, config) {
     if (d.bonus > was && (!best || d.bonus - was > best.delta)) best = { trait: d.trait, count: d.count, bonus: d.bonus, delta: d.bonus - was };
   }
   if (best) {
-    const label = best.trait.replace(/^Earrings:/i, "Earring:").replace(/^Logo:/i, "Logo:").replace(/^Bracelet:/i, "Bracelet:");
-    return `closes the ${label} ×${best.count} synergy (+${formatNumber(best.bonus)} bonus)`;
+    const label = best.trait.replace(/^Earrings?:/i, "Серьги:").replace(/^Logo:/i, "Лого:").replace(/^Bracelet:/i, "Браслет:");
+    return `закрывает синергию ${label} ×${best.count} (+${formatNumber(best.bonus)})`;
   }
-  return "adds a stronger orc to the slot";
+  return "ставит в слот более сильного орка";
 }
 function cap1(s) { return String(s || "").replace(/\b\w/g, (c) => c.toUpperCase()); }
 // note when a move pushes a NEW color team into the member's top-3, displacing another
@@ -4882,15 +4882,14 @@ function displaceNote(beforeColors, afterColors) {
   const entered = [...afterColors].filter((c) => !beforeColors.has(c));
   const left = [...beforeColors].filter((c) => !afterColors.has(c));
   if (!entered.length || !left.length) return "";
-  const cap = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
-  return `${cap(entered[0])} team enters this player's top-3, replacing the ${cap(left[0])} team`;
+  return `команда ${cap1(entered[0])} входит в топ-3 игрока и вытесняет команду ${cap1(left[0])}`;
 }
 
 async function runClanSwapAnalysis() {
   if (clanState.running || !clanState.members.length) return;
   clanState.running = true;
   const btn = document.getElementById("clanSwapBtn");
-  btn.disabled = true; btn.textContent = "Analyzing...";
+  btn.disabled = true; btn.textContent = "Анализ...";
   resetStatusProgress("clanActionStatus");
   const config = getClanConfig();
   const rosters = clanState.members.map((m) => ({ index: m.index, addr: m.addr, items: [...m.items] }));
@@ -4904,7 +4903,7 @@ async function runClanSwapAnalysis() {
     const bestCTeam = (st, C) => { const v = st.byTone.get(C); return v && v.teams[0] ? v.teams[0] : null; };
 
     for (let iter = 0; iter < MAX; iter += 1) {
-      setClanActionStatus(`Swap analysis: optimization pass ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
+      setClanActionStatus(`Анализ обменов: проход ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
       let best = null;
       const consider = (cand) => { if (cand.total > 1e-6 && (!best || cand.total > best.total)) best = cand; };
 
@@ -4993,7 +4992,7 @@ async function runClanSwapAnalysis() {
         const afterRecvScore = (bestCTeam(states[best.recv], C) || {}).score || 0;
         const gReason = moveReason(beforeRecv, afterRecv, config);
         const gDisp = displaceNote(beforeColors, states[best.recv].topColors);
-        const gExplain = `${labelForIndex(D.index)} sends ${best.orc.name} to ${labelForIndex(T.index)}: it ${gReason} in ${labelForIndex(T.index)}'s ${cap1(C)} team (${formatNumber(beforeRecvScore)} → ${formatNumber(afterRecvScore)} PWR). Net clan +${formatNumber(best.total)} PWR.${gDisp ? " " + gDisp + "." : ""}`;
+        const gExplain = `${labelForIndex(D.index)} отдаёт ${best.orc.name} игроку ${labelForIndex(T.index)}: ${gReason} в команде ${cap1(C)} у ${labelForIndex(T.index)} (${formatNumber(beforeRecvScore)} → ${formatNumber(afterRecvScore)} PWR). Прирост клана +${formatNumber(best.total)} PWR.${gDisp ? " " + gDisp + "." : ""}`;
         transfers.push({
           kind: "give", total: best.total, tone: C, orcA: best.orc,
           fromIndex: D.index, toIndex: T.index,
@@ -5016,7 +5015,7 @@ async function runClanSwapAnalysis() {
           bBefore: beJ.team || [], bAfter: afJ.team || [], bBeforeScore: beJ.score || 0, bAfterScore: afJ.score || 0,
           reasonA: moveReason(beI.team || [], afI.team || [], config),
           reasonB: moveReason(beJ.team || [], afJ.team || [], config),
-          explain: `${labelForIndex(I.index)} and ${labelForIndex(J.index)} trade ${best.orcI.name} ↔ ${best.orcJ.name} in their ${cap1(C)} teams: ${labelForIndex(I.index)} ${moveReason(beI.team || [], afI.team || [], config)} (${formatNumber(beI.score || 0)} → ${formatNumber(afI.score || 0)}), ${labelForIndex(J.index)} ${moveReason(beJ.team || [], afJ.team || [], config)} (${formatNumber(beJ.score || 0)} → ${formatNumber(afJ.score || 0)}). Net clan +${formatNumber(best.total)} PWR.`
+          explain: `${labelForIndex(I.index)} и ${labelForIndex(J.index)} меняются ${best.orcI.name} ↔ ${best.orcJ.name} в командах ${cap1(C)}: у ${labelForIndex(I.index)} ${moveReason(beI.team || [], afI.team || [], config)} (${formatNumber(beI.score || 0)} → ${formatNumber(afI.score || 0)}), у ${labelForIndex(J.index)} ${moveReason(beJ.team || [], afJ.team || [], config)} (${formatNumber(beJ.score || 0)} → ${formatNumber(afJ.score || 0)}). Прирост клана +${formatNumber(best.total)} PWR.`
         });
       }
     }
@@ -5028,13 +5027,13 @@ async function runClanSwapAnalysis() {
     if (mkt) { mkt.disabled = false; mkt.classList.add("ready"); }
     renderClanSwaps(transfers, planGain, baseline, after);
     document.getElementById("clan-swaps").scrollIntoView({ behavior: "smooth", block: "start" });
-    setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial move(s): +${formatNumber(planGain)} clan PWR (full teams only). Market analysis unlocked.` : "No beneficial swaps found between full teams — the clan is already well distributed. Market analysis unlocked.", "ok", 100);
+    setClanActionStatus(transfers.length ? `Найдено выгодных ходов: ${transfers.length}, +${formatNumber(planGain)} к силе клана (только полные команды). Анализ рынка разблокирован.` : "Выгодных обменов между полными командами нет — клан уже оптимально распределён. Анализ рынка разблокирован.", "ok", 100);
   } catch (error) {
     console.error(error);
-    setClanActionStatus(error.message || "Swap analysis failed.", "err", 100);
+    setClanActionStatus(error.message || "Анализ обменов не удался.", "err", 100);
   } finally {
     clanState.running = false;
-    btn.disabled = false; btn.textContent = "① Swap Analysis (synergy trades)";
+    btn.disabled = false; btn.textContent = "① Анализ обменов (синергии)";
   }
 }
 
@@ -5058,11 +5057,11 @@ function baBlock(label, beforeTeam, afterTeam, beforeScore, afterScore) {
   const d = diffSets(beforeTeam, afterTeam);
   return `
     <div class="clan-ba-col">
-      <div class="clan-ba-lbl">${escapeHtml(label)} — Before · ${formatNumber(beforeScore)} PWR</div>
+      <div class="clan-ba-lbl">${escapeHtml(label)} — До · ${formatNumber(beforeScore)} PWR</div>
       ${swapTeamMiniHTML(beforeTeam, d.removed, "removed")}
     </div>
     <div class="clan-ba-col">
-      <div class="clan-ba-lbl">After · ${formatNumber(afterScore)} PWR</div>
+      <div class="clan-ba-lbl">После · ${formatNumber(afterScore)} PWR</div>
       ${swapTeamMiniHTML(afterTeam, d.added, "added")}
     </div>`;
 }
@@ -5078,9 +5077,9 @@ function renderClanSwaps(transfers, totalGain, before, after) {
     document.getElementById("clanResMoves").textContent = transfers.length;
   }
   document.getElementById("clanSwapMeta").textContent = transfers.length
-    ? `Execute these ${transfers.length} step(s) in order — the chain builds on each previous trade for +${formatNumber(totalGain)} total clan power. A one-way transfer (→) never lowers the giver; a swap (⇄) raises at least one side and lowers neither.`
-    : "No beneficial moves — the clan is already well distributed.";
-  if (!transfers.length) { grid.innerHTML = `<div class="empty-state">No beneficial swaps found.</div>`; return; }
+    ? `Выполняйте эти ${transfers.length} шаг(ов) по порядку — цепочка строится на предыдущих обменах, итог +${formatNumber(totalGain)} к силе клана. Передача (→) и обмен (⇄) берутся только если суммарная сила клана растёт.`
+    : "Выгодных обменов нет — клан уже оптимально распределён.";
+  if (!transfers.length) { grid.innerHTML = `<div class="empty-state">Выгодных обменов не найдено.</div>`; return; }
 
   grid.innerHTML = transfers.map((t, i) => {
     const toneLabel = (t.tone || "").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -5105,9 +5104,9 @@ function renderClanSwaps(transfers, totalGain, before, after) {
           </div>
           <div class="clan-why">↳ ${escapeHtml(t.explain || "")}</div>
         </summary>
-        <div class="clan-ba-lbl" style="padding:0 2px 4px;">${escapeHtml(labelForIndex(t.aIndex))} · ${escapeHtml(toneLabel)} (gets ${escapeHtml(t.orcB.name)}) · +${formatNumber(t.gA)} PWR</div>
+        <div class="clan-ba-lbl" style="padding:0 2px 4px;">${escapeHtml(labelForIndex(t.aIndex))} · ${escapeHtml(toneLabel)} (получает ${escapeHtml(t.orcB.name)}) · +${formatNumber(t.gA)} PWR</div>
         <div class="clan-ba">${baBlock(escapeHtml(labelForIndex(t.aIndex)), t.aBefore, t.aAfter, t.aBeforeScore, t.aAfterScore)}</div>
-        <div class="clan-ba-lbl" style="padding:10px 2px 4px;">${escapeHtml(labelForIndex(t.bIndex))} · ${escapeHtml(toneLabel)} (gets ${escapeHtml(t.orcA.name)}) · +${formatNumber(t.gB)} PWR</div>
+        <div class="clan-ba-lbl" style="padding:10px 2px 4px;">${escapeHtml(labelForIndex(t.bIndex))} · ${escapeHtml(toneLabel)} (получает ${escapeHtml(t.orcA.name)}) · +${formatNumber(t.gB)} PWR</div>
         <div class="clan-ba">${baBlock(escapeHtml(labelForIndex(t.bIndex)), t.bBefore, t.bAfter, t.bBeforeScore, t.bAfterScore)}</div>
       </details>`;
     }
@@ -5136,7 +5135,7 @@ function renderClanSwaps(transfers, totalGain, before, after) {
 
 function swapTeamMiniHTML(team, markSet, mode) {
   const list = (team || []).filter(Boolean);
-  if (!list.length) return `<div class="ow" style="padding:6px 2px;">No full team.</div>`;
+  if (!list.length) return `<div class="ow" style="padding:6px 2px;">Нет полной команды.</div>`;
   const tag = mode === "removed" ? "OUT" : "NEW";
   const cells = list.map((it) => {
     const hit = markSet && markSet.has(it.address);
@@ -5156,16 +5155,16 @@ async function runClanMarketAnalysis() {
   if (!clanState.swapDone) { showClanGate(); return; } // swap has priority
   clanState.running = true;
   const btn = document.getElementById("clanMarketBtn");
-  btn.disabled = true; btn.textContent = "Analyzing...";
+  btn.disabled = true; btn.textContent = "Анализ...";
   resetStatusProgress("clanActionStatus");
   const config = getClanConfig();
   try {
     let raw;
     if (clanState.marketRaw) {
       raw = clanState.marketRaw; // cached from a previous run this session
-      setClanActionStatus(`Market analysis: using cached ${formatNumber(raw.length)} listings...`, "warn", 60);
+      setClanActionStatus(`Анализ рынка: используем кэш — ${formatNumber(raw.length)} листингов...`, "warn", 60);
     } else {
-      setClanActionStatus("Market analysis: scanning live listings...", "warn", 5);
+      setClanActionStatus("Анализ рынка: сканируем живые листинги...", "warn", 5);
       raw = await fetchListedClanMarketItems((msg, checked, total) => {
         const pct = total ? clamp(Math.round((checked / total) * 70), 5, 70) : 30;
         setClanActionStatus(msg, "warn", pct);
@@ -5183,7 +5182,7 @@ async function runClanMarketAnalysis() {
     const perMember = [];
     for (let i = 0; i < clanState.members.length; i += 1) {
       const m = clanState.members[i];
-      setClanActionStatus(`Market analysis: member ${i + 1}/${clanState.members.length}...`, "warn", 70 + Math.round((i / clanState.members.length) * 28));
+      setClanActionStatus(`Анализ рынка: участник ${i + 1}/${clanState.members.length}...`, "warn", 70 + Math.round((i / clanState.members.length) * 28));
       const state = clanMemberState(m.items, config); // value = top-3 complete teams
       // buy orcs for any color where a full team exists or is one short of complete
       const usable = new Set();
@@ -5201,13 +5200,13 @@ async function runClanMarketAnalysis() {
     renderClanMarket(perMember);
     document.getElementById("clan-market").scrollIntoView({ behavior: "smooth", block: "start" });
     const totalBuys = perMember.reduce((s, p) => s + p.picks.length, 0);
-    setClanActionStatus(`Market analysis done: ${totalBuys} buy suggestion(s) across ${perMember.length} member(s).`, "ok", 100);
+    setClanActionStatus(`Анализ рынка готов: ${totalBuys} рекомендаций к покупке у ${perMember.length} участник(ов).`, "ok", 100);
   } catch (error) {
     console.error(error);
-    setClanActionStatus(error.message || "Market analysis failed.", "err", 100);
+    setClanActionStatus(error.message || "Анализ рынка не удался.", "err", 100);
   } finally {
     clanState.running = false;
-    btn.disabled = false; btn.textContent = "② Market Analysis (orcs to buy)";
+    btn.disabled = false; btn.textContent = "② Анализ рынка (что докупить)";
   }
 }
 
@@ -5228,9 +5227,9 @@ function renderClanMarket(perMember) {
   const grid = document.getElementById("clanMarketGrid");
   const withPicks = perMember.filter((p) => p.picks.length);
   document.getElementById("clanMarketMeta").textContent = withPicks.length
-    ? "For each wallet: the listed orcs that add the most power and synergy, ranked by value for money."
-    : "No listed orcs would currently improve any member's best team.";
-  if (!withPicks.length) { grid.innerHTML = `<div class="empty-state">No useful market buys found right now.</div>`; return; }
+    ? "Для каждого кошелька — листинги, которые сильнее всего поднимают силу и синергию полных команд, по соотношению польза/цена."
+    : "Сейчас на рынке нет орков, которые усилили бы чью-то полную команду.";
+  if (!withPicks.length) { grid.innerHTML = `<div class="empty-state">Подходящих покупок на рынке сейчас нет.</div>`; return; }
   grid.innerHTML = withPicks.map((p) => `
     <div class="clan-buy-group">
       <h4>${escapeHtml(memberLabel(p.member))} · ${escapeHtml(p.member.addr)}</h4>
