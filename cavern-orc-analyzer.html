@@ -4550,23 +4550,47 @@ function groupByTone(items) {
   return map;
 }
 
-// up to N unique strongest teams — EACH team is a single skin tone (one tribe)
+// light, emotion-aligned single-color team builder (small beam → fast, no crashes)
+function lightBestTeam(items, config) {
+  const CAP = 5, W = 18;
+  const groups = EMOTIONS.map((e) =>
+    items.filter((i) => i.emotion === e).sort((a, b) => b.power - a.power).slice(0, CAP)
+  );
+  let beam = [[]];
+  for (const cand of groups) {
+    const pool = cand.length ? cand : [null];
+    const next = [];
+    for (const team of beam) for (const it of pool) next.push([...team, it]);
+    next.sort((a, b) => evaluateTeam(b, config).totalScore - evaluateTeam(a, config).totalScore);
+    beam = next.slice(0, W);
+  }
+  let best = beam[0] || [];
+  let bestScore = evaluateTeam(best, config).totalScore;
+  for (const t of beam) { const s = evaluateTeam(t, config).totalScore; if (s > bestScore) { bestScore = s; best = t; } }
+  return { team: best, result: evaluateTeam(best, config) };
+}
+
+// up to N strongest teams — EACH team a single skin tone; teams may repeat a color.
+// Greedy across colors: pick the best mono team, lock its orcs, repeat. Cheap & crash-safe.
 async function buildClanMemberTeams(items, config, n, onProgress) {
   const teams = [];
-  for (const [, group] of groupByTone(items)) {
-    const used = new Set();
-    // build successive unique teams inside this one color
-    for (let safety = 0; safety < n + 1; safety += 1) {
+  const used = new Set();
+  for (let k = 0; k < n; k += 1) {
+    let best = null;
+    for (const [tone, group] of groupByTone(items)) {
       const remaining = group.filter((it) => !used.has(it.address));
-      if (remaining.length < 1) break;
-      const best = await buildBeamBestTeam(remaining, config, onProgress);
-      if (!best || best.result.coverage === 0) break;
-      best.tone = orcTone(best.team.filter(Boolean)[0]);
-      teams.push(best);
-      best.team.filter(Boolean).forEach((it) => used.add(it.address));
+      if (remaining.length < 1) continue;
+      const r = lightBestTeam(remaining, config);
+      if (r.result.coverage > 0 && (!best || r.result.totalScore > best.result.totalScore)) {
+        best = { team: r.team, result: r.result, tone };
+      }
     }
+    if (!best) break;
+    teams.push(best);
+    best.team.filter(Boolean).forEach((it) => used.add(it.address));
+    await sleep(0);
   }
-  return teams.sort((a, b) => b.result.totalScore - a.result.totalScore).slice(0, n);
+  return teams;
 }
 
 // fast beam scorer over a SINGLE color group
