@@ -930,6 +930,8 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 .clan-cell:focus-within{border-color:var(--g3);}
 .clan-cell .idx{width:24px;height:24px;flex-shrink:0;border-radius:6px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--g3);}
 .clan-cell input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:var(--text);font-size:12px;}
+.clan-cell input.clan-nick{flex:0 0 130px;max-width:130px;border-right:1px solid var(--bd2);padding-right:8px;color:#e6c9a0;font-weight:700;}
+@media(max-width:760px){.clan-cell input.clan-nick{flex:0 0 96px;max-width:96px;}}
 .clan-cell input::placeholder{color:var(--dim);}
 .clan-cell .st{width:9px;height:9px;border-radius:50%;background:var(--dim);flex-shrink:0;}
 .clan-cell .st.ok{background:var(--green);box-shadow:0 0 8px var(--green);}
@@ -4467,6 +4469,7 @@ function buildClanCells() {
     html += `
       <div class="clan-cell">
         <div class="idx">${i + 1}</div>
+        <input type="text" class="clan-nick" data-clan-nick="${i}" placeholder="Nickname (optional)">
         <input type="text" data-clan-input="${i}" placeholder="UQ... / EQ... wallet">
         <div class="st" data-clan-st="${i}"></div>
       </div>`;
@@ -4477,8 +4480,19 @@ function buildClanCells() {
 
 function getClanWallets() {
   return [...document.querySelectorAll("[data-clan-input]")]
-    .map((el, i) => ({ index: i, addr: String(el.value || "").trim() }))
+    .map((el, i) => {
+      const nickEl = document.querySelector(`[data-clan-nick="${i}"]`);
+      return { index: i, addr: String(el.value || "").trim(), nick: String(nickEl?.value || "").trim() };
+    })
     .filter((w) => w.addr);
+}
+
+function memberLabel(m) {
+  return m && m.nick ? m.nick : `Member ${(m ? m.index : 0) + 1}`;
+}
+function labelForIndex(idx) {
+  const m = clanState.members.find((x) => x.index === idx);
+  return memberLabel(m || { index: idx, nick: "" });
 }
 
 function setClanCellState(index, kind) {
@@ -4717,7 +4731,7 @@ function renderClanMembers() {
       <div class="clan-member">
         <div class="clan-member-head">
           <div>
-            <div class="clan-member-name">Member ${m.index + 1}</div>
+            <div class="clan-member-name">${escapeHtml(memberLabel(m))}</div>
             <div class="clan-member-sub">${escapeHtml(m.addr)}</div>
           </div>
           <div class="clan-member-stats">
@@ -4739,7 +4753,7 @@ function renderClanSummary() {
   document.getElementById("clanMemberCount").textContent = formatNumber(members.length);
   document.getElementById("clanOrcCount").textContent = formatNumber(totalOrcs);
   document.getElementById("clanPower").textContent = `${formatNumber(clanPower)} PWR`;
-  document.getElementById("clanTopMember").textContent = top ? `Member ${top.m.index + 1}` : "—";
+  document.getElementById("clanTopMember").textContent = top ? memberLabel(top.m) : "—";
 }
 
 async function runClanAnalysis() {
@@ -4771,7 +4785,7 @@ async function runClanAnalysis() {
       if (!items.length) { setClanCellState(w.index, "warn"); continue; }
       setClanStatus(`Member ${w.index + 1}: building top 3 teams from ${items.length} orcs...`, "warn", base + 3);
       const teams = await buildClanMemberTeams(items, config, 3, () => {});
-      members.push({ index: w.index, addr: w.addr, items, teams });
+      members.push({ index: w.index, addr: w.addr, nick: w.nick, items, teams });
       setClanCellState(w.index, "ok");
     }
     clanState.members = members;
@@ -4876,15 +4890,15 @@ function renderClanSwaps(transfers, totalGain) {
           <img src="${escapeHtml(t.orc.image)}" onerror="this.src='c-logo-nobg.png'">
           <div><div class="nm">${escapeHtml(t.orc.name)}</div><div class="ow">${formatNumber(t.orc.power)} PWR · ${escapeHtml(t.orc.emotion)}</div></div>
         </div>
-        <div class="ow">Member ${t.fromIndex + 1}</div>
+        <div class="ow">${escapeHtml(labelForIndex(t.fromIndex))}</div>
         <div class="arrow">→</div>
-        <div class="ow">Member ${t.toIndex + 1}</div>
+        <div class="ow">${escapeHtml(labelForIndex(t.toIndex))}</div>
         <div class="clan-gain">+${formatNumber(t.gain)} PWR</div>
         <span class="clan-exp"></span>
       </summary>
       <div class="clan-ba">
         <div class="clan-ba-col">
-          <div class="clan-ba-lbl">Member ${t.toIndex + 1} · ${escapeHtml(toneLabel)} team — Before · ${formatNumber(t.beforeScore)} PWR</div>
+          <div class="clan-ba-lbl">${escapeHtml(labelForIndex(t.toIndex))} · ${escapeHtml(toneLabel)} team — Before · ${formatNumber(t.beforeScore)} PWR</div>
           ${swapTeamMiniHTML(t.beforeTeam, removed, "removed")}
         </div>
         <div class="clan-ba-col">
@@ -4972,7 +4986,7 @@ function renderClanMarket(perMember) {
   if (!withPicks.length) { grid.innerHTML = `<div class="empty-state">No useful market buys found right now.</div>`; return; }
   grid.innerHTML = withPicks.map((p) => `
     <div class="clan-buy-group">
-      <h4>Member ${p.member.index + 1} · ${escapeHtml(p.member.addr)}</h4>
+      <h4>${escapeHtml(memberLabel(p.member))} · ${escapeHtml(p.member.addr)}</h4>
       ${p.picks.map((pick) => `
         <div class="clan-buy-row">
           <img src="${escapeHtml(pick.orc.image)}" onerror="this.src='c-logo-nobg.png'">
@@ -5203,6 +5217,7 @@ window.addEventListener("load", () => {
   const clanClear = document.getElementById("clanFillDemoBtn");
   if (clanClear) clanClear.addEventListener("click", () => {
     document.querySelectorAll("[data-clan-input]").forEach((el) => { el.value = ""; });
+    document.querySelectorAll("[data-clan-nick]").forEach((el) => { el.value = ""; });
     document.querySelectorAll("[data-clan-st]").forEach((el) => { el.className = "st"; });
   });
   const clanSwapBtn = document.getElementById("clanSwapBtn");
