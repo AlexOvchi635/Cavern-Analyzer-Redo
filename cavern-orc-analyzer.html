@@ -1017,6 +1017,29 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 .site-footer-bottom{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:24px;padding-top:18px;border-top:1px solid var(--bd);font-size:11px;color:var(--dim);}
 .site-footer-bottom a{color:var(--dim2);text-decoration:none;}
 .site-footer-bottom a:hover{color:var(--g3);}
+
+/* ── Exit-intent Terms popup ── */
+.terms-pop{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(5,5,5,.82);backdrop-filter:blur(8px);}
+.terms-pop.show{display:flex;animation:termsFade .25s ease;}
+@keyframes termsFade{from{opacity:0;}to{opacity:1;}}
+.terms-card{max-width:520px;width:100%;background:linear-gradient(180deg,#1a1313,#141111);border:1px solid rgba(194,98,98,.35);
+  border-radius:18px;padding:32px 30px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 40px rgba(194,98,98,.08);text-align:center;
+  animation:termsRise .3s cubic-bezier(.2,.7,.2,1.2);}
+@keyframes termsRise{from{transform:translateY(18px) scale(.97);opacity:0;}to{transform:none;opacity:1;}}
+.terms-ic{font-size:46px;margin-bottom:10px;}
+.terms-card h3{font-size:22px;font-weight:900;color:#f3f3f3;margin-bottom:12px;letter-spacing:.3px;}
+.terms-card p{font-size:13px;line-height:1.75;color:#bdbdbd;margin-bottom:14px;}
+.terms-card p b{color:#f1c0c0;}
+.terms-check{display:flex;gap:10px;align-items:flex-start;text-align:left;background:rgba(0,0,0,.25);border:1px solid var(--bd2);
+  border-radius:12px;padding:14px;margin:6px 0 18px;font-size:12px;line-height:1.6;color:#cfcfcf;cursor:pointer;transition:border-color .2s;}
+.terms-check:hover{border-color:rgba(194,98,98,.4);}
+.terms-check input{width:20px;height:20px;flex-shrink:0;margin-top:1px;accent-color:#c26262;cursor:pointer;}
+.terms-check a{color:#e6b3b3;text-decoration:underline;}
+.terms-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.terms-actions .btn-m{padding:13px 28px;}
+.terms-actions .btn-m:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.4);}
+.terms-note{font-size:10px;color:var(--dim);margin-top:14px;letter-spacing:.3px;}
 </style>
 </head>
 <body>
@@ -2303,6 +2326,27 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
     </div>
   </div>
 </footer>
+
+<div class="terms-pop" id="termsPop" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="terms-card">
+    <div class="terms-ic">⚠️</div>
+    <h3>Legal Notice — Please Read</h3>
+    <p>
+      Welcome. Before you use this site: this analyzer — its <b>idea, methodology, source code and design</b> — is protected intellectual property.
+      <b>Copying or cloning this tool, or stealing its data or content, is a criminal and civil offence</b> prosecuted under
+      Part IV of the Civil Code and Articles 146, 158, 272 &amp; 273 of the Criminal Code of the Russian Federation, and under
+      international law (DMCA, CFAA, Berne Convention) — anywhere in the world.
+    </p>
+    <label class="terms-check" for="termsAgree">
+      <input type="checkbox" id="termsAgree">
+      <span>I have read and <b>agree to the <a href="#" id="termsReadLink">Terms of Service &amp; Privacy Policy</a></b>, and I understand that copying this analyzer or stealing its data will be prosecuted to the fullest extent of the law.</span>
+    </label>
+    <div class="terms-actions">
+      <button type="button" class="btn-m" id="termsAcceptBtn" disabled>I Agree &amp; Continue</button>
+    </div>
+    <div class="terms-note">You must accept the Terms to enter and use this site. Shown once per device.</div>
+  </div>
+</div>
 
 <script>
 const EMOTIONS = ["In Love", "Greeting", "Capped", "Shoked", "Do Something", "To The Moon", "Wen TGE"];
@@ -5012,6 +5056,50 @@ async function runAnalysis() {
   }
 }
 
+function setupTermsPopup() {
+  const KEY = "cavern_terms_agreed";
+  const pop = document.getElementById("termsPop");
+  const chk = document.getElementById("termsAgree");
+  const accept = document.getElementById("termsAcceptBtn");
+  const readLink = document.getElementById("termsReadLink");
+  if (!pop || !chk || !accept) return;
+  let agreed = false;
+  try { agreed = localStorage.getItem(KEY) === "1"; } catch (_e) { /* noop */ }
+  if (agreed) return;
+
+  // show immediately on entry and lock page scroll behind it
+  pop.classList.add("show");
+  pop.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  function hide() {
+    pop.classList.remove("show");
+    pop.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  chk.addEventListener("change", () => { accept.disabled = !chk.checked; });
+  accept.addEventListener("click", () => {
+    if (!chk.checked) return;
+    try { localStorage.setItem(KEY, "1"); } catch (_e) { /* noop */ }
+    hide();
+  });
+  if (readLink) {
+    readLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      const tos = document.querySelector(".legal-block");
+      if (tos) {
+        tos.setAttribute("open", "");
+        // temporarily lift the popup so the user can read, then it stays until they accept
+        pop.style.display = "none";
+        document.body.style.overflow = "";
+        tos.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => { if (localStorage.getItem(KEY) !== "1") { pop.style.display = ""; document.body.style.overflow = "hidden"; } }, 4000);
+      }
+    });
+  }
+}
+
 createParticles();
 window.addEventListener("load", () => {
   resetInitialViewport();
@@ -5137,6 +5225,7 @@ window.addEventListener("load", () => {
   if (clanSwapBtn) clanSwapBtn.addEventListener("click", runClanSwapAnalysis);
   const clanMarketBtn = document.getElementById("clanMarketBtn");
   if (clanMarketBtn) clanMarketBtn.addEventListener("click", runClanMarketAnalysis);
+  setupTermsPopup();
   requestAnimationFrame(() => {
     window.scrollTo(0, 0);
   });
