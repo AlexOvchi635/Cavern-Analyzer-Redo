@@ -4836,11 +4836,21 @@ async function runClanSwapAnalysis() {
   const config = getClanConfig();
   const rosters = clanState.members.map((m) => ({ index: m.index, addr: m.addr, items: [...m.items] }));
   const transfers = [];
-  const MAX = 10;     // hill-climb passes
+  const MAX = 16;     // hill-climb passes
   const K = 4;        // candidate orcs per color per side
   try {
     let infos = rosters.map((r) => bestTeamInfo(r.items, config));
     const baseline = infos.reduce((s, info) => s + info.best.score, 0);
+    // orcs locked inside a member's COMPLETE (7-orc) top-3 teams — never given away one-way.
+    // (incomplete teams / leftovers ARE giftable; complete teams can still take part in a
+    //  mutually-beneficial two-way swap below.)
+    const lockedFull = clanState.members.map((m) => {
+      const locked = new Set();
+      (m.teams || [])
+        .filter((t) => t.result.coverage === EMOTIONS.length)
+        .forEach((t) => t.team.filter(Boolean).forEach((it) => locked.add(it.address)));
+      return locked;
+    });
 
     for (let iter = 0; iter < MAX; iter += 1) {
       setClanActionStatus(`Swap analysis: optimization pass ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
@@ -4848,11 +4858,12 @@ async function runClanSwapAnalysis() {
       const consider = (cand) => { if (cand.total > 0 && (!best || cand.total > best.total)) best = cand; };
 
       for (let a = 0; a < rosters.length; a += 1) {
-        const loose = looseOrcs(infos[a], rosters[a].items); // orcs not in any color's best team
+        // giftable = NOT inside any complete top-3 team (leftovers + incomplete-team orcs)
+        const loose = rosters[a].items.filter((it) => !lockedFull[a].has(it.address));
         for (let b = 0; b < rosters.length; b += 1) {
           if (a === b) continue;
 
-          // (1) ONE-WAY: give a loose orc — donor unaffected, receiver gains
+          // (1) ONE-WAY: give a giftable orc — donor's complete teams untouched, receiver gains
           for (const o of loose) {
             const T = orcTone(o);
             if (!infos[b].byTone.has(T)) continue;
