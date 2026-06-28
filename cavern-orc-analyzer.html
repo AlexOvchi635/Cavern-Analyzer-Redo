@@ -4491,8 +4491,11 @@ async function fetchWalletClanItems(walletAddress, onProgress) {
   const seen = new Set();
   let offset = 0, page = 0;
   const limit = 100;
-  while (true) {
-    const url = `https://tonapi.io/v2/accounts/${encodeURIComponent(walletAddress)}/nfts?limit=${limit}&offset=${offset}`;
+  const maxPages = 40; // safety cap
+  const col = KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe;
+  while (page < maxPages) {
+    // server-side collection filter → only tribe orcs, no paging through whale wallets
+    const url = `https://tonapi.io/v2/accounts/${encodeURIComponent(walletAddress)}/nfts?collection=${encodeURIComponent(col)}&limit=${limit}&offset=${offset}`;
     const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
       maxAttempts: 5,
       onRetry(waitMs, attempt) { onProgress(`Wallet scan retry ${attempt}/5...`); }
@@ -4502,11 +4505,11 @@ async function fetchWalletClanItems(walletAddress, onProgress) {
       const key = rawItem?.address;
       if (!key || seen.has(key)) continue;
       seen.add(key);
-      if (isWalletCollectionMatch(rawItem)) items.push(rawItem);
+      items.push(rawItem);
     }
     onProgress(`Scanning wallet · page ${page + 1} · ${items.length} orcs found...`);
     if (!batch.length || batch.length < limit) break;
-    offset += batch.length; page += 1; await sleep(120);
+    offset += batch.length; page += 1; await sleep(100);
   }
   return items;
 }
@@ -4619,6 +4622,29 @@ function fastTeamScore(items, config) {
     if (r.score > best.score) best = r;
   }
   return best;
+}
+
+// per-member snapshot: overall best team + best team per color (for cheap incremental deltas)
+function bestTeamInfo(items, config) {
+  const byTone = new Map();
+  let best = { score: 0, team: [], tone: null };
+  for (const [tone, group] of groupByTone(items)) {
+    const r = lightBestTeam(group, config);
+    byTone.set(tone, { score: r.result.totalScore, team: r.team, group });
+    if (r.result.totalScore > best.score) best = { score: r.result.totalScore, team: r.team, tone };
+  }
+  return { best, byTone };
+}
+
+// cheap gain of adding one orc to a member: only its own color team can change
+function addOrcGain(info, orc, config) {
+  const tone = orcTone(orc);
+  const t = info.byTone.get(tone);
+  if (!t) return { gain: 0, newToneScore: 0, beforeTeam: info.best.team, afterTeam: info.best.team };
+  const r = lightBestTeam([...t.group, orc], config);
+  const newToneScore = r.result.totalScore;
+  const gain = Math.max(0, newToneScore - info.best.score);
+  return { gain, newToneScore, tone, beforeTeam: info.best.team, afterTeam: r.team };
 }
 
 function orcSynergyTokens(item) {
@@ -4778,42 +4804,47 @@ async function runClanSwapAnalysis() {
   const config = getClanConfig();
   const rosters = clanState.members.map((m) => ({ index: m.index, addr: m.addr, items: [...m.items] }));
   const transfers = [];
-  const MAX = 12;
+  const MAX = 10;
+  const SPARE_CAP = 12; // only consider a donor's strongest spare orcs
   try {
-    let baseline = rosters.reduce((s, r) => s + fastTeamScore(r.items, config).score, 0);
+    let infos = rosters.map((r) => bestTeamInfo(r.items, config));
+    let baseline = infos.reduce((s, info) => s + info.best.score, 0);
     for (let iter = 0; iter < MAX; iter += 1) {
       setClanActionStatus(`Swap analysis: optimization pass ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
-      const info = rosters.map((r) => fastTeamScore(r.items, config));
       let best = null;
       for (let a = 0; a < rosters.length; a += 1) {
-        const usedA = new Set(info[a].team.map((it) => it.address));
-        const spares = rosters[a].items.filter((it) => !usedA.has(it.address));
+        // spare orcs = not in donor's current best team (moving them won't hurt the donor)
+        const usedA = new Set(infos[a].best.team.filter(Boolean).map((it) => it.address));
+        const spares = rosters[a].items
+          .filter((it) => !usedA.has(it.address))
+          .sort((x, y) => y.power - x.power)
+          .slice(0, SPARE_CAP);
         if (!spares.length) continue;
         for (let b = 0; b < rosters.length; b += 1) {
           if (a === b) continue;
-          const bTones = new Set(rosters[b].items.map(orcTone));
           for (const o of spares) {
-            // a team is single-color: the orc only helps B if B already has its tribe
-            if (!bTones.has(orcTone(o))) continue;
-            const nb = fastTeamScore([...rosters[b].items, o], config).score;
-            const gain = nb - info[b].score;
-            if (gain > 0 && (!best || gain > best.gain)) best = { a, b, o, gain };
+            if (!infos[b].byTone.has(orcTone(o))) continue; // receiver must already run that tribe
+            const res = addOrcGain(infos[b], o, config); // cheap: only o's color recomputed
+            if (res.gain > 0 && (!best || res.gain > best.gain)) {
+              best = { a, b, o, gain: res.gain, beforeTeam: res.beforeTeam, afterTeam: res.afterTeam, beforeScore: infos[b].best.score, afterScore: res.newToneScore, tone: res.tone };
+            }
           }
         }
         await sleep(0);
       }
       if (!best) break;
-      const beforeTeam = info[best.b].team;
-      const beforeScore = info[best.b].score;
-      const afterCalc = fastTeamScore([...rosters[best.b].items, best.o], config);
+      // apply transfer
       rosters[best.a].items = rosters[best.a].items.filter((it) => it.address !== best.o.address);
       rosters[best.b].items = [...rosters[best.b].items, best.o];
       transfers.push({
         fromIndex: rosters[best.a].index, toIndex: rosters[best.b].index, orc: best.o, gain: best.gain,
-        tone: orcTone(best.o), beforeTeam, afterTeam: afterCalc.team, beforeScore, afterScore: afterCalc.score
+        tone: best.tone, beforeTeam: best.beforeTeam, afterTeam: best.afterTeam, beforeScore: best.beforeScore, afterScore: best.afterScore
       });
+      // refresh only the two affected members
+      infos[best.a] = bestTeamInfo(rosters[best.a].items, config);
+      infos[best.b] = bestTeamInfo(rosters[best.b].items, config);
     }
-    const after = rosters.reduce((s, r) => s + fastTeamScore(r.items, config).score, 0);
+    const after = infos.reduce((s, info) => s + info.best.score, 0);
     renderClanSwaps(transfers, after - baseline);
     document.getElementById("clan-swaps").scrollIntoView({ behavior: "smooth", block: "start" });
     setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial swap(s): +${formatNumber(after - baseline)} clan PWR.` : "No beneficial swaps found — the clan is already well distributed.", "ok", 100);
@@ -4899,20 +4930,20 @@ async function runClanMarketAnalysis() {
       const v = it?.sale?.price?.value; const d = Number(it?.sale?.price?.decimals || 0);
       return v ? Number(v) / Math.pow(10, d) : 0;
     })() })).filter((it) => it.salePriceValue > 0);
-    // keep the strongest 160 listings to bound the per-member search
-    market = market.sort((a, b) => b.power - a.power).slice(0, 160);
+    // keep the strongest 120 listings to bound the per-member search
+    market = market.sort((a, b) => b.power - a.power).slice(0, 120);
     const owned = new Set();
     clanState.members.forEach((m) => m.items.forEach((it) => owned.add(it.address)));
     const perMember = [];
     for (let i = 0; i < clanState.members.length; i += 1) {
       const m = clanState.members[i];
       setClanActionStatus(`Market analysis: member ${i + 1}/${clanState.members.length}...`, "warn", 70 + Math.round((i / clanState.members.length) * 28));
-      const cur = fastTeamScore(m.items, config).score;
+      const info = bestTeamInfo(m.items, config); // cheap snapshot, color teams cached
       const memberTones = new Set(m.items.map(orcTone));
       const picks = market
         .filter((o) => !owned.has(o.address))
         .filter((o) => memberTones.has(orcTone(o))) // single-color teams: only buy orcs of a tribe the member already runs
-        .map((o) => ({ orc: o, gain: fastTeamScore([...m.items, o], config).score - cur }))
+        .map((o) => ({ orc: o, gain: addOrcGain(info, o, config).gain })) // cheap: only o's color recomputed
         .filter((x) => x.gain > 0)
         .sort((a, b) => (b.gain / Math.max(1, b.orc.salePriceValue)) - (a.gain / Math.max(1, a.orc.salePriceValue)) || b.gain - a.gain)
         .slice(0, 3);
