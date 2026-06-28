@@ -4872,10 +4872,11 @@ function moveReason(beforeTeam, afterTeam, config) {
   }
   if (best) {
     const label = best.trait.replace(/^Earrings:/i, "Earring:").replace(/^Logo:/i, "Logo:").replace(/^Bracelet:/i, "Bracelet:");
-    return `closes synergy ${label} x${best.count} (+${formatNumber(best.bonus)})`;
+    return `closes the ${label} ×${best.count} synergy (+${formatNumber(best.bonus)} bonus)`;
   }
-  return "stronger orc in the slot (raw power)";
+  return "adds a stronger orc to the slot";
 }
+function cap1(s) { return String(s || "").replace(/\b\w/g, (c) => c.toUpperCase()); }
 // note when a move pushes a NEW color team into the member's top-3, displacing another
 function displaceNote(beforeColors, afterColors) {
   const entered = [...afterColors].filter((c) => !beforeColors.has(c));
@@ -4990,12 +4991,14 @@ async function runClanSwapAnalysis() {
         states[best.donor] = clanMemberState(D.items, config);
         const afterRecv = (bestCTeam(states[best.recv], C) || {}).team || [];
         const afterRecvScore = (bestCTeam(states[best.recv], C) || {}).score || 0;
+        const gReason = moveReason(beforeRecv, afterRecv, config);
+        const gDisp = displaceNote(beforeColors, states[best.recv].topColors);
+        const gExplain = `${labelForIndex(D.index)} sends ${best.orc.name} to ${labelForIndex(T.index)}: it ${gReason} in ${labelForIndex(T.index)}'s ${cap1(C)} team (${formatNumber(beforeRecvScore)} → ${formatNumber(afterRecvScore)} PWR). Net clan +${formatNumber(best.total)} PWR.${gDisp ? " " + gDisp + "." : ""}`;
         transfers.push({
           kind: "give", total: best.total, tone: C, orcA: best.orc,
           fromIndex: D.index, toIndex: T.index,
           bBefore: beforeRecv, bAfter: afterRecv, bBeforeScore: beforeRecvScore, bAfterScore: afterRecvScore,
-          reason: moveReason(beforeRecv, afterRecv, config),
-          displace: displaceNote(beforeColors, states[best.recv].topColors)
+          reason: gReason, displace: gDisp, explain: gExplain
         });
       } else {
         const I = rosters[best.i], J = rosters[best.j], C = best.tone;
@@ -5012,7 +5015,8 @@ async function runClanSwapAnalysis() {
           aBefore: beI.team || [], aAfter: afI.team || [], aBeforeScore: beI.score || 0, aAfterScore: afI.score || 0,
           bBefore: beJ.team || [], bAfter: afJ.team || [], bBeforeScore: beJ.score || 0, bAfterScore: afJ.score || 0,
           reasonA: moveReason(beI.team || [], afI.team || [], config),
-          reasonB: moveReason(beJ.team || [], afJ.team || [], config)
+          reasonB: moveReason(beJ.team || [], afJ.team || [], config),
+          explain: `${labelForIndex(I.index)} and ${labelForIndex(J.index)} trade ${best.orcI.name} ↔ ${best.orcJ.name} in their ${cap1(C)} teams: ${labelForIndex(I.index)} ${moveReason(beI.team || [], afI.team || [], config)} (${formatNumber(beI.score || 0)} → ${formatNumber(afI.score || 0)}), ${labelForIndex(J.index)} ${moveReason(beJ.team || [], afJ.team || [], config)} (${formatNumber(beJ.score || 0)} → ${formatNumber(afJ.score || 0)}). Net clan +${formatNumber(best.total)} PWR.`
         });
       }
     }
@@ -5099,7 +5103,7 @@ function renderClanSwaps(transfers, totalGain, before, after) {
             <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
             <span class="clan-exp"></span>
           </div>
-          <div class="clan-why">↳ ${escapeHtml(labelForIndex(t.aIndex))}: ${escapeHtml(t.reasonA || "")} · ${escapeHtml(labelForIndex(t.bIndex))}: ${escapeHtml(t.reasonB || "")}</div>
+          <div class="clan-why">↳ ${escapeHtml(t.explain || "")}</div>
         </summary>
         <div class="clan-ba-lbl" style="padding:0 2px 4px;">${escapeHtml(labelForIndex(t.aIndex))} · ${escapeHtml(toneLabel)} (gets ${escapeHtml(t.orcB.name)}) · +${formatNumber(t.gA)} PWR</div>
         <div class="clan-ba">${baBlock(escapeHtml(labelForIndex(t.aIndex)), t.aBefore, t.aAfter, t.aBeforeScore, t.aAfterScore)}</div>
@@ -5123,7 +5127,7 @@ function renderClanSwaps(transfers, totalGain, before, after) {
           <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
           <span class="clan-exp"></span>
         </div>
-        <div class="clan-why">↳ ${escapeHtml(labelForIndex(t.toIndex))} · ${escapeHtml(toneLabel)}: ${escapeHtml(t.reason || "")}${t.displace ? ` · <b style="color:#e6c98a">${escapeHtml(t.displace)}</b>` : ""}</div>
+        <div class="clan-why">↳ ${escapeHtml(t.explain || "")}</div>
       </summary>
       <div class="clan-ba">${baBlock(`${labelForIndex(t.toIndex)} · ${toneLabel} team`, t.bBefore, t.bAfter, t.bBeforeScore, t.bAfterScore)}</div>
     </details>`;
