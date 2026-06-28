@@ -4879,52 +4879,59 @@ async function runClanSwapAnalysis() {
       let best = null;
       const consider = (cand) => { if (cand.total > 0 && (!best || cand.total > best.total)) best = cand; };
 
+      const ts = (team) => evaluateTeam(team, config).totalScore;
+      const withSlot = (team, e, orc) => { const t = team.slice(); t[e] = orc; return t; };
+
       for (let a = 0; a < rosters.length; a += 1) {
-        // giftable = NOT inside any complete top-3 team (leftovers + incomplete-team orcs)
-        const loose = rosters[a].items.filter((it) => !lockedFull[a].has(it.address));
+        // giftable = NOT inside any complete top-3 team (leftovers + incomplete-team orcs), capped
+        const loose = rosters[a].items
+          .filter((it) => !lockedFull[a].has(it.address))
+          .sort((x, y) => y.power - x.power)
+          .slice(0, 10);
         for (let b = 0; b < rosters.length; b += 1) {
           if (a === b) continue;
 
-          // (1) ONE-WAY: give a giftable orc — donor's complete teams untouched, receiver gains
+          // (1) ONE-WAY: give a giftable orc — it competes for its own emotion slot in B's color team
           for (const o of loose) {
             const T = orcTone(o);
-            if (!infos[b].byTone.has(T)) continue;
-            const r = lightBestTeam([...infos[b].byTone.get(T).group, o], config);
-            const newB = Math.max(bestExclTone(infos[b], T), r.result.totalScore);
-            const gB = newB - infos[b].best.score;
+            const tb = infos[b].byTone.get(T);
+            if (!tb) continue;
+            const e = EMOTIONS.indexOf(o.emotion);
+            if (e < 0) continue;
+            const cand = withSlot(tb.team, e, o);
+            const candScore = ts(cand);
+            const newToneScore = Math.max(tb.score, candScore);
+            const gB = Math.max(bestExclTone(infos[b], T), newToneScore) - infos[b].best.score;
             if (gB > 0) consider({
-              kind: "give", total: gB, a, b, orcA: o, tone: T,
-              bBefore: infos[b].byTone.get(T).team, bAfter: r.team,
-              bBeforeScore: infos[b].byTone.get(T).score, bAfterScore: r.result.totalScore, gA: 0, gB
+              kind: "give", total: gB, a, b, orcA: o, tone: T, gA: 0, gB,
+              bBefore: tb.team, bAfter: candScore > tb.score ? cand : tb.team,
+              bBeforeScore: tb.score, bAfterScore: newToneScore
             });
           }
 
-          // (2) TWO-WAY: exchange one same-color orc each — both must not lose, total must rise
+          // (2) TWO-WAY: swap the same emotion role between two same-color teams — both stay full,
+          //     neither may lose, total must rise (e.g. I need the earring, he needs the bracelet)
           for (const T of infos[a].byTone.keys()) {
-            if (!infos[b].byTone.has(T)) continue;
-            const AT = infos[a].byTone.get(T).group;
-            const BT = infos[b].byTone.get(T).group;
-            const aK = [...AT].sort((x, y) => y.power - x.power).slice(0, K);
-            const bK = [...BT].sort((x, y) => y.power - x.power).slice(0, K);
-            for (const oA of aK) for (const oB of bK) {
-              if (oA.address === oB.address) continue;
-              const nA = lightBestTeam(AT.filter((x) => x.address !== oA.address).concat(oB), config);
-              const nB = lightBestTeam(BT.filter((x) => x.address !== oB.address).concat(oA), config);
-              const newA = Math.max(bestExclTone(infos[a], T), nA.result.totalScore);
-              const newB = Math.max(bestExclTone(infos[b], T), nB.result.totalScore);
-              const gA = newA - infos[a].best.score;
-              const gB = newB - infos[b].best.score;
+            const ta = infos[a].byTone.get(T);
+            const tb = infos[b].byTone.get(T);
+            if (!tb) continue;
+            for (let e = 0; e < EMOTIONS.length; e += 1) {
+              const oA = ta.team[e], oB = tb.team[e];
+              if (!oA || !oB || oA.address === oB.address) continue;
+              const aCand = withSlot(ta.team, e, oB);
+              const bCand = withSlot(tb.team, e, oA);
+              const aScore = ts(aCand), bScore = ts(bCand);
+              const gA = Math.max(bestExclTone(infos[a], T), aScore) - infos[a].best.score;
+              const gB = Math.max(bestExclTone(infos[b], T), bScore) - infos[b].best.score;
               if (gA >= 0 && gB >= 0 && (gA + gB) > 0) consider({
                 kind: "swap", total: gA + gB, a, b, orcA: oA, orcB: oB, tone: T, gA, gB,
-                aBefore: infos[a].byTone.get(T).team, aAfter: nA.team,
-                aBeforeScore: infos[a].byTone.get(T).score, aAfterScore: nA.result.totalScore,
-                bBefore: infos[b].byTone.get(T).team, bAfter: nB.team,
-                bBeforeScore: infos[b].byTone.get(T).score, bAfterScore: nB.result.totalScore
+                aBefore: ta.team, aAfter: aCand, aBeforeScore: ta.score, aAfterScore: aScore,
+                bBefore: tb.team, bAfter: bCand, bBeforeScore: tb.score, bAfterScore: bScore
               });
             }
           }
+          await sleep(0);
         }
-        await sleep(0);
       }
 
       if (!best) break;
