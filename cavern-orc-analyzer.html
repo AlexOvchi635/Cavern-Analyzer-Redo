@@ -952,6 +952,10 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 .clan-swap{background:var(--bg3);border:1px solid var(--bd);border-radius:14px;margin-bottom:10px;overflow:hidden;}
 .clan-swap>summary{list-style:none;cursor:pointer;}
 .clan-swap>summary::-webkit-details-marker{display:none;}
+.clan-sum{list-style:none;cursor:pointer;}
+.clan-sum::-webkit-details-marker{display:none;}
+.clan-why{padding:0 16px 12px 64px;font-size:12px;line-height:1.5;color:#9bbf8f;}
+.clan-why b{font-weight:800;}
 .clan-swap-row{display:flex;align-items:center;gap:14px;padding:14px 16px;flex-wrap:wrap;}
 .clan-swap .clan-swap-row{background:transparent;border:none;border-radius:0;margin:0;}
 .clan-exp{
@@ -4666,10 +4670,13 @@ function clanMemberState(items, config) {
     byTone.set(tone, { group, teams, scores: teams.map((t) => t.score), covered });
   }
   const all = [];
-  for (const [, v] of byTone) v.scores.forEach((s) => all.push(s));
-  all.sort((a, b) => b - a);
-  const value = all.slice(0, 3).reduce((s, x) => s + x, 0);
-  return { items, byTone, value };
+  for (const [tone, v] of byTone) v.scores.forEach((s) => all.push({ s, tone }));
+  all.sort((a, b) => b.s - a.s);
+  const top = all.slice(0, 3);
+  const value = top.reduce((acc, x) => acc + x.s, 0);
+  const topColors = new Set(top.map((x) => x.tone)); // the colors of the member's fielded top-3 teams
+  const nComplete = all.length;                       // how many complete teams they can field
+  return { items, byTone, value, topColors, nComplete };
 }
 
 // clan value = Σ each member's top-3 complete teams; recompute one color, re-merge top-3
@@ -4854,6 +4861,30 @@ async function runClanAnalysis() {
   }
 }
 
+// why a trade helps: the synergy it creates/upgrades, else raw slot power
+function moveReason(beforeTeam, afterTeam, config) {
+  const bd = new Map();
+  evaluateTeam(beforeTeam || [], config).synergyDetails.forEach((d) => bd.set(d.trait, d.bonus));
+  let best = null;
+  for (const d of evaluateTeam(afterTeam || [], config).synergyDetails) {
+    const was = bd.get(d.trait) || 0;
+    if (d.bonus > was && (!best || d.bonus - was > best.delta)) best = { trait: d.trait, count: d.count, bonus: d.bonus, delta: d.bonus - was };
+  }
+  if (best) {
+    const label = best.trait.replace(/^Earrings:/i, "Earring:").replace(/^Logo:/i, "Logo:").replace(/^Bracelet:/i, "Bracelet:");
+    return `closes synergy ${label} x${best.count} (+${formatNumber(best.bonus)})`;
+  }
+  return "stronger orc in the slot (raw power)";
+}
+// note when a move pushes a NEW color team into the member's top-3, displacing another
+function displaceNote(beforeColors, afterColors) {
+  const entered = [...afterColors].filter((c) => !beforeColors.has(c));
+  const left = [...beforeColors].filter((c) => !afterColors.has(c));
+  if (!entered.length || !left.length) return "";
+  const cap = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+  return `${cap(entered[0])} team enters this player's top-3, replacing the ${cap(left[0])} team`;
+}
+
 async function runClanSwapAnalysis() {
   if (clanState.running || !clanState.members.length) return;
   clanState.running = true;
@@ -4888,7 +4919,9 @@ async function runClanSwapAnalysis() {
       }
       poolCE.forEach((arr) => arr.sort((x, y) => y.orc.power - x.orc.power));
 
-      // colors a member can RECEIVE into (already runs a full team there, or is one orc short)
+      // colors a member can RECEIVE into: any color where they field a full team or are one short.
+      // A new color may enter the top-3 (displacing a weaker team) — that's allowed and is
+      // explained on the move ("this team enters your top-3, replaces …").
       const recvColors = states.map((st) => {
         const set = new Set();
         for (const [C, v] of st.byTone) if (v.teams.length || v.covered.size >= EMOTIONS.length - 1) set.add(C);
@@ -4949,6 +4982,7 @@ async function runClanSwapAnalysis() {
         const T = rosters[best.recv], D = rosters[best.donor], C = best.tone;
         const beforeRecv = (bestCTeam(states[best.recv], C) || {}).team || [];
         const beforeRecvScore = (bestCTeam(states[best.recv], C) || {}).score || 0;
+        const beforeColors = new Set(states[best.recv].topColors);
         D.items = D.items.filter((it) => it.address !== best.orc.address);
         T.items = [...T.items, best.orc];
         moved.add(best.orc.address);
@@ -4959,7 +4993,9 @@ async function runClanSwapAnalysis() {
         transfers.push({
           kind: "give", total: best.total, tone: C, orcA: best.orc,
           fromIndex: D.index, toIndex: T.index,
-          bBefore: beforeRecv, bAfter: afterRecv, bBeforeScore: beforeRecvScore, bAfterScore: afterRecvScore
+          bBefore: beforeRecv, bAfter: afterRecv, bBeforeScore: beforeRecvScore, bAfterScore: afterRecvScore,
+          reason: moveReason(beforeRecv, afterRecv, config),
+          displace: displaceNote(beforeColors, states[best.recv].topColors)
         });
       } else {
         const I = rosters[best.i], J = rosters[best.j], C = best.tone;
@@ -4974,7 +5010,9 @@ async function runClanSwapAnalysis() {
           kind: "swap", total: best.total, tone: C, orcA: best.orcI, orcB: best.orcJ,
           aIndex: I.index, bIndex: J.index, gA: best.gI, gB: best.gJ,
           aBefore: beI.team || [], aAfter: afI.team || [], aBeforeScore: beI.score || 0, aAfterScore: afI.score || 0,
-          bBefore: beJ.team || [], bAfter: afJ.team || [], bBeforeScore: beJ.score || 0, bAfterScore: afJ.score || 0
+          bBefore: beJ.team || [], bAfter: afJ.team || [], bBeforeScore: beJ.score || 0, bAfterScore: afJ.score || 0,
+          reasonA: moveReason(beI.team || [], afI.team || [], config),
+          reasonB: moveReason(beJ.team || [], afJ.team || [], config)
         });
       }
     }
@@ -5046,19 +5084,22 @@ function renderClanSwaps(transfers, totalGain, before, after) {
     if (t.kind === "swap") {
       return `
       <details class="clan-swap">
-        <summary class="clan-swap-row">
-          ${step}
-          <div class="clan-swap-orc">
-            <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
-            <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.aIndex))} · ${formatNumber(t.orcA.power)} PWR</div></div>
+        <summary class="clan-sum">
+          <div class="clan-swap-row">
+            ${step}
+            <div class="clan-swap-orc">
+              <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
+              <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.aIndex))} · ${formatNumber(t.orcA.power)} PWR</div></div>
+            </div>
+            <div class="arrow">⇄</div>
+            <div class="clan-swap-orc">
+              <img src="${escapeHtml(t.orcB.image)}" onerror="this.src='c-logo-nobg.png'">
+              <div><div class="nm">${escapeHtml(t.orcB.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.bIndex))} · ${formatNumber(t.orcB.power)} PWR</div></div>
+            </div>
+            <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
+            <span class="clan-exp"></span>
           </div>
-          <div class="arrow">⇄</div>
-          <div class="clan-swap-orc">
-            <img src="${escapeHtml(t.orcB.image)}" onerror="this.src='c-logo-nobg.png'">
-            <div><div class="nm">${escapeHtml(t.orcB.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.bIndex))} · ${formatNumber(t.orcB.power)} PWR</div></div>
-          </div>
-          <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
-          <span class="clan-exp"></span>
+          <div class="clan-why">↳ ${escapeHtml(labelForIndex(t.aIndex))}: ${escapeHtml(t.reasonA || "")} · ${escapeHtml(labelForIndex(t.bIndex))}: ${escapeHtml(t.reasonB || "")}</div>
         </summary>
         <div class="clan-ba-lbl" style="padding:0 2px 4px;">${escapeHtml(labelForIndex(t.aIndex))} · ${escapeHtml(toneLabel)} (gets ${escapeHtml(t.orcB.name)}) · +${formatNumber(t.gA)} PWR</div>
         <div class="clan-ba">${baBlock(escapeHtml(labelForIndex(t.aIndex)), t.aBefore, t.aAfter, t.aBeforeScore, t.aAfterScore)}</div>
@@ -5069,17 +5110,20 @@ function renderClanSwaps(transfers, totalGain, before, after) {
     // one-way give
     return `
     <details class="clan-swap">
-      <summary class="clan-swap-row">
-        ${step}
-        <div class="clan-swap-orc">
-          <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
-          <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${formatNumber(t.orcA.power)} PWR · ${escapeHtml(t.orcA.emotion)}</div></div>
+      <summary class="clan-sum">
+        <div class="clan-swap-row">
+          ${step}
+          <div class="clan-swap-orc">
+            <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
+            <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${formatNumber(t.orcA.power)} PWR · ${escapeHtml(t.orcA.emotion)}</div></div>
+          </div>
+          <div class="ow">${escapeHtml(labelForIndex(t.fromIndex))}</div>
+          <div class="arrow">→</div>
+          <div class="ow">${escapeHtml(labelForIndex(t.toIndex))}</div>
+          <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
+          <span class="clan-exp"></span>
         </div>
-        <div class="ow">${escapeHtml(labelForIndex(t.fromIndex))}</div>
-        <div class="arrow">→</div>
-        <div class="ow">${escapeHtml(labelForIndex(t.toIndex))}</div>
-        <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
-        <span class="clan-exp"></span>
+        <div class="clan-why">↳ ${escapeHtml(labelForIndex(t.toIndex))} · ${escapeHtml(toneLabel)}: ${escapeHtml(t.reason || "")}${t.displace ? ` · <b style="color:#e6c98a">${escapeHtml(t.displace)}</b>` : ""}</div>
       </summary>
       <div class="clan-ba">${baBlock(`${labelForIndex(t.toIndex)} · ${toneLabel} team`, t.bBefore, t.bAfter, t.bBeforeScore, t.bAfterScore)}</div>
     </details>`;
@@ -5137,7 +5181,7 @@ async function runClanMarketAnalysis() {
       const m = clanState.members[i];
       setClanActionStatus(`Market analysis: member ${i + 1}/${clanState.members.length}...`, "warn", 70 + Math.round((i / clanState.members.length) * 28));
       const state = clanMemberState(m.items, config); // value = top-3 complete teams
-      // only buy orcs of a tribe the member can field a full team in (or is one short of)
+      // buy orcs for any color where a full team exists or is one short of complete
       const usable = new Set();
       for (const [C, v] of state.byTone) if (v.teams.length || v.covered.size >= EMOTIONS.length - 1) usable.add(C);
       const picks = market
