@@ -4823,14 +4823,23 @@ async function runClanSwapAnalysis() {
   try {
     let infos = rosters.map((r) => bestTeamInfo(r.items, config));
     let baseline = infos.reduce((s, info) => s + info.best.score, 0);
+    // a donor may give ONLY orcs that are NOT part of any of his real (full, 7-orc)
+    // top-3 teams, so his power never drops. Loose orcs that don't complete a full
+    // team are free to trade. Donor stays the same, receiver goes up.
+    const lockedByMember = clanState.members.map((m) => {
+      const locked = new Set();
+      (m.teams || [])
+        .filter((t) => t.result.coverage === EMOTIONS.length)
+        .forEach((t) => t.team.filter(Boolean).forEach((it) => locked.add(it.address)));
+      return locked;
+    });
     for (let iter = 0; iter < MAX; iter += 1) {
       setClanActionStatus(`Swap analysis: optimization pass ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
       let best = null;
       for (let a = 0; a < rosters.length; a += 1) {
-        // spare orcs = not in donor's current best team (moving them won't hurt the donor)
-        const usedA = new Set(infos[a].best.team.filter(Boolean).map((it) => it.address));
+        // donatable orcs = NOT used in any of the donor's top-3 teams → donor power unchanged
         const spares = rosters[a].items
-          .filter((it) => !usedA.has(it.address))
+          .filter((it) => !lockedByMember[a].has(it.address))
           .sort((x, y) => y.power - x.power)
           .slice(0, SPARE_CAP);
         if (!spares.length) continue;
@@ -4874,8 +4883,8 @@ async function runClanSwapAnalysis() {
 function renderClanSwaps(transfers, totalGain) {
   const grid = document.getElementById("clanSwapGrid");
   document.getElementById("clanSwapMeta").textContent = transfers.length
-    ? `Apply these ${transfers.length} transfer(s) to gain about +${formatNumber(totalGain)} total clan power from synergies.`
-    : "No beneficial transfers — every member already keeps the orcs that serve their synergies best.";
+    ? `Apply these ${transfers.length} transfer(s) to gain about +${formatNumber(totalGain)} clan power. Only orcs outside the donor's top-3 teams are moved — no donor loses power; the receiver gains.`
+    : "No beneficial transfers — no spare orc (outside someone's top-3 teams) would raise another member's team.";
   if (!transfers.length) { grid.innerHTML = `<div class="empty-state">No beneficial swaps found.</div>`; return; }
   grid.innerHTML = transfers.map((t) => {
     const toneLabel = (t.tone || "").replace(/\b\w/g, (c) => c.toUpperCase());
