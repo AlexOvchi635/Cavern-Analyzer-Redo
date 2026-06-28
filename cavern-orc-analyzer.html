@@ -23,24 +23,21 @@ button,input,textarea{font:inherit;}
 .pt{position:absolute;border-radius:50%;animation:rise linear infinite;opacity:0;}
 @keyframes rise{0%{transform:translateY(100vh);opacity:0;}10%{opacity:.18;}90%{opacity:.07;}100%{transform:translateY(-10px);opacity:0;}}
 
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 52px;background:rgba(8,8,8,.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:flex-start;gap:28px;padding:14px 52px;background:rgba(8,8,8,.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;}
 .brand img{height:30px;object-fit:contain;}
 .brand-txt{font-size:16px;font-weight:900;letter-spacing:6px;background:linear-gradient(135deg,#fff,var(--g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.nav-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.nav-actions{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
 .nav-link-btn{
-  border:none;border-radius:7px;padding:9px 18px;cursor:pointer;text-decoration:none;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#d6d6d6;
-  font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .25s;
+  border:none;border-radius:999px;padding:9px 14px;cursor:pointer;text-decoration:none;
+  background:transparent;color:#a9a9a9;
+  font-size:10px;font-weight:800;letter-spacing:1.9px;text-transform:uppercase;transition:all .22s;
 }
-.nav-link-btn:hover{border-color:rgba(145,145,145,.28);color:#f0f0f0;}
+.nav-link-btn:hover{color:#f0f0f0;background:rgba(255,255,255,.04);}
 .nav-link-btn.active{
-  background:linear-gradient(135deg,rgba(121,121,121,.95),rgba(155,155,155,.95));color:#fff;
-  box-shadow:0 0 18px rgba(145,145,145,.16);border-color:transparent;
+  color:#fff;background:rgba(255,255,255,.07);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
 }
-.nav-cta{background:linear-gradient(135deg,var(--g1),var(--g4));color:#fff;padding:9px 22px;border-radius:7px;font-size:10px;font-weight:700;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:all .25s;box-shadow:0 0 18px var(--glow);}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 28px var(--glow);}
-.nav-cta.active{box-shadow:0 0 22px rgba(145,145,145,.22);}
 
 .hr{height:1px;background:linear-gradient(90deg,transparent,var(--g1),transparent);opacity:.18;}
 section{padding:80px 52px;position:relative;z-index:1;}
@@ -65,6 +62,7 @@ section{padding:80px 52px;position:relative;z-index:1;}
   min-height:74vh;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);align-items:start;
   gap:28px;padding:92px 52px 64px;position:relative;overflow:visible;
 }
+.hero.hidden,.hr.hidden{display:none;}
 .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 55% 65% at 65% 42%,rgba(100,100,100,.07) 0%,transparent 65%),var(--bg);}
 .hero-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(80,80,80,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(80,80,80,.03) 1px,transparent 1px);background-size:64px 64px;}
 .hero-content{position:relative;z-index:1;max-width:none;padding-left:8px;align-self:start;}
@@ -74,10 +72,10 @@ section{padding:80px 52px;position:relative;z-index:1;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.1;}}
 h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line-height:.84;margin-bottom:14px;background:linear-gradient(150deg,#fff 0%,var(--g4) 55%,var(--g1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 80px rgba(145,145,145,.18));}
 .hero-sub{
-  display:block;width:100%;text-align:center;font-size:16px;letter-spacing:5.8px;text-transform:uppercase;color:rgba(232,232,232,.62);
-  margin:0;line-height:1.2;text-shadow:0 0 24px rgba(145,145,145,.08);
+  display:block;width:100%;text-align:left;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--dim);
+  margin:0 0 20px;line-height:1.2;text-shadow:0 0 24px rgba(145,145,145,.08);
 }
-.hero-h{font-size:19px;font-weight:700;line-height:1.55;margin-bottom:18px;max-width:620px;color:var(--text);}
+.hero-h{font-size:19px;font-weight:700;line-height:1.55;margin-bottom:28px;max-width:620px;color:var(--text);}
 .hero-h span{color:var(--g3);}
 .hero-copy{font-size:14px;line-height:1.88;color:var(--dim2);max-width:660px;margin-bottom:30px;}
 .hero-visual{position:relative;z-index:1;width:100%;max-width:520px;justify-self:center;align-self:start;display:flex;align-items:flex-start;justify-content:center;padding-top:12px;line-height:0;margin-top:0;}
@@ -91,6 +89,7 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 .btns{display:flex;gap:12px;flex-wrap:wrap;}
 
 .sbar{display:flex;background:var(--bg2);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);z-index:1;position:relative;margin-top:-24px;}
+.sbar.hidden{display:none;}
 .si{flex:1;padding:20px 14px;text-align:center;border-right:1px solid var(--bd);}
 .si:last-child{border-right:none;}
 .sv{font-size:22px;font-weight:900;display:block;margin-bottom:3px;background:linear-gradient(135deg,#fff,var(--g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
@@ -471,12 +470,296 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   background:radial-gradient(circle at 35% 35%, #ffd8d8 0%, #c26262 44%, #351818 100%);
   color:#fff1f1;
 }
-.defence-map-legend{position:relative;z-index:1;display:flex;gap:8px;flex-wrap:wrap;margin-top:256px;}
+.defence-map-legend{position:relative;z-index:1;display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
 .legend-pill{
   padding:6px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
   border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#efefef;
 }
 .defence-board-note{position:relative;z-index:1;margin-top:12px;font-size:12px;line-height:1.7;color:#9a9a9a;}
+.lore-stack{display:grid;gap:18px;}
+.lore-hero{
+  background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),#171717;
+  border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:18px;
+}
+.lore-hero img{
+  display:block;width:100%;height:auto;border-radius:16px;
+  border:1px solid rgba(255,255,255,.06);box-shadow:0 18px 36px rgba(0,0,0,.28);
+}
+.lore-copy{
+  background:linear-gradient(180deg,rgba(255,255,255,.018),transparent),#141414;
+  border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:18px;
+}
+.lore-head{margin-bottom:18px;}
+.lore-kicker{
+  font-size:10px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:#c9c2d6;margin-bottom:10px;
+}
+.lore-title{
+  font-size:clamp(24px,3.4vw,38px);font-weight:900;letter-spacing:.6px;line-height:1.05;color:#f2f2f2;
+  margin-bottom:10px;text-shadow:0 0 28px rgba(193,186,193,.08);
+}
+.lore-runes{
+  display:flex;align-items:center;gap:12px;color:#90889a;font-size:12px;letter-spacing:4px;text-transform:uppercase;
+}
+.lore-runes::before,.lore-runes::after{
+  content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);
+}
+.lore-copy p{font-size:14px;line-height:1.85;color:#acacac;margin:0 0 14px;}
+.lore-copy p:last-child{margin-bottom:0;}
+.comic-hero-sub{
+  font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--dim);margin:-4px 0 18px;
+}
+.comic-hero-hook{
+  font-size:19px;font-weight:700;line-height:1.55;margin-bottom:28px;max-width:560px;color:var(--text);
+}
+.comic-hero-hook span{color:var(--g3);}
+.comic-cta-grid{display:grid;grid-template-columns:1fr;gap:18px;}
+.comic-cta-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),#171717;
+  border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:22px;
+  box-shadow:0 16px 34px rgba(0,0,0,.22);
+}
+.comic-cta-card{
+  background:
+    radial-gradient(circle at 18% 16%, rgba(193,186,193,.06), transparent 24%),
+    linear-gradient(180deg,rgba(255,255,255,.02),transparent),
+    #171717;
+}
+.comic-cta-kicker{
+  font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#bcb4c4;margin-bottom:10px;
+}
+.comic-cta-title{font-size:28px;font-weight:900;line-height:1.08;color:#f3f3f3;margin-bottom:10px;}
+.comic-cta-copy{font-size:13px;line-height:1.8;color:#a9a9a9;}
+.comic-cta-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+.comic-action-btn{
+  min-width:210px;padding:16px 22px;border-radius:12px;font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;
+}
+.comic-action-btn.is-primary{
+  background:linear-gradient(135deg,#d4d0d8 0%, #b8b1bc 32%, #8f8898 68%, #5b5563 100%);
+  color:#111;box-shadow:0 0 24px rgba(193,186,193,.18), 0 10px 24px rgba(0,0,0,.22);
+}
+.comic-action-btn.is-primary:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(193,186,193,.24), 0 14px 28px rgba(0,0,0,.26);}
+.comic-action-btn.is-secondary{
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);color:#d8d8d8;
+}
+.comic-action-btn.is-secondary:hover{border-color:rgba(193,186,193,.24);color:#f0f0f0;}
+.comic-action-note{margin-top:12px;font-size:12px;color:#8d8d8d;line-height:1.7;}
+.fi{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+.fi.vis{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}.d4{transition-delay:.4s;}
+.tribe-story-wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.tribe-story-quote{font-size:18px;line-height:1.85;color:var(--g4);font-style:italic;border-left:2px solid var(--g1);padding-left:24px;margin-bottom:24px;}
+.tribe-story-copy{font-size:14px;color:var(--dim2);line-height:1.9;margin-bottom:12px;}
+.tribe-story-traits{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px;}
+.tribe-story-trait{background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;}
+.tribe-story-name{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;color:var(--g3);}
+.tribe-story-val{font-size:12px;color:var(--dim2);}
+.tribe-story-emblem{background:var(--bg3);border:1px solid var(--bd);border-radius:18px;padding:48px;display:flex;align-items:center;justify-content:center;min-height:380px;position:relative;overflow:hidden;}
+.tribe-story-emblem::before{content:'CAVERN';position:absolute;font-size:90px;font-weight:900;letter-spacing:-4px;color:rgba(255,255,255,.02);white-space:nowrap;}
+.tribe-story-emblem img{max-width:240px;max-height:280px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 0 40px rgba(120,120,120,.35));}
+.merch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+.mc{background:var(--bg3);border:1px solid var(--bd);border-radius:16px;overflow:hidden;transition:border-color .25s,transform .25s;cursor:pointer;}
+.mc:hover{border-color:var(--g2);transform:translateY(-4px);}
+.mc-cover{height:180px;background:var(--bg4);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-bottom:1px solid var(--bd);}
+.mc-cover::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(90,90,90,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(90,90,90,.06) 1px,transparent 1px);background-size:32px 32px;}
+.mc-cover img{max-height:120px;max-width:160px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 4px 20px rgba(0,0,0,.5));}
+.mc-cover-ph{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);position:relative;z-index:1;}
+.mc-body{padding:18px 20px;}
+.mc-tag{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--g2);margin-bottom:6px;}
+.mc-name{font-size:15px;font-weight:800;margin-bottom:6px;}
+.mc-desc{font-size:12px;color:var(--dim2);line-height:1.65;margin-bottom:14px;}
+.mc-price{font-size:13px;font-weight:700;color:var(--g4);}
+.mc-soon{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+.vc-split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+.vc-cards{display:flex;flex-direction:column;gap:12px;}
+.vcc{background:var(--bg3);border:1px solid var(--bd);border-radius:12px;padding:20px 22px;transition:border-color .2s;}
+.vcc:hover{border-color:var(--g2);}
+.vcc-name{font-size:13px;font-weight:800;margin-bottom:5px;}
+.vcc-desc{font-size:12px;color:var(--dim2);line-height:1.7;}
+.vcc-tag{margin-top:8px;font-size:10px;font-weight:700;color:var(--green);}
+.vc-quote{background:var(--bg3);border-left:2px solid var(--g1);border-radius:0 12px 12px 0;padding:20px 24px;margin-top:24px;font-size:13px;color:var(--dim2);line-height:1.8;}
+.vc-quote strong{color:var(--text);}
+.battle-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-bottom:40px;}
+.battle-flow::before{content:'';position:absolute;top:28px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,var(--g1),var(--g1),transparent);opacity:.2;}
+.bf-step{text-align:center;padding:0 16px;}
+.bf-num{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--g1),var(--g3));margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;position:relative;z-index:1;}
+.bf-title{font-size:12px;font-weight:800;margin-bottom:5px;}
+.bf-desc{font-size:11px;color:var(--dim2);line-height:1.6;}
+.bf-reward{margin-top:8px;font-size:10px;font-weight:700;color:var(--g4);}
+.battle-note{background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:22px 26px;max-width:680px;}
+.battle-note p{font-size:13px;color:var(--dim2);line-height:1.85;}
+.battle-note strong{color:var(--text);}
+.earn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+.ec{background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:24px;transition:border-color .25s;}
+.ec:hover{border-color:var(--g2);}
+.ec-n{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim2);margin-bottom:10px;}
+.ec-title{font-size:14px;font-weight:800;margin-bottom:8px;}
+.ec-desc{font-size:12px;color:var(--dim2);line-height:1.7;}
+.ec-result{margin-top:12px;font-size:11px;font-weight:700;color:var(--green);}
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.ev{background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:22px;position:relative;transition:border-color .25s;}
+.ev:hover{border-color:var(--g2);}
+.ev-badge{position:absolute;top:14px;right:14px;font-size:8px;letter-spacing:2px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;}
+.b-past{color:var(--dim);border:1px solid var(--bd);}
+.b-on{color:var(--green);border:1px solid rgba(77,184,122,.25);}
+.b-soon{color:var(--g4);border:1px solid rgba(201,168,112,.25);}
+.ev-label{font-size:9px;letter-spacing:2px;color:var(--dim2);text-transform:uppercase;margin-bottom:7px;}
+.ev-name{font-size:14px;font-weight:800;margin-bottom:7px;}
+.ev-body{font-size:12px;color:var(--dim2);line-height:1.7;margin-bottom:12px;}
+.ev-reward{font-size:11px;font-weight:700;color:var(--g4);}
+.scratch-row{display:grid;grid-template-columns:1fr 2fr;gap:40px;align-items:center;margin-top:32px;}
+.sc-card{background:var(--bg3);border:1px solid var(--bd2);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.sc-card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(145,145,145,.03) 0,rgba(145,145,145,.03) 1px,transparent 1px,transparent 8px);}
+.sc-card:hover{border-color:var(--g3);}
+.sc-hint{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
+.sc-val{font-size:48px;font-weight:900;background:linear-gradient(135deg,#fff,var(--g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;z-index:1;}
+.sc-sub{font-size:10px;color:var(--dim);margin-top:4px;position:relative;z-index:1;}
+.sc-info p{font-size:14px;color:var(--dim2);line-height:1.85;margin-bottom:10px;}
+.sc-list{list-style:none;}
+.sc-list li{font-size:12px;color:var(--dim2);padding:7px 0;border-bottom:1px solid var(--bd);display:flex;gap:10px;}
+.sc-list li:last-child{border:none;}
+.sc-list strong{color:var(--text);}
+.ar{color:var(--green);flex-shrink:0;}
+.notify{background:var(--bg3);border:1px solid var(--bd2);border-radius:14px;padding:28px 32px;display:flex;gap:40px;align-items:center;margin-top:28px;}
+.notify-txt h4{font-size:15px;font-weight:800;margin-bottom:5px;}
+.notify-txt p{font-size:12px;color:var(--dim2);}
+.nf{display:flex;gap:9px;flex:1;}
+.nf input{flex:1;background:var(--bg2);border:1px solid var(--bd2);border-radius:7px;padding:11px 15px;font-size:12px;color:var(--text);outline:none;font-family:inherit;transition:border-color .2s;}
+.nf input:focus{border-color:var(--g3);}
+.nf input::placeholder{color:var(--dim);}
+.nf button{background:linear-gradient(135deg,var(--g1),var(--g3));color:#fff;border:none;padding:11px 20px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;white-space:nowrap;transition:all .25s;}
+.nf button:hover{box-shadow:0 0 20px var(--glow);}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start;}
+.tier{background:var(--bg3);border:1px solid var(--bd);border-radius:18px;padding:28px;position:relative;overflow:hidden;transition:border-color .25s;}
+.tier:hover{border-color:var(--g2);}
+.tier.hot{border-color:rgba(145,145,145,.28);}
+.t-ribbon{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,var(--g1),var(--g3));color:#fff;font-size:8px;font-weight:700;padding:2px 10px;border-radius:20px;letter-spacing:1.5px;}
+.t-lv{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:5px;}
+.t-name{font-size:20px;font-weight:900;margin-bottom:5px;}
+.t-sub{font-size:11px;color:var(--dim2);line-height:1.55;margin-bottom:16px;}
+.t-price .amt{font-size:34px;font-weight:900;color:var(--g4);display:block;line-height:1;}
+.t-price .per{font-size:10px;color:var(--dim);display:block;margin-bottom:16px;}
+.t-list{list-style:none;margin-bottom:20px;}
+.t-list li{padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;color:var(--dim2);display:flex;gap:8px;align-items:flex-start;}
+.t-list li:last-child{border:none;}
+.ck{color:var(--green);font-size:11px;flex-shrink:0;margin-top:1px;}
+.xx{color:var(--dim);opacity:.3;font-size:11px;flex-shrink:0;margin-top:1px;}
+.t-list strong{color:var(--text);}
+.t-btn{display:block;text-align:center;padding:12px;border-radius:9px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all .25s;}
+.tb-m{background:linear-gradient(135deg,var(--g1),var(--g3));color:#fff;}
+.tb-m:hover{box-shadow:0 0 28px var(--glow);}
+.tb-o{background:transparent;border:1px solid var(--bd2);color:var(--dim2);}
+.tb-o:hover{border-color:var(--g3);color:var(--g3);}
+.contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+.cf input,.cf textarea{width:100%;background:var(--bg3);border:1px solid var(--bd2);border-radius:9px;padding:13px 16px;font-size:13px;color:var(--text);outline:none;font-family:inherit;transition:border-color .2s;resize:none;}
+.cf input:focus,.cf textarea:focus{border-color:var(--g3);}
+.cf input::placeholder,.cf textarea::placeholder{color:var(--dim);}
+.cf{display:flex;flex-direction:column;gap:10px;}
+.contact-txt h3{font-size:26px;font-weight:900;margin-bottom:12px;line-height:1.2;}
+.contact-txt h3 em{font-style:normal;background:linear-gradient(135deg,var(--g4),var(--g2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.contact-txt p{font-size:14px;color:var(--dim2);line-height:1.85;margin-bottom:10px;}
+.meme{display:flex;align-items:center;gap:36px;padding:44px 52px;background:var(--bg2);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);z-index:1;position:relative;}
+.meme img{width:110px;height:110px;object-fit:cover;border-radius:10px;filter:grayscale(15%);}
+.meme-t h2{font-size:20px;font-weight:900;margin-bottom:8px;}
+.meme-t h2 em{font-style:normal;background:linear-gradient(135deg,var(--g4),var(--g2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.meme-t p{font-size:13px;color:var(--dim2);line-height:1.75;max-width:560px;}
+.faq-col{max-width:700px;}
+.fq{border:1px solid var(--bd);border-radius:10px;margin-bottom:6px;overflow:hidden;}
+.fq:hover{border-color:var(--g1);}
+.fq-q{padding:14px 18px;font-size:13px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--bg3);user-select:none;}
+.fq-q span{color:var(--g2);font-size:10px;transition:transform .3s;}
+.fq.open .fq-q span{transform:rotate(180deg);}
+.fq-a{max-height:0;overflow:hidden;transition:max-height .4s ease;background:var(--bg2);}
+.fq.open .fq-a{max-height:240px;}
+.fq-ai{padding:14px 18px;font-size:12px;color:var(--dim2);line-height:1.9;}
+.fq-ai strong{color:var(--g4);}
+.fcta{padding:80px 52px;text-align:center;position:relative;z-index:1;background:radial-gradient(ellipse 50% 55% at 50% 100%,rgba(110,110,110,.05) 0%,transparent 70%);}
+.fcta h2{font-size:clamp(22px,4vw,44px);font-weight:900;margin-bottom:12px;background:linear-gradient(135deg,#fff,var(--g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.fcta p{font-size:14px;color:var(--dim2);margin-bottom:28px;}
+.chronicle-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.chronicle-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.018),transparent),#141414;
+  border:1px solid rgba(255,255,255,.07);border-radius:18px;overflow:hidden;
+  box-shadow:0 14px 28px rgba(0,0,0,.2);
+}
+.chronicle-thumb{
+  min-height:152px;padding:18px;display:flex;align-items:flex-end;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(179,182,189,.12), transparent 28%),
+    linear-gradient(160deg,rgba(44,41,48,.92),rgba(22,22,24,.98));
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.chronicle-index{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#ececec;
+}
+.chronicle-body{padding:18px;}
+.chronicle-title{font-size:20px;font-weight:900;color:#f1f1f1;line-height:1.12;margin-bottom:8px;}
+.chronicle-copy{font-size:13px;line-height:1.78;color:#a5a5a5;margin-bottom:12px;}
+.chronicle-meta{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#8f8898;}
+.tribe-overview-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(300px,.82fr);gap:18px;align-items:stretch;}
+.tribe-overview-card,.tribe-mark-card,.tribe-join-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.018),transparent),#141414;
+  border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:22px;
+  box-shadow:0 16px 34px rgba(0,0,0,.22);
+}
+.tribe-quote{
+  font-size:18px;font-weight:800;line-height:1.5;color:#f1f1f1;margin-bottom:16px;
+  padding-left:16px;border-left:2px solid rgba(179,182,189,.34);
+}
+.tribe-copy{font-size:14px;line-height:1.86;color:#a7a7a7;margin-bottom:14px;}
+.tribe-copy:last-child{margin-bottom:0;}
+.tribe-traits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px;}
+.tribe-trait{
+  padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+}
+.tribe-trait-label{font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:#bbb6bd;margin-bottom:8px;}
+.tribe-trait-copy{font-size:12px;line-height:1.7;color:#9e9e9e;}
+.tribe-mark-card{
+  display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;position:relative;
+}
+.tribe-mark-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 35%, rgba(179,182,189,.14), transparent 38%);
+  pointer-events:none;
+}
+.tribe-mark-card img{
+  width:min(100%,220px);height:auto;display:block;position:relative;z-index:1;
+  filter:drop-shadow(0 0 40px rgba(179,182,189,.16));
+}
+.tribe-mark-label{position:relative;z-index:1;margin-top:18px;font-size:11px;letter-spacing:2.2px;text-transform:uppercase;color:#b3aba9;}
+.tribe-mark-copy{position:relative;z-index:1;margin-top:10px;font-size:13px;line-height:1.8;color:#9e9e9e;max-width:320px;}
+.tribe-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.tribe-product-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.018),transparent),#141414;
+  border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:18px;
+}
+.tribe-product-kicker{font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:#bbb6bd;margin-bottom:10px;}
+.tribe-product-title{font-size:20px;font-weight:900;color:#f1f1f1;margin-bottom:8px;line-height:1.12;}
+.tribe-product-copy{font-size:13px;line-height:1.78;color:#a2a2a2;margin-bottom:14px;}
+.tribe-points-list{display:grid;gap:8px;}
+.tribe-points-row{
+  display:flex;justify-content:space-between;gap:10px;align-items:flex-start;
+  padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+}
+.tribe-points-row strong{font-size:12px;color:#ededed;}
+.tribe-points-row span{font-size:11px;line-height:1.6;color:#919191;text-align:right;}
+.tribe-faq-col{max-width:760px;}
+.tribe-fq{
+  border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#141414;margin-bottom:10px;overflow:hidden;
+}
+.tribe-fq-q{
+  width:100%;display:flex;justify-content:space-between;gap:12px;align-items:center;
+  padding:16px 18px;border:none;background:transparent;color:#f1f1f1;cursor:pointer;
+  font-size:13px;font-weight:700;text-align:left;
+}
+.tribe-fq-q span{color:#bbb6bd;transition:transform .24s ease;}
+.tribe-fq.open .tribe-fq-q span{transform:rotate(180deg);}
+.tribe-fq-a{display:none;padding:0 18px 18px;font-size:13px;line-height:1.82;color:#a4a4a4;}
+.tribe-fq.open .tribe-fq-a{display:block;}
+.tribe-join-card{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap;}
+.tribe-join-copy{max-width:720px;}
+.tribe-join-actions{display:flex;gap:12px;flex-wrap:wrap;}
 .unit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
 .unit-card{
   background:linear-gradient(180deg,rgba(255,255,255,.018),transparent),#141414;
@@ -595,13 +878,18 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   .metrics-grid{grid-template-columns:repeat(2,1fr);}
   .wallet-upgrade-grid{grid-template-columns:1fr;}
   .wallet-plan-panels{grid-template-columns:1fr;}
-  .concept-grid,.loop-grid,.progress-grid{grid-template-columns:1fr;}
+  .concept-grid,.loop-grid,.progress-grid,.comic-cta-grid{grid-template-columns:1fr;}
   .system-grid,.upgrade-grid{grid-template-columns:1fr;}
+  .tribe-story-wrap,.vc-split,.scratch-row,.contact-wrap{grid-template-columns:1fr;}
+  .tiers,.battle-flow{grid-template-columns:1fr;}
+  .battle-flow::before{display:none;}
+  .notify{flex-direction:column;gap:14px;padding:20px;}
+  .chronicle-grid,.tribe-product-grid,.tribe-overview-grid,.tribe-traits{grid-template-columns:1fr;}
 }
 @media (max-width:780px){
   nav{padding:12px 20px;}
-  .nav-actions{gap:8px;justify-content:flex-end;max-width:55%;}
-  .nav-link-btn,.nav-cta{padding:8px 12px;font-size:9px;letter-spacing:1.4px;}
+  .nav-actions{gap:4px;max-width:100%;}
+  .nav-link-btn{padding:8px 10px;font-size:8px;letter-spacing:1.2px;}
   section{padding:56px 20px;}
   .hero{padding:82px 20px 32px;min-height:auto;grid-template-columns:1fr;}
   .hero-content{padding-left:0;}
@@ -631,7 +919,44 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   .mode-tabs{gap:8px;}
   .mode-tab{width:100%;justify-content:center;}
   .palette-grid,.unit-grid{grid-template-columns:1fr;}
+  .tribe-story-emblem{display:none;}
+  .meme{flex-direction:column;text-align:center;padding:36px 20px;}
+  .fcta{padding:56px 20px;}
 }
+
+/* ── Clan Wars ── */
+.clan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.clan-cell{display:flex;align-items:center;gap:10px;background:var(--bg4);border:1px solid var(--bd2);border-radius:10px;padding:8px 10px;transition:border-color .2s;}
+.clan-cell:focus-within{border-color:var(--g3);}
+.clan-cell .idx{width:24px;height:24px;flex-shrink:0;border-radius:6px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--g3);}
+.clan-cell input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:var(--text);font-size:12px;}
+.clan-cell input::placeholder{color:var(--dim);}
+.clan-cell .st{width:9px;height:9px;border-radius:50%;background:var(--dim);flex-shrink:0;}
+.clan-cell .st.ok{background:var(--green);box-shadow:0 0 8px var(--green);}
+.clan-cell .st.warn{background:var(--warn);}
+.clan-cell .st.err{background:#c26262;}
+.clan-cell .st.run{background:var(--g3);animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.clan-member{background:var(--bg3);border:1px solid var(--bd);border-radius:16px;padding:18px 18px 6px;margin-bottom:18px;}
+.clan-member-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.clan-member-name{font-size:16px;font-weight:900;color:#f1f1f1;}
+.clan-member-sub{font-size:12px;color:#9b9b9b;word-break:break-all;}
+.clan-member-stats{display:flex;gap:8px;flex-wrap:wrap;}
+.clan-teams{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:1000px){.clan-teams{grid-template-columns:1fr;}}
+.clan-swap-row,.clan-buy-row{display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;margin-bottom:10px;flex-wrap:wrap;}
+.clan-swap-row .arrow{font-size:20px;color:var(--g3);}
+.clan-swap-orc{display:flex;align-items:center;gap:10px;}
+.clan-swap-orc img,.clan-buy-row img{width:46px;height:46px;border-radius:10px;object-fit:cover;border:1px solid var(--bd2);}
+.clan-swap-orc .nm{font-size:13px;font-weight:800;color:#f0f0f0;}
+.clan-swap-orc .ow{font-size:11px;color:#9b9b9b;}
+.clan-gain{margin-left:auto;font-size:14px;font-weight:900;color:#c7ecd6;background:rgba(77,184,122,.12);border:1px solid rgba(77,184,122,.28);border-radius:999px;padding:6px 12px;white-space:nowrap;}
+.clan-buy-row .nm{font-size:13px;font-weight:800;color:#f0f0f0;}
+.clan-buy-row .meta{font-size:11px;color:#9b9b9b;}
+.clan-buy-price{font-size:13px;font-weight:800;color:#f2dfba;}
+.clan-buy-group{background:var(--bg3);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:16px;}
+.clan-buy-group h4{font-size:14px;font-weight:900;margin-bottom:12px;color:#f1f1f1;word-break:break-all;}
+@media(max-width:760px){.clan-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -643,18 +968,29 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
     <span class="brand-txt">CAVERN</span>
   </a>
   <div class="nav-actions">
+    <button type="button" class="nav-link-btn active" data-mode-nav="analyzer">Team Analyzer</button>
+    <button type="button" class="nav-link-btn" data-mode-nav="wallet">Wallet Advisor</button>
+    <button type="button" class="nav-link-btn" data-mode-nav="clan">Clan Wars</button>
+    <button type="button" class="nav-link-btn" data-mode-nav="lore">Lore</button>
+    <button type="button" class="nav-link-btn" data-mode-nav="tribe">Tribe</button>
+    <button type="button" class="nav-link-btn" data-mode-nav="vibe">Vibe City</button>
+    <button type="button" class="nav-link-btn" data-mode-nav="battle">Battle</button>
     <button type="button" class="nav-link-btn" data-mode-nav="defence">Cavern Defence</button>
-    <a href="#workspace" class="nav-cta active" data-mode-nav="analyzer">Analyze Orcs</a>
   </div>
 </nav>
 
-<section class="hero">
+<section class="hero" id="heroSection">
   <div class="hero-bg"></div>
   <div class="hero-content">
     <div class="hero-tag"><span class="pulse"></span>Live Data · Getgems collection · Cavern filter</div>
     <div class="hero-lockup">
       <h1 class="ht">CAVERN</h1>
       <div class="hero-sub">Orc Analyzer · Power + Synergy Engine</div>
+    </div>
+    <p class="hero-h">Cave orcs.<br><span>White skin. Dark force.</span></p>
+    <div class="btns">
+      <button type="button" class="btn-m" data-open-mode="tribe">Learn About the Tribe</button>
+      <a href="https://t.me/zargates_news" class="btn-o" target="_blank">Join</a>
     </div>
   </div>
   <div class="hero-visual">
@@ -663,21 +999,22 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   </div>
 </section>
 
-<div class="hr"></div>
+<div class="hr" id="heroTopDivider"></div>
 
-<div class="sbar">
+<div class="sbar" id="heroStatsBar">
   <div class="si"><span class="sv">Live</span><span class="sl">Data Source</span></div>
   <div class="si"><span class="sv">PWR</span><span class="sl">Power + Synergy Score</span></div>
   <div class="si"><span class="sv">Cavern</span><span class="sl">Skin Tone Filter</span></div>
 </div>
 
-<div class="hr"></div>
+<div class="hr" id="heroBottomDivider"></div>
 
 <section id="workspace">
   <div class="wrap">
     <div class="mode-tabs" id="modeTabs">
       <button type="button" class="mode-tab active" data-mode-tab="analyzer">Team Analyzer</button>
       <button type="button" class="mode-tab" data-mode-tab="wallet">Wallet Advisor</button>
+      <button type="button" class="mode-tab" data-mode-tab="clan">Clan Wars</button>
     </div>
     <div class="mode-page active" id="analyzerModePanel">
     <div class="panel">
@@ -723,6 +1060,32 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
         </div>
       </div>
     </div>
+    <div class="mode-page" id="clanModePanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Clan Wars</h3>
+        </div>
+        <p style="margin-bottom:18px;">
+          Build a clan of up to <b>20 members</b>. Paste each member's TON wallet — the engine scans <b>all of their Unstoppable Tribe orcs</b>
+          (not only Caverns), then shows every player's <b>3 strongest teams</b> by power and synergies. After that you can run a
+          <b>swap analysis</b> (redistribute orcs between wallets to raise total clan power) and a <b>market analysis</b>
+          (which listed orcs to buy per wallet to boost synergy).
+        </p>
+        <div class="clan-grid" id="clanWalletGrid"></div>
+        <div class="actions" style="margin-top:16px;gap:10px;flex-wrap:wrap;">
+          <button type="button" class="btn-m" id="analyzeClanBtn">Analyze Clan</button>
+          <button type="button" class="btn-o" id="clanFillDemoBtn">Clear All</button>
+        </div>
+        <div class="status" id="clanStatus">
+          <div class="status-title">Current Step</div>
+          <div class="status-text">Paste wallets and press Analyze Clan.</div>
+          <div class="status-bar">
+            <div class="status-fill"></div>
+            <div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="mode-page" id="defenceModePanel">
       <div class="panel">
         <div class="panel-head">
@@ -734,6 +1097,10 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
         </p>
       </div>
     </div>
+    <div class="mode-page" id="vibeModePanel"></div>
+    <div class="mode-page" id="battleModePanel"></div>
+    <div class="mode-page" id="tribeModePanel"></div>
+    <div class="mode-page" id="loreModePanel"></div>
   </div>
 </section>
 
@@ -824,6 +1191,67 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 
 <div class="hr"></div>
 
+<section id="clan-summary" class="mode-section" data-mode-section="clan">
+  <div class="wrap">
+    <div class="metrics-grid">
+      <div class="metric"><div class="n" id="clanMemberCount">0</div><div class="k">Members Analyzed</div><div class="v">Wallets with at least one orc.</div></div>
+      <div class="metric"><div class="n" id="clanOrcCount">0</div><div class="k">Total Clan Orcs</div><div class="v">All Unstoppable Tribe orcs owned.</div></div>
+      <div class="metric"><div class="n" id="clanPower">0 PWR</div><div class="k">Clan Power</div><div class="v">Sum of every member's top 3 teams.</div></div>
+      <div class="metric"><div class="n" id="clanTopMember">—</div><div class="k">Strongest Member</div><div class="v">Highest top-3 team power.</div></div>
+    </div>
+    <div class="actions" style="margin-top:18px;gap:10px;flex-wrap:wrap;">
+      <button type="button" class="btn-m" id="clanSwapBtn" disabled>① Swap Analysis (synergy trades)</button>
+      <button type="button" class="btn-m" id="clanMarketBtn" disabled>② Market Analysis (orcs to buy)</button>
+    </div>
+    <div class="status" id="clanActionStatus" style="margin-top:14px;">
+      <div class="status-title">Analysis</div>
+      <div class="status-text">Run the clan scan first, then use the two analysis buttons.</div>
+      <div class="status-bar"><div class="status-fill"></div><div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="clan-members" class="mode-section" data-mode-section="clan">
+  <div class="wrap">
+    <div class="lbl">Roster</div>
+    <div class="ttl">Each Member's <em>3 Strongest Teams</em></div>
+    <div class="desc">Top three unique teams per wallet, ranked by personal power plus Earring / Bracelet / Logo synergies.</div>
+    <div id="clanMembersGrid">
+      <div class="empty-state">No clan analysis yet. Add wallets in the Clan Wars tab and press Analyze Clan.</div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="clan-swaps" class="mode-section" data-mode-section="clan">
+  <div class="wrap">
+    <div class="lbl">Swap Plan</div>
+    <div class="ttl">Trade Orcs <em>Between Wallets</em></div>
+    <div class="desc" id="clanSwapMeta">Recommended orc transfers between members that raise total clan power through team synergies.</div>
+    <div id="clanSwapGrid">
+      <div class="empty-state">Press “Swap Analysis” after the clan scan.</div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="clan-market" class="mode-section" data-mode-section="clan">
+  <div class="wrap">
+    <div class="lbl">Market Plan</div>
+    <div class="ttl">Orcs to <em>Buy Per Wallet</em></div>
+    <div class="desc" id="clanMarketMeta">Live listed orcs that would most increase each member's team power and synergy.</div>
+    <div id="clanMarketGrid">
+      <div class="empty-state">Press “Market Analysis” after the clan scan.</div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
 <section id="defence-overview" class="mode-section" data-mode-section="defence">
   <div class="wrap">
     <div class="lbl">Vibe City · Ziggurat</div>
@@ -908,6 +1336,413 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="lore-overview" class="mode-section" data-mode-section="lore">
+  <div class="wrap">
+    <div class="lbl">Comics</div>
+    <div class="ttl">Ashes <em>of the Depths</em></div>
+    <div class="comic-hero-sub">Tribe of the Deep · Cavern Chronicle</div>
+    <div class="comic-hero-hook">Pale cave orcs.<br><span>White skin. Dark force.</span></div>
+    <div class="lore-stack">
+      <div class="lore-hero">
+        <img src="cavern-lore-episode-01.png" alt="Cavern lore comic key art" loading="lazy">
+      </div>
+      <div class="lore-copy">
+        <div class="lore-head">
+          <div class="lore-kicker">Chronicle I</div>
+          <div class="lore-title">Ashes of the Depths</div>
+          <div class="lore-runes">ᚱ ᚲ ᚹ</div>
+        </div>
+        <p>
+          Deep in the caves, a Cavern warband descends in search of an ancient relic remembered only through fragments of songs and
+          legends. The lower they go, the stronger the old rune on the rune-keeper's neck responds, warning that the target is close.
+        </p>
+        <p>
+          Below, a battle awaits them with a mystical creature that guards the trophy and lets no one near the altar.
+          Perhaps the ancient ruins hold more than one secret...
+        </p>
+        <div class="comic-cta-actions">
+          <button type="button" class="btn-m comic-action-btn is-primary" id="readComicBtn">Read Episode 01</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="tribe-overview" class="mode-section" data-mode-section="tribe">
+  <div class="wrap">
+    <div class="tribe-story-wrap">
+      <div class="fi">
+        <div class="lbl">History</div>
+        <div class="ttl">Who Are<br><em>Cavern</em></div>
+        <div class="tribe-story-quote">"While other tribes fought for the surface, we gathered strength in the dark."</div>
+        <p class="tribe-story-copy">Cavern is a tribe born from the depths. Millennia underground made their skin white and their minds sharp. They came into the light later than the others, but brought with them the knowledge of the deep that no one above possesses.</p>
+        <p class="tribe-story-copy">The rhino is their totem. Endurance, patience, and the strike that lands at the exact moment the enemy is already certain of victory. In the world of Zargates, Cavern is a tribe that does not make noise without reason, but knows how to impose its strength.</p>
+        <p class="tribe-story-copy">Today Cavern is strengthening its presence in Vibe City, competing in the Battle of Tribes, and gradually building its own identity around the clan through lore, tribe culture, and future game experiences.</p>
+        <div class="tribe-story-traits">
+          <div class="tribe-story-trait"><div class="tribe-story-name">Rarity</div><div class="tribe-story-val">EPIC · White Skin</div></div>
+          <div class="tribe-story-trait"><div class="tribe-story-name">Totem</div><div class="tribe-story-val">Rhino</div></div>
+          <div class="tribe-story-trait"><div class="tribe-story-name">Power</div><div class="tribe-story-val">20 per orc</div></div>
+          <div class="tribe-story-trait"><div class="tribe-story-name">Habitat</div><div class="tribe-story-val">Underground / Depths</div></div>
+        </div>
+      </div>
+      <div class="tribe-story-emblem fi d1">
+        <img src="c-logo-nobg.png" alt="Cavern Emblem" onerror="this.style.display='none'">
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="tribe-merch" class="mode-section" data-mode-section="tribe">
+  <div class="wrap">
+    <div class="lbl">Merch · Stickers · Gifts</div>
+    <div class="ttl">Wear <em>Cavern</em></div>
+    <div class="desc">Stickers, TG gifts, and digital merch built around the tribe's identity. A way to support the clan and show where you belong.</div>
+    <div class="merch-grid">
+      <div class="mc fi">
+        <div class="mc-cover">
+          <img src="c-orc.jpg" alt="Sticker pack" onerror="this.style.display='none'">
+          <div class="mc-cover-ph" id="sticker-ph" style="display:none;">Stickers</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-tag">Telegram · Sticker Pack</div>
+          <div class="mc-name">Cavern Orcs Pack</div>
+          <div class="mc-desc">Animated Cavern orc stickers for Telegram. Recognizable white skin, unmistakable tribe character.</div>
+          <div class="mc-price">In Development</div>
+          <div class="mc-soon">Soon · Notify Me</div>
+        </div>
+      </div>
+      <div class="mc fi d1">
+        <div class="mc-cover">
+          <div class="mc-cover-ph">TG Gift</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-tag">Telegram · Gift</div>
+          <div class="mc-name">Cavern Gift</div>
+          <div class="mc-desc">An exclusive TG gift with Cavern identity. Send it to tribe members or give it to newcomers as an invitation.</div>
+          <div class="mc-price">In Development</div>
+          <div class="mc-soon">Soon · Members Only</div>
+        </div>
+      </div>
+      <div class="mc fi d2">
+        <div class="mc-cover">
+          <div class="mc-cover-ph">Pack</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-tag">Digital · Guide Pack</div>
+          <div class="mc-name">Cavern Starter Pack</div>
+          <div class="mc-desc">A guide to the Zargates ecosystem, a breakdown of Vibe City mechanics, and a startup checklist. Everything a newcomer needs in one pack.</div>
+          <div class="mc-price">100 Stars</div>
+          <div class="mc-soon">Message on Telegram</div>
+        </div>
+      </div>
+      <div class="mc fi d3">
+        <div class="mc-cover">
+          <img src="c-logo-nobg.png" alt="NFT" onerror="this.style.display='none'">
+          <div class="mc-cover-ph">NFT</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-tag">NFT · Cavern Orcs</div>
+          <div class="mc-name">Cavern Orcs</div>
+          <div class="mc-desc">Cavern orcs on the Zargates market. EPIC rarity, white skin, and traits tuned for ecosystem events.</div>
+          <div class="mc-price">Zargates Market</div>
+          <div class="mc-soon">Available Now</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="vibe-overview" class="mode-section" data-mode-section="vibe">
+  <div class="wrap">
+    <div class="vc-split">
+      <div class="fi">
+        <div class="lbl">Zargates Ecosystem</div>
+        <div class="ttl">What Is<br><em>Vibe City</em></div>
+        <p style="font-size:14px;color:var(--dim2);line-height:1.88;margin-bottom:24px;">Vibe City is Zargates' gaming platform. The community builds the buildings, and each one is a separate AI product: games in different genres, services, and tools. A building generates turnover, and share holders receive their portion.</p>
+        <div class="vc-quote"><strong>A building share = a percentage of all transactions inside it, forever.</strong> As the platform grows, your income grows with it. Payouts come in Stars and USDT.</div>
+      </div>
+      <div class="vc-cards fi d1">
+        <div class="vcc">
+          <div class="vcc-name">How to Get Shares</div>
+          <div class="vcc-desc">Events: orcs with the right trait receive shares in a specific building. Golden orcs: shares drop automatically whenever a new building opens.</div>
+          <div class="vcc-tag">Events · Golden Orcs</div>
+        </div>
+        <div class="vcc">
+          <div class="vcc-name">Where Revenue Comes From</div>
+          <div class="vcc-desc">Players spend Stars inside the buildings. That flow is distributed among share holders in proportion to their stake.</div>
+          <div class="vcc-tag">Stars + USDT · Passive</div>
+        </div>
+        <div class="vcc">
+          <div class="vcc-name">Liquidity</div>
+          <div class="vcc-desc">You can hold shares and earn income, or sell them. The same goes for market orcs. Everything inside the Zargates ecosystem is tradable.</div>
+          <div class="vcc-tag">Sell · Hold · Reinvest</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="battle-overview" class="mode-section" data-mode-section="battle">
+  <div class="wrap">
+    <div class="lbl">Competition</div>
+    <div class="ttl">Battle of <em>Tribes</em></div>
+    <div class="desc">A seasonal competition among 18 Zargates tribes. The winner receives building shares for the entire lineup.</div>
+    <div class="battle-flow fi">
+      <div class="bf-step">
+        <div class="bf-num">1</div>
+        <div class="bf-title">Gather Orcs</div>
+        <div class="bf-desc">Cavern orcs are EPIC rarity and worth 20 Power each. Trait synergies provide a team bonus.</div>
+      </div>
+      <div class="bf-step">
+        <div class="bf-num">2</div>
+        <div class="bf-title">Build Your Lineup</div>
+        <div class="bf-desc">The best combination of traits equals the highest total team Power.</div>
+      </div>
+      <div class="bf-step">
+        <div class="bf-num">3</div>
+        <div class="bf-title">Compete in the Season</div>
+        <div class="bf-desc">The tribe with the highest total Power at the end of the season wins.</div>
+      </div>
+      <div class="bf-step">
+        <div class="bf-num">4</div>
+        <div class="bf-title">Claim Rewards</div>
+        <div class="bf-desc">Grand Casino and other building shares for every member of the winning lineup.</div>
+        <div class="bf-reward">Building Shares</div>
+      </div>
+    </div>
+    <div class="battle-note fi">
+      <p>Cavern is currently building its lineup. <strong>If you own Cavern tribe orcs, message us.</strong> A stronger lineup means a better chance to win and more shares for every participant.</p>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="tribe-earn" class="mode-section" data-mode-section="tribe" style="background:var(--bg2);">
+  <div class="wrap">
+    <div class="lbl">No Waiting</div>
+    <div class="ttl">What Works <em>Right Now</em></div>
+    <div class="desc">Not after listing. Not after winning the Battle. Today.</div>
+    <div class="earn-grid">
+      <div class="ec fi">
+        <div class="ec-n">Method 01</div>
+        <div class="ec-title">Boxes -> Scratch -> Stars</div>
+        <div class="ec-desc">Every box contains a scratch card with a random amount of Stars. Open it, claim it, withdraw it, or reinvest it.</div>
+        <div class="ec-result">Stars the same day</div>
+      </div>
+      <div class="ec fi d1">
+        <div class="ec-n">Method 02</div>
+        <div class="ec-title">Orcs on the Market</div>
+        <div class="ec-desc">List orcs from boxes on the Zargates market. There is always demand for orcs with traits that match active events.</div>
+        <div class="ec-result">Instant liquidity</div>
+      </div>
+      <div class="ec fi d2">
+        <div class="ec-n">Method 03</div>
+        <div class="ec-title">Events -> Vibe City Shares</div>
+        <div class="ec-desc">Orcs with the right trait receive building shares. The Ethereum event is a live example. The next event is the next opportunity.</div>
+        <div class="ec-result">Shares -> passive income</div>
+      </div>
+      <div class="ec fi d3">
+        <div class="ec-n">Method 04</div>
+        <div class="ec-title">Golden Orcs</div>
+        <div class="ec-desc">After every new building opens in Vibe City, holders of golden orcs receive shares automatically. No conditions.</div>
+        <div class="ec-result">Auto-drop from every building</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="tribe-events" class="mode-section" data-mode-section="tribe">
+  <div class="wrap">
+    <div class="lbl">Mechanics & Events</div>
+    <div class="ttl">Orc Traits Are the <em>Key to Drops</em></div>
+    <div class="desc">Zargates regularly announces events. Each one has different conditions, and the right trait at the right moment can bring building shares.</div>
+    <div class="ev-grid">
+      <div class="ev fi">
+        <span class="ev-badge b-past">Past</span>
+        <div class="ev-label">Event</div>
+        <div class="ev-name">Ethereum Drop</div>
+        <div class="ev-body">Orcs with the <strong>"Ethereum"</strong> trait in any slot received Vibe City shares, with no Battle win and no extra conditions required.</div>
+        <div class="ev-reward">Vibe City Shares</div>
+      </div>
+      <div class="ev fi d1">
+        <span class="ev-badge b-on">Permanent</span>
+        <div class="ev-label">Mechanic</div>
+        <div class="ev-name">Golden Orcs</div>
+        <div class="ev-body">Every new building in Vibe City triggers an automatic share drop for all golden orc holders. It works without events.</div>
+        <div class="ev-reward">Shares from every building</div>
+      </div>
+      <div class="ev fi d2">
+        <span class="ev-badge b-soon">Soon</span>
+        <div class="ev-label">Next Event</div>
+        <div class="ev-name">New Conditions</div>
+        <div class="ev-body">Zargates will announce the next event with a new set of traits. Cavern breaks down every event, so subscribe if you want the analysis first.</div>
+        <div class="ev-reward">Breakdown in the Cavern channel</div>
+      </div>
+    </div>
+    <div class="scratch-row fi" style="margin-top:40px;">
+      <div class="sc-card" onclick="scratch(this)">
+        <div class="sc-hint">Scratch Card from a Box</div>
+        <div class="sc-val" id="scv">?</div>
+        <div class="sc-sub" id="scs">tap to reveal</div>
+      </div>
+      <div class="sc-info">
+        <p>Every box in Zargates contains a scratch card with a random amount of Stars. Scratch it and you see how much you got.</p>
+        <ul class="sc-list">
+          <li><span class="ar">→</span><span><strong>Premium Pass</strong> — increases Stars and orc rarity</span></li>
+          <li><span class="ar">→</span><span><strong>Horseshoe</strong> — boosts the chance of getting rare and golden orcs</span></li>
+          <li><span class="ar">→</span><span><strong>Golden Orc</strong> — grants shares from every new building forever</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="notify fi">
+      <div class="notify-txt">
+        <h4>Event Alerts</h4>
+        <p>Leave your contact and we will send you the breakdown of the next Zargates event.</p>
+      </div>
+      <form class="nf" onsubmit="submitForm(event)">
+        <input type="text" id="sub-input" placeholder="@telegram or email">
+        <button type="submit">Get Alerts</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="tribe-join" class="mode-section" data-mode-section="tribe" style="background:var(--bg2);">
+  <div class="wrap">
+    <div class="lbl">Membership</div>
+    <div class="ttl">Three Levels of <em>Participation</em></div>
+    <div class="desc" style="margin-bottom:28px;">Choose the format that fits you, from free entry to full immersion with personal review.</div>
+    <div class="tiers">
+      <div class="tier fi">
+        <div class="t-lv">Level 1</div>
+        <div class="t-name">Recruit</div>
+        <div class="t-sub">Start here. Understand the ecosystem.</div>
+        <div class="t-price"><span class="amt">Free</span><span class="per">basic access</span></div>
+        <ul class="t-list">
+          <li><span class="ck">✓</span><span>Cavern chat in Telegram</span></li>
+          <li><span class="ck">✓</span><span>Guide: Vibe City, orcs, boxes</span></li>
+          <li><span class="ck">✓</span><span>Starter pack — how to begin earning</span></li>
+          <li><span class="xx">—</span><span style="opacity:.35">Event breakdowns</span></li>
+          <li><span class="xx">—</span><span style="opacity:.35">Collection analysis</span></li>
+          <li><span class="xx">—</span><span style="opacity:.35">Trading desk</span></li>
+        </ul>
+        <a href="https://t.me/zargates_news" class="t-btn tb-o" target="_blank">Join</a>
+      </div>
+      <div class="tier hot fi d1">
+        <div class="t-ribbon">Popular</div>
+        <div class="t-lv">Level 2</div>
+        <div class="t-name">Warrior</div>
+        <div class="t-sub">Events, traits, market.</div>
+        <div class="t-price"><span class="amt">500 ★</span><span class="per">per season</span></div>
+        <ul class="t-list">
+          <li><span class="ck">✓</span><span>Everything in Recruit</span></li>
+          <li><span class="ck">✓</span><span><strong>Breakdown of every event</strong> — traits, buildings, conditions</span></li>
+          <li><span class="ck">✓</span><span><strong>Analysis of your collection</strong> — who qualifies for drops</span></li>
+          <li><span class="ck">✓</span><span><strong>Trading desk</strong> — orcs inside Cavern</span></li>
+          <li><span class="ck">✓</span><span>A spot in the Battle of Tribes lineup</span></li>
+          <li><span class="xx">—</span><span style="opacity:.35">Personal portfolio review</span></li>
+        </ul>
+        <a href="https://t.me/zargates_news" class="t-btn tb-m" target="_blank">Join →</a>
+      </div>
+      <div class="tier fi d2">
+        <div class="t-lv">Level 3</div>
+        <div class="t-name">Elite</div>
+        <div class="t-sub">Maximum value from every season.</div>
+        <div class="t-price"><span class="amt">2000 ★</span><span class="per">per season</span></div>
+        <ul class="t-list">
+          <li><span class="ck">✓</span><span>Everything in Warrior</span></li>
+          <li><span class="ck">✓</span><span><strong>Personal review</strong> — optimization for shares</span></li>
+          <li><span class="ck">✓</span><span><strong>Top lineup</strong> — your place in the strongest team</span></li>
+          <li><span class="ck">✓</span><span><strong>Weekly report</strong> on events and buildings</span></li>
+          <li><span class="ck">✓</span><span><strong>VIP channel</strong> — private breakdowns</span></li>
+          <li><span class="ck">✓</span><span>Priority in the trading desk</span></li>
+        </ul>
+        <a href="https://t.me/zargates_news" class="t-btn tb-o" target="_blank">Join →</a>
+      </div>
+    </div>
+    <p style="text-align:center;color:var(--dim);margin-top:18px;font-size:10px;">Payment: Telegram Stars · TON · Sapphires · Activation within 24h</p>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section id="tribe-contact" class="mode-section" data-mode-section="tribe">
+  <div class="wrap">
+    <div class="contact-wrap">
+      <div class="contact-txt fi">
+        <div class="lbl">Contact</div>
+        <h3>Have a question?<br><em>Write to us.</em></h3>
+        <p>If you already own Cavern orcs, have questions about events, or want to join the lineup, write to us directly. We will reply.</p>
+        <p>Or just leave a contact and we will tell you what is happening in Cavern right now.</p>
+        <div style="margin-top:20px;">
+          <a href="https://t.me/zargates_news" class="btn-m" target="_blank" style="margin-right:10px;">Write on Telegram</a>
+        </div>
+      </div>
+      <div class="fi d1">
+        <div class="cf">
+          <input type="text" placeholder="Name or @telegram">
+          <input type="text" placeholder="Topic — orcs, event, lineup...">
+          <textarea placeholder="Message" rows="4"></textarea>
+          <button class="btn-m" onclick="this.textContent='Sent';this.style.background='#4db87a';setTimeout(()=>{this.textContent='Send';this.style.background='';},3000);">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<div class="mode-section meme" data-mode-section="tribe">
+  <img src="c-orc.jpg" alt="Orc" onerror="this.style.display='none'">
+  <div class="meme-t">
+    <h2>WEN TGE? <em>Right now.</em></h2>
+    <p>Orcs bring Stars today. Events bring building shares. Vibe City is live. Cavern is inside it. There is no reason to wait — the only question is whether you will be with us.</p>
+  </div>
+</div>
+
+<div class="hr"></div>
+
+<section id="tribe-faq" class="mode-section" data-mode-section="tribe">
+  <div class="wrap">
+    <div class="lbl">FAQ</div>
+    <div class="ttl">Frequently Asked <em>Questions</em></div>
+    <div class="faq-col">
+      <div class="fq"><div class="fq-q" onclick="faq(this)">What is Cavern and how is it connected to Zargates?<span>▼</span></div><div class="fq-a"><div class="fq-ai">Cavern is one of the 18 tribes in Zargates. A tribe is a group of orcs united under one banner. Cavern is EPIC rarity, with white-skinned orcs and a rhino totem. It competes in the Battle of Tribes, takes part in events, and builds its presence inside Vibe City.</div></div></div>
+      <div class="fq"><div class="fq-q" onclick="faq(this)">How do I get Vibe City building shares?<span>▼</span></div><div class="fq-a"><div class="fq-ai">There are two paths: <strong>1)</strong> Events — orcs with the right trait receive shares, as in the Ethereum event. <strong>2)</strong> Golden orcs — automatic share drops whenever a new building opens. Winning the Battle also grants Grand Casino shares.</div></div></div>
+      <div class="fq"><div class="fq-q" onclick="faq(this)">What does a box in Zargates give you?<span>▼</span></div><div class="fq-a"><div class="fq-ai">Orcs from different tribes and a <strong>scratch card with Stars</strong>. The amount is random, and you only find out after opening it. The Premium Pass and the Horseshoe increase Stars and improve the chance of rare orcs.</div></div></div>
+      <div class="fq"><div class="fq-q" onclick="faq(this)">Why Cavern if other tribes also have EPIC rarity?<span>▼</span></div><div class="fq-a"><div class="fq-ai">EPIC rarity is the entry point, not the uniqueness. Cavern stands out because of its own identity <strong>(white skin, rhino)</strong>, its <strong>presence in Vibe City</strong>, its event-focused community, and the content built around the tribe — stickers, guides, and merch.</div></div></div>
+      <div class="fq"><div class="fq-q" onclick="faq(this)">How much does it cost to join?<span>▼</span></div><div class="fq-a"><div class="fq-ai">Base entry is free. Warrior costs 500 Stars per season and includes event breakdowns, collection analysis, and the trading desk. Elite costs 2000 Stars per season and adds personal review, top-lineup placement, and the VIP channel.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section class="mode-section fcta" data-mode-section="tribe">
+  <img src="c-logo-nobg.png" alt="Cavern" style="height:50px;object-fit:contain;margin-bottom:18px;opacity:.85;" onerror="this.style.display='none'">
+  <h2>The tribe is waiting.<br>Are you with us?</h2>
+  <p>Orcs, shares, Stars, and Vibe City — all of it is already live. Cavern is inside the Zargates ecosystem. Step in.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <a href="https://t.me/zargates_news" class="btn-m" target="_blank">Join Cavern</a>
+    <button type="button" class="btn-o" data-open-mode="tribe">Learn About the Tribe ↑</button>
   </div>
 </section>
 
@@ -1438,6 +2273,53 @@ const state = {
   walletPlan: null
 };
 
+const scratchValues = [12, 47, 83, 156, 204, 310, 28, 91, 375, 512, 64, 138];
+function scratch() {
+  const value = scratchValues[Math.floor(Math.random() * scratchValues.length)];
+  const number = document.getElementById("scv");
+  const sub = document.getElementById("scs");
+  if (number) {
+    number.textContent = `${value} ★`;
+  }
+  if (sub) {
+    sub.textContent = "Telegram Stars";
+  }
+}
+
+function submitForm(event) {
+  event.preventDefault();
+  const input = document.getElementById("sub-input");
+  const value = String(input?.value || "").trim();
+  if (!value) {
+    return;
+  }
+  const button = event.target?.querySelector("button");
+  if (!button) {
+    return;
+  }
+  button.textContent = "Saved";
+  button.style.background = "#4db87a";
+  if (input) {
+    input.value = "";
+  }
+  window.setTimeout(() => {
+    button.textContent = "Get Alerts";
+    button.style.background = "";
+  }, 3000);
+}
+
+function faq(element) {
+  const item = element?.parentElement;
+  if (!item) {
+    return;
+  }
+  const isOpen = item.classList.contains("open");
+  document.querySelectorAll(".fq.open").forEach((node) => node.classList.remove("open"));
+  if (!isOpen) {
+    item.classList.add("open");
+  }
+}
+
 function norm(value) {
   return String(value || "")
     .trim()
@@ -1456,7 +2338,7 @@ function escapeHtml(value) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat("ru-RU").format(Number(value || 0));
+  return new Intl.NumberFormat("en-US").format(Number(value || 0));
 }
 
 function sleep(ms) {
@@ -1548,6 +2430,14 @@ function setWalletStatus(message, kind = "", progress = null) {
   setStatusFor("walletStatus", message, kind, progress);
 }
 
+function setClanStatus(message, kind = "", progress = null) {
+  setStatusFor("clanStatus", message, kind, progress);
+}
+
+function setClanActionStatus(message, kind = "", progress = null) {
+  setStatusFor("clanActionStatus", message, kind, progress);
+}
+
 function resetStatusProgress(statusId = "loadStatus") {
   const status = document.getElementById(statusId);
   if (status) {
@@ -1579,7 +2469,7 @@ function getConfig() {
 async function parseCollectionAddress(rawInput) {
   const raw = rawInput.trim();
   if (!raw) {
-    throw new Error("Нужен адрес коллекции или Getgems-ссылка.");
+    throw new Error("A collection address or Getgems URL is required.");
   }
 
   if (/^(EQ|UQ|kQ|0:)[A-Za-z0-9_-]+$/.test(raw)) {
@@ -1604,7 +2494,7 @@ async function parseCollectionAddress(rawInput) {
     /* noop */
   }
 
-  throw new Error("Не смог распознать адрес коллекции. Сейчас поддерживаются EQ..., getgems collection URL и slug `unstoppabletribe`.");
+  throw new Error("Could not parse the collection address. Supported inputs right now: EQ..., a Getgems collection URL, and the `unstoppabletribe` slug.");
 }
 
 function getImage(item) {
@@ -2654,23 +3544,23 @@ function renderMetrics(rawCount, filteredCount, bestTeamResult, coverage) {
   grid.innerHTML = `
     <div class="metric">
       <div class="n">${formatNumber(rawCount)}</div>
-      <div class="k">Всего NFT</div>
-      <div class="v">Полный размер коллекции, который удалось пройти через live API.</div>
+      <div class="k">Total NFTs</div>
+      <div class="v">The full collection size reached through the live API.</div>
     </div>
     <div class="metric">
       <div class="n">${formatNumber(filteredCount)}</div>
-      <div class="k">Cavern-орки</div>
-      <div class="v">Прошли текущий фильтр по target trait.</div>
+      <div class="k">Cavern Orcs</div>
+      <div class="v">Passed the current target trait filter.</div>
     </div>
     <div class="metric">
       <div class="n">${coverageCount} / 7</div>
-      <div class="k">Покрытие эмоций</div>
-      <div class="v">${coverageCount === 7 ? "Можно собрать полный состав." : "Некоторые эмоции пока не закрыты."}</div>
+      <div class="k">Emotion Coverage</div>
+      <div class="v">${coverageCount === 7 ? "A full lineup can be built." : "Some emotions are still uncovered."}</div>
     </div>
     <div class="metric">
       <div class="n">${formatNumber(bestTeamResult.totalScore)}</div>
-      <div class="k">Лучшая сумма</div>
-      <div class="v">Сумма личного power и всех командных бонусов лучшего состава.</div>
+      <div class="k">Best Total</div>
+      <div class="v">The sum of personal power and all team bonuses in the strongest lineup.</div>
     </div>
   `;
 }
@@ -2781,7 +3671,7 @@ function renderTopTeams(teams) {
 function renderRoster(items) {
   const rosterGrid = document.getElementById("rosterGrid");
   if (!items.length) {
-    rosterGrid.innerHTML = `<div class="empty-state">По текущему фильтру подходящих Cavern-орков не найдено.</div>`;
+    rosterGrid.innerHTML = `<div class="empty-state">No matching Cavern orcs were found for the current filter.</div>`;
     return;
   }
 
@@ -2829,7 +3719,7 @@ function renderRoster(items) {
             <span class="tag">Combo +${formatNumber(item.localComboBonus)}</span>
             <span class="tag">Score ${formatNumber(item.score)}</span>
           </div>
-          <div class="attr-stack">${attrs || '<div class="attr"><b>Нет</b><span>Атрибуты не найдены</span></div>'}${extras}</div>
+          <div class="attr-stack">${attrs || '<div class="attr"><b>No</b><span>No attributes found</span></div>'}${extras}</div>
           <div class="hint">${escapeHtml(item.market)}${item.localComboLabels.length ? ` · combo: ${escapeHtml(item.localComboLabels.join(" / "))}` : ""}</div>
         </div>
       </article>
@@ -2838,7 +3728,7 @@ function renderRoster(items) {
 
   if (sorted.length > 120) {
     rosterGrid.insertAdjacentHTML("beforeend", `
-      <div class="empty-state">Показаны первые 120 карточек из ${formatNumber(sorted.length)}. Остальные уже загружены и участвуют в расчете команды.</div>
+      <div class="empty-state">Showing the first 120 cards out of ${formatNumber(sorted.length)}. The rest are already loaded and included in the team calculation.</div>
     `);
   }
 }
@@ -2850,11 +3740,11 @@ function renderTraits(items) {
     <div class="trait-item">
       <div>
         <strong>${escapeHtml(trait)}</strong>
-        <span>Повторяется у нескольких Cavern-орков.</span>
+        <span>Repeated across multiple Cavern orcs.</span>
       </div>
       <strong>${formatNumber(count)}</strong>
     </div>
-  `).join("") : `<div class="trait-item"><strong>Нет данных</strong><span>Пока не из чего строить частоты.</span></div>`;
+  `).join("") : `<div class="trait-item"><strong>No data</strong><span>There is not enough data yet to build frequencies.</span></div>`;
 
   const coverage = buildEmotionCoverage(items);
   const emotionList = document.getElementById("emotionList");
@@ -2862,7 +3752,7 @@ function renderTraits(items) {
     <div class="emotion-item">
       <div>
         <strong>${escapeHtml(item.emotion)}</strong>
-        <span>${item.count > 0 ? "Слот можно закрыть." : "Кандидатов пока нет."}</span>
+        <span>${item.count > 0 ? "The slot can be filled." : "No candidates yet."}</span>
       </div>
       <strong>${formatNumber(item.count)}</strong>
     </div>
@@ -3332,8 +4222,25 @@ function renderWalletPlan(walletPlan) {
 function setActiveMode(mode) {
   state.activeMode = mode;
   const modeTabs = document.getElementById("modeTabs");
+  const heroSection = document.getElementById("heroSection");
+  const heroStatsBar = document.getElementById("heroStatsBar");
+  const heroTopDivider = document.getElementById("heroTopDivider");
+  const heroBottomDivider = document.getElementById("heroBottomDivider");
+  const hideHeroChrome = mode === "defence" || mode === "lore" || mode === "tribe" || mode === "vibe" || mode === "battle";
   if (modeTabs) {
-    modeTabs.classList.toggle("hidden", mode === "defence");
+    modeTabs.classList.toggle("hidden", hideHeroChrome);
+  }
+  if (heroSection) {
+    heroSection.classList.toggle("hidden", hideHeroChrome);
+  }
+  if (heroStatsBar) {
+    heroStatsBar.classList.toggle("hidden", hideHeroChrome);
+  }
+  if (heroTopDivider) {
+    heroTopDivider.classList.toggle("hidden", hideHeroChrome);
+  }
+  if (heroBottomDivider) {
+    heroBottomDivider.classList.toggle("hidden", hideHeroChrome);
   }
   document.querySelectorAll("[data-mode-tab]").forEach((button) => {
     button.classList.toggle("active", button.getAttribute("data-mode-tab") === mode);
@@ -3426,6 +4333,410 @@ async function runWalletAnalysis() {
   }
 }
 
+/* ===================== CLAN WARS ===================== */
+const CLAN_SIZE = 20;
+const clanState = { members: [], market: [], running: false };
+
+function getClanConfig() {
+  return { ...getConfig(), traitType: "Skin Tone", traitValue: "Cavern", focusBonus: 0 };
+}
+
+function buildClanCells() {
+  const grid = document.getElementById("clanWalletGrid");
+  if (!grid || grid.dataset.built === "1") return;
+  let html = "";
+  for (let i = 0; i < CLAN_SIZE; i += 1) {
+    html += `
+      <div class="clan-cell">
+        <div class="idx">${i + 1}</div>
+        <input type="text" data-clan-input="${i}" placeholder="UQ... / EQ... wallet">
+        <div class="st" data-clan-st="${i}"></div>
+      </div>`;
+  }
+  grid.innerHTML = html;
+  grid.dataset.built = "1";
+}
+
+function getClanWallets() {
+  return [...document.querySelectorAll("[data-clan-input]")]
+    .map((el, i) => ({ index: i, addr: String(el.value || "").trim() }))
+    .filter((w) => w.addr);
+}
+
+function setClanCellState(index, kind) {
+  const dot = document.querySelector(`[data-clan-st="${index}"]`);
+  if (dot) dot.className = `st ${kind || ""}`;
+}
+
+async function fetchWalletClanItems(walletAddress, onProgress) {
+  const items = [];
+  const seen = new Set();
+  let offset = 0, page = 0;
+  const limit = 100;
+  while (true) {
+    const url = `https://tonapi.io/v2/accounts/${encodeURIComponent(walletAddress)}/nfts?limit=${limit}&offset=${offset}`;
+    const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
+      maxAttempts: 5,
+      onRetry(waitMs, attempt) { onProgress(`Wallet scan retry ${attempt}/5...`); }
+    });
+    const batch = Array.isArray(data?.nft_items) ? data.nft_items : [];
+    for (const rawItem of batch) {
+      const key = rawItem?.address;
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      if (isWalletCollectionMatch(rawItem)) items.push(rawItem);
+    }
+    onProgress(`Scanning wallet · page ${page + 1} · ${items.length} orcs found...`);
+    if (!batch.length || batch.length < limit) break;
+    offset += batch.length; page += 1; await sleep(120);
+  }
+  return items;
+}
+
+async function fetchListedClanMarketItems(onProgress) {
+  const matched = [];
+  const seen = new Set();
+  const totalCount = await fetchCollectionSize(KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe);
+  let offset = 0, page = 0, checked = 0;
+  const limit = 100;
+  while (true) {
+    const url = `https://tonapi.io/v2/nfts/collections/${encodeURIComponent(KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe)}/items?limit=${limit}&offset=${offset}`;
+    const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
+      maxAttempts: 6,
+      onRetry(waitMs, attempt) { onProgress(`Market scan retry ${attempt}/6...`, checked, totalCount); }
+    });
+    const batch = Array.isArray(data?.nft_items) ? data.nft_items : [];
+    for (const rawItem of batch) {
+      const key = rawItem?.address;
+      if (!key || seen.has(key)) continue;
+      seen.add(key); checked += 1;
+      if (rawItem?.sale?.price?.value) matched.push(rawItem);
+    }
+    onProgress(`Market scan: ${formatNumber(checked)}/${formatNumber(totalCount || checked)} · ${matched.length} listed orcs...`, checked, totalCount);
+    if (!batch.length || batch.length < limit) break;
+    offset += batch.length; page += 1; await sleep(120);
+  }
+  return matched;
+}
+
+// up to N unique strongest teams (lighter version of buildTopTeams)
+async function buildTopNTeams(items, config, n, onProgress) {
+  const teams = [];
+  const used = new Set();
+  for (let t = 0; t < n; t += 1) {
+    const remaining = items.filter((it) => !used.has(it.address));
+    if (remaining.length < 1) break;
+    const best = await buildBeamBestTeam(remaining, config, onProgress);
+    if (!best || best.result.coverage === 0) break;
+    teams.push(best);
+    best.team.filter(Boolean).forEach((it) => used.add(it.address));
+  }
+  return teams;
+}
+
+// fast beam team scorer for swap/market deltas
+function fastTeamScore(items, config) {
+  const groups = EMOTIONS.map((e) =>
+    items.filter((i) => i.emotion === e).sort((a, b) => b.power - a.power).slice(0, 6)
+  );
+  let beam = [[]];
+  for (const cand of groups) {
+    const pool = cand.length ? cand : [null];
+    const next = [];
+    for (const team of beam) for (const it of pool) next.push([...team, it]);
+    next.sort((a, b) => evaluateTeam(b, config).totalScore - evaluateTeam(a, config).totalScore);
+    beam = next.slice(0, 24);
+  }
+  let best = 0, bestTeam = beam[0] || [];
+  for (const t of beam) { const s = evaluateTeam(t, config).totalScore; if (s > best) { best = s; bestTeam = t; } }
+  return { score: best, team: bestTeam.filter(Boolean) };
+}
+
+function orcSynergyTokens(item) {
+  const s = new Set();
+  const e = getAttributeValue(item, "Earrings"); if (e) s.add("e:" + norm(e));
+  const b = getAttributeValue(item, "Bracelet"); if (b) s.add("b:" + norm(b));
+  for (const m of item.logoMatches) s.add("l:" + m.token);
+  return s;
+}
+function rosterTokenSet(items) { const s = new Set(); for (const it of items) for (const t of orcSynergyTokens(it)) s.add(t); return s; }
+function orcSharesToken(item, set) { for (const t of orcSynergyTokens(item)) if (set.has(t)) return true; return false; }
+
+function clanTeamCardHTML(entry, rank) {
+  const signals = computeTeamSignals(entry.team);
+  const badges = [`<span class="team-pill orange">${formatNumber(entry.result.totalScore)} PWR</span>`];
+  entry.result.synergyDetails.filter((d) => !d.trait.startsWith("Full team:")).slice(0, 2).forEach((d) => {
+    const lbl = d.trait.replace(/^Logo:\s*/i, "Logo: ").replace(/^Earrings:\s*/i, "Earring: ").replace(/^Bracelet:\s*/i, "Bracelet: ");
+    badges.push(`<span class="team-pill blue">${escapeHtml(lbl)} x${d.count} +${formatNumber(d.bonus)}</span>`);
+  });
+  const slots = EMOTIONS.map((emotion, i) => {
+    const item = entry.team[i];
+    if (!item) {
+      return `<div class="slot empty"><div class="slot-cover"></div><div class="slot-body"><div class="slot-tag">${escapeHtml(emotion)}</div><div class="slot-score"><div class="score-main">No candidate</div><div class="score-sub">empty</div></div></div></div>`;
+    }
+    const itemBadges = getItemTeamBadges(item, signals).map((b) => `<span class="slot-pill ${b.kind}">${escapeHtml(b.label)}</span>`).join("");
+    return `
+      <div class="slot">
+        <div class="slot-cover"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'"></div>
+        <div class="slot-body">
+          <div class="slot-tag">${escapeHtml(emotion)}</div>
+          <div class="slot-meta">${formatNumber(item.power)} PWR</div>
+          <div class="slot-badges">${itemBadges || '<span class="slot-pill">Base</span>'}</div>
+          <div class="slot-score"><div class="score-main">${escapeHtml(item.name)}</div><div class="score-sub">${escapeHtml(emotion)}</div></div>
+        </div>
+      </div>`;
+  }).join("");
+  return `
+    <article class="variant-card">
+      <div class="team-board">
+        <div class="team-head">
+          <div class="variant-titleline"><span class="variant-rank">#${rank}</span><span class="variant-meta">(${entry.result.coverage} Orcs, ${formatNumber(entry.result.teamPower)} PWR)</span></div>
+          <div class="team-badges">${badges.join("")}</div>
+        </div>
+        <div class="team-slots">${slots}</div>
+      </div>
+    </article>`;
+}
+
+function memberTop3Total(member) {
+  return member.teams.reduce((s, t) => s + (t.result.totalScore || 0), 0);
+}
+
+function renderClanMembers() {
+  const grid = document.getElementById("clanMembersGrid");
+  const members = clanState.members;
+  if (!members.length) {
+    grid.innerHTML = `<div class="empty-state">No members with Unstoppable Tribe orcs were found in the pasted wallets.</div>`;
+    return;
+  }
+  grid.innerHTML = members.map((m, mi) => {
+    const teams = m.teams.length
+      ? `<div class="clan-teams">${m.teams.map((t, i) => clanTeamCardHTML(t, i + 1)).join("")}</div>`
+      : `<div class="empty-state">Owns ${m.items.length} orc(s) — not enough to field a full team.</div>`;
+    return `
+      <div class="clan-member">
+        <div class="clan-member-head">
+          <div>
+            <div class="clan-member-name">Member ${m.index + 1}</div>
+            <div class="clan-member-sub">${escapeHtml(m.addr)}</div>
+          </div>
+          <div class="clan-member-stats">
+            <span class="team-pill dark">${m.items.length} orcs</span>
+            <span class="team-pill orange">${formatNumber(memberTop3Total(m))} PWR (top 3)</span>
+          </div>
+        </div>
+        ${teams}
+      </div>`;
+  }).join("");
+}
+
+function renderClanSummary() {
+  const members = clanState.members;
+  const totalOrcs = members.reduce((s, m) => s + m.items.length, 0);
+  const clanPower = members.reduce((s, m) => s + memberTop3Total(m), 0);
+  let top = null;
+  members.forEach((m) => { const v = memberTop3Total(m); if (!top || v > top.v) top = { m, v }; });
+  document.getElementById("clanMemberCount").textContent = formatNumber(members.length);
+  document.getElementById("clanOrcCount").textContent = formatNumber(totalOrcs);
+  document.getElementById("clanPower").textContent = `${formatNumber(clanPower)} PWR`;
+  document.getElementById("clanTopMember").textContent = top ? `Member ${top.m.index + 1}` : "—";
+}
+
+async function runClanAnalysis() {
+  if (clanState.running) return;
+  const wallets = getClanWallets();
+  if (!wallets.length) { setClanStatus("Paste at least one TON wallet first.", "err", 100); return; }
+  clanState.running = true;
+  const btn = document.getElementById("analyzeClanBtn");
+  btn.disabled = true; btn.textContent = "Analyzing...";
+  document.getElementById("clanSwapBtn").disabled = true;
+  document.getElementById("clanMarketBtn").disabled = true;
+  resetStatusProgress("clanStatus");
+  const config = getClanConfig();
+  const members = [];
+  try {
+    for (let i = 0; i < wallets.length; i += 1) {
+      const w = wallets[i];
+      setClanCellState(w.index, "run");
+      const base = Math.round((i / wallets.length) * 100);
+      setClanStatus(`Member ${w.index + 1}/${wallets.length}: scanning wallet...`, "warn", base);
+      let raw;
+      try {
+        raw = await fetchWalletClanItems(w.addr, (msg) => setClanStatus(`Member ${w.index + 1}: ${msg}`, "warn", base));
+      } catch (e) {
+        setClanCellState(w.index, "err");
+        continue;
+      }
+      const items = raw.map((it) => normalizeItem(it, config));
+      if (!items.length) { setClanCellState(w.index, "warn"); continue; }
+      setClanStatus(`Member ${w.index + 1}: building top 3 teams from ${items.length} orcs...`, "warn", base + 3);
+      const teams = await buildTopNTeams(items, config, 3, () => {});
+      members.push({ index: w.index, addr: w.addr, items, teams });
+      setClanCellState(w.index, "ok");
+    }
+    clanState.members = members;
+    renderClanSummary();
+    renderClanMembers();
+    if (!members.length) {
+      setClanStatus("No Unstoppable Tribe orcs found in any of the pasted wallets.", "err", 100);
+    } else {
+      document.getElementById("clanSwapBtn").disabled = false;
+      document.getElementById("clanMarketBtn").disabled = false;
+      setClanStatus(`Done: ${members.length} member(s) analyzed. Now run Swap or Market analysis.`, "ok", 100);
+      setClanActionStatus("Clan scanned. Run ① Swap Analysis or ② Market Analysis.", "ok", 100);
+      document.getElementById("clan-members").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  } catch (error) {
+    console.error(error);
+    setClanStatus(error.message || "Clan analysis failed.", "err", 100);
+  } finally {
+    clanState.running = false;
+    btn.disabled = false; btn.textContent = "Analyze Clan";
+  }
+}
+
+async function runClanSwapAnalysis() {
+  if (clanState.running || !clanState.members.length) return;
+  clanState.running = true;
+  const btn = document.getElementById("clanSwapBtn");
+  btn.disabled = true; btn.textContent = "Analyzing...";
+  resetStatusProgress("clanActionStatus");
+  const config = getClanConfig();
+  const rosters = clanState.members.map((m) => ({ index: m.index, addr: m.addr, items: [...m.items] }));
+  const transfers = [];
+  const MAX = 12;
+  try {
+    let baseline = rosters.reduce((s, r) => s + fastTeamScore(r.items, config).score, 0);
+    for (let iter = 0; iter < MAX; iter += 1) {
+      setClanActionStatus(`Swap analysis: optimization pass ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
+      const info = rosters.map((r) => fastTeamScore(r.items, config));
+      let best = null;
+      for (let a = 0; a < rosters.length; a += 1) {
+        const usedA = new Set(info[a].team.map((it) => it.address));
+        const spares = rosters[a].items.filter((it) => !usedA.has(it.address));
+        if (!spares.length) continue;
+        for (let b = 0; b < rosters.length; b += 1) {
+          if (a === b) continue;
+          const bTokens = rosterTokenSet(rosters[b].items);
+          for (const o of spares) {
+            if (!orcSharesToken(o, bTokens)) continue;
+            const nb = fastTeamScore([...rosters[b].items, o], config).score;
+            const gain = nb - info[b].score;
+            if (gain > 0 && (!best || gain > best.gain)) best = { a, b, o, gain };
+          }
+        }
+        await sleep(0);
+      }
+      if (!best) break;
+      rosters[best.a].items = rosters[best.a].items.filter((it) => it.address !== best.o.address);
+      rosters[best.b].items = [...rosters[best.b].items, best.o];
+      transfers.push({ fromIndex: rosters[best.a].index, toIndex: rosters[best.b].index, orc: best.o, gain: best.gain });
+    }
+    const after = rosters.reduce((s, r) => s + fastTeamScore(r.items, config).score, 0);
+    renderClanSwaps(transfers, after - baseline);
+    document.getElementById("clan-swaps").scrollIntoView({ behavior: "smooth", block: "start" });
+    setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial swap(s): +${formatNumber(after - baseline)} clan PWR.` : "No beneficial swaps found — the clan is already well distributed.", "ok", 100);
+  } catch (error) {
+    console.error(error);
+    setClanActionStatus(error.message || "Swap analysis failed.", "err", 100);
+  } finally {
+    clanState.running = false;
+    btn.disabled = false; btn.textContent = "① Swap Analysis (synergy trades)";
+  }
+}
+
+function renderClanSwaps(transfers, totalGain) {
+  const grid = document.getElementById("clanSwapGrid");
+  document.getElementById("clanSwapMeta").textContent = transfers.length
+    ? `Apply these ${transfers.length} transfer(s) to gain about +${formatNumber(totalGain)} total clan power from synergies.`
+    : "No beneficial transfers — every member already keeps the orcs that serve their synergies best.";
+  if (!transfers.length) { grid.innerHTML = `<div class="empty-state">No beneficial swaps found.</div>`; return; }
+  grid.innerHTML = transfers.map((t) => `
+    <div class="clan-swap-row">
+      <div class="clan-swap-orc">
+        <img src="${escapeHtml(t.orc.image)}" onerror="this.src='c-logo-nobg.png'">
+        <div><div class="nm">${escapeHtml(t.orc.name)}</div><div class="ow">${formatNumber(t.orc.power)} PWR · ${escapeHtml(t.orc.emotion)}</div></div>
+      </div>
+      <div class="ow">Member ${t.fromIndex + 1}</div>
+      <div class="arrow">→</div>
+      <div class="ow">Member ${t.toIndex + 1}</div>
+      <div class="clan-gain">+${formatNumber(t.gain)} PWR</div>
+    </div>`).join("");
+}
+
+async function runClanMarketAnalysis() {
+  if (clanState.running || !clanState.members.length) return;
+  clanState.running = true;
+  const btn = document.getElementById("clanMarketBtn");
+  btn.disabled = true; btn.textContent = "Analyzing...";
+  resetStatusProgress("clanActionStatus");
+  const config = getClanConfig();
+  try {
+    setClanActionStatus("Market analysis: scanning live listings...", "warn", 5);
+    const raw = await fetchListedClanMarketItems((msg, checked, total) => {
+      const pct = total ? clamp(Math.round((checked / total) * 70), 5, 70) : 30;
+      setClanActionStatus(msg, "warn", pct);
+    });
+    let market = raw.map((it) => ({ ...normalizeItem(it, config), salePriceValue: (() => {
+      const v = it?.sale?.price?.value; const d = Number(it?.sale?.price?.decimals || 0);
+      return v ? Number(v) / Math.pow(10, d) : 0;
+    })() })).filter((it) => it.salePriceValue > 0);
+    // keep the strongest 160 listings to bound the per-member search
+    market = market.sort((a, b) => b.power - a.power).slice(0, 160);
+    const owned = new Set();
+    clanState.members.forEach((m) => m.items.forEach((it) => owned.add(it.address)));
+    const perMember = [];
+    for (let i = 0; i < clanState.members.length; i += 1) {
+      const m = clanState.members[i];
+      setClanActionStatus(`Market analysis: member ${i + 1}/${clanState.members.length}...`, "warn", 70 + Math.round((i / clanState.members.length) * 28));
+      const cur = fastTeamScore(m.items, config).score;
+      const tokens = rosterTokenSet(m.items);
+      const picks = market
+        .filter((o) => !owned.has(o.address))
+        .filter((o) => orcSharesToken(o, tokens) || m.items.filter((x) => x.emotion === o.emotion).length === 0)
+        .map((o) => ({ orc: o, gain: fastTeamScore([...m.items, o], config).score - cur }))
+        .filter((x) => x.gain > 0)
+        .sort((a, b) => (b.gain / Math.max(1, b.orc.salePriceValue)) - (a.gain / Math.max(1, a.orc.salePriceValue)) || b.gain - a.gain)
+        .slice(0, 3);
+      perMember.push({ member: m, picks });
+      await sleep(0);
+    }
+    renderClanMarket(perMember);
+    document.getElementById("clan-market").scrollIntoView({ behavior: "smooth", block: "start" });
+    const totalBuys = perMember.reduce((s, p) => s + p.picks.length, 0);
+    setClanActionStatus(`Market analysis done: ${totalBuys} buy suggestion(s) across ${perMember.length} member(s).`, "ok", 100);
+  } catch (error) {
+    console.error(error);
+    setClanActionStatus(error.message || "Market analysis failed.", "err", 100);
+  } finally {
+    clanState.running = false;
+    btn.disabled = false; btn.textContent = "② Market Analysis (orcs to buy)";
+  }
+}
+
+function renderClanMarket(perMember) {
+  const grid = document.getElementById("clanMarketGrid");
+  const withPicks = perMember.filter((p) => p.picks.length);
+  document.getElementById("clanMarketMeta").textContent = withPicks.length
+    ? "For each wallet: the listed orcs that add the most power and synergy, ranked by value for money."
+    : "No listed orcs would currently improve any member's best team.";
+  if (!withPicks.length) { grid.innerHTML = `<div class="empty-state">No useful market buys found right now.</div>`; return; }
+  grid.innerHTML = withPicks.map((p) => `
+    <div class="clan-buy-group">
+      <h4>Member ${p.member.index + 1} · ${escapeHtml(p.member.addr)}</h4>
+      ${p.picks.map((pick) => `
+        <div class="clan-buy-row">
+          <img src="${escapeHtml(pick.orc.image)}" onerror="this.src='c-logo-nobg.png'">
+          <div>
+            <div class="nm">${escapeHtml(pick.orc.name)}</div>
+            <div class="meta">${escapeHtml(pick.orc.emotion)} · ${formatNumber(pick.orc.power)} PWR</div>
+          </div>
+          <div class="clan-gain">+${formatNumber(pick.gain)} PWR</div>
+          <div class="clan-buy-price">${formatTonPrice(pick.orc)}</div>
+        </div>`).join("")}
+    </div>`).join("");
+}
+
 async function runAnalysis() {
   if (state.isRunning) {
     return;
@@ -3483,6 +4794,14 @@ async function runAnalysis() {
 createParticles();
 window.addEventListener("load", () => {
   resetInitialViewport();
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("vis");
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll(".fi").forEach((element) => revealObserver.observe(element));
   document.querySelectorAll("[data-mode-tab]").forEach((button) => {
     button.addEventListener("click", () => {
       const mode = button.getAttribute("data-mode-tab");
@@ -3503,6 +4822,30 @@ window.addEventListener("load", () => {
         event.preventDefault();
         workspace.scrollIntoView({ behavior: "smooth", block: "start" });
       }
+    });
+  });
+  document.querySelectorAll("[data-open-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const mode = button.getAttribute("data-open-mode");
+      if (!mode) {
+        return;
+      }
+      setActiveMode(mode);
+      const workspace = document.getElementById("workspace");
+      if (workspace) {
+        workspace.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
+  document.querySelectorAll(".tribe-fq-q").forEach((button) => {
+    button.addEventListener("click", () => {
+      const item = button.closest(".tribe-fq");
+      if (!item) {
+        return;
+      }
+      const willOpen = !item.classList.contains("open");
+      item.classList.toggle("open", willOpen);
+      button.setAttribute("aria-expanded", String(willOpen));
     });
   });
   const topTeamsGrid = document.getElementById("topTeamsGrid");
@@ -3561,6 +4904,18 @@ window.addEventListener("load", () => {
       }
     });
   }
+  buildClanCells();
+  const clanBtn = document.getElementById("analyzeClanBtn");
+  if (clanBtn) clanBtn.addEventListener("click", () => { setActiveMode("clan"); runClanAnalysis(); });
+  const clanClear = document.getElementById("clanFillDemoBtn");
+  if (clanClear) clanClear.addEventListener("click", () => {
+    document.querySelectorAll("[data-clan-input]").forEach((el) => { el.value = ""; });
+    document.querySelectorAll("[data-clan-st]").forEach((el) => { el.className = "st"; });
+  });
+  const clanSwapBtn = document.getElementById("clanSwapBtn");
+  if (clanSwapBtn) clanSwapBtn.addEventListener("click", runClanSwapAnalysis);
+  const clanMarketBtn = document.getElementById("clanMarketBtn");
+  if (clanMarketBtn) clanMarketBtn.addEventListener("click", runClanMarketAnalysis);
   requestAnimationFrame(() => {
     window.scrollTo(0, 0);
   });
