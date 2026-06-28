@@ -4874,6 +4874,7 @@ async function runClanSwapAnalysis() {
       return locked;
     });
 
+    const moved = new Set(); // every orc may be traded AT MOST once across the whole plan
     for (let iter = 0; iter < MAX; iter += 1) {
       setClanActionStatus(`Swap analysis: optimization pass ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
       let best = null;
@@ -4885,7 +4886,7 @@ async function runClanSwapAnalysis() {
       for (let a = 0; a < rosters.length; a += 1) {
         // giftable = NOT inside any complete top-3 team (leftovers + incomplete-team orcs), capped
         const loose = rosters[a].items
-          .filter((it) => !lockedFull[a].has(it.address))
+          .filter((it) => !lockedFull[a].has(it.address) && !moved.has(it.address))
           .sort((x, y) => y.power - x.power)
           .slice(0, 10);
         for (let b = 0; b < rosters.length; b += 1) {
@@ -4918,6 +4919,7 @@ async function runClanSwapAnalysis() {
             for (let e = 0; e < EMOTIONS.length; e += 1) {
               const oA = ta.team[e], oB = tb.team[e];
               if (!oA || !oB || oA.address === oB.address) continue;
+              if (moved.has(oA.address) || moved.has(oB.address)) continue; // each orc trades once
               const aCand = withSlot(ta.team, e, oB);
               const bCand = withSlot(tb.team, e, oA);
               const aScore = ts(aCand), bScore = ts(bCand);
@@ -4944,6 +4946,8 @@ async function runClanSwapAnalysis() {
         A.items = A.items.filter((it) => it.address !== best.orcA.address).concat(best.orcB);
         B.items = B.items.filter((it) => it.address !== best.orcB.address).concat(best.orcA);
       }
+      moved.add(best.orcA.address);
+      if (best.kind === "swap") moved.add(best.orcB.address);
       transfers.push({ ...best, fromIndex: A.index, toIndex: B.index, aIndex: A.index, bIndex: B.index });
       infos[best.a] = bestTeamInfo(A.items, config);
       infos[best.b] = bestTeamInfo(B.items, config);
