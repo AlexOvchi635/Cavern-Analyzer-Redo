@@ -2260,6 +2260,21 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   </div>
 </footer>
 
+<div class="terms-pop" id="clanGatePop" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="terms-card">
+    <div class="terms-ic">🔁</div>
+    <h3>Run Swap Analysis first</h3>
+    <p>
+      The <b>Swap Analysis</b> has priority — it redistributes orcs you already own between wallets for free power.
+      Run it first, then the <b>Market Analysis</b> will suggest what to buy on top of the optimized rosters.
+    </p>
+    <div class="terms-actions">
+      <button type="button" class="btn-m" id="clanGateRunSwap">① Run Swap Analysis</button>
+      <button type="button" class="btn-o" id="clanGateClose" style="padding:13px 22px;">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="terms-pop" id="termsPop" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="terms-card">
     <div class="terms-ic">⚠️</div>
@@ -4789,15 +4804,18 @@ async function runClanAnalysis() {
       setClanCellState(w.index, "ok");
     }
     clanState.members = members;
+    clanState.swapDone = false; // market stays locked until swap runs
+    clanState.marketRaw = null; // fresh clan → re-scan market once
     renderClanSummary();
     renderClanMembers();
     if (!members.length) {
       setClanStatus("No Unstoppable Tribe orcs found in any of the pasted wallets.", "err", 100);
     } else {
       document.getElementById("clanSwapBtn").disabled = false;
-      document.getElementById("clanMarketBtn").disabled = false;
-      setClanStatus(`Done: ${members.length} member(s) analyzed. Now run Swap or Market analysis.`, "ok", 100);
-      setClanActionStatus("Clan scanned. Run ① Swap Analysis or ② Market Analysis.", "ok", 100);
+      const mkt = document.getElementById("clanMarketBtn");
+      mkt.disabled = false; mkt.classList.remove("ready"); // clickable, but guarded by popup until swap done
+      setClanStatus(`Done: ${members.length} member(s) analyzed. Run ① Swap Analysis first.`, "ok", 100);
+      setClanActionStatus("Clan scanned. Run ① Swap Analysis first — Market unlocks after it.", "ok", 100);
       document.getElementById("clan-members").scrollIntoView({ behavior: "smooth", block: "start" });
     }
   } catch (error) {
@@ -4818,59 +4836,86 @@ async function runClanSwapAnalysis() {
   const config = getClanConfig();
   const rosters = clanState.members.map((m) => ({ index: m.index, addr: m.addr, items: [...m.items] }));
   const transfers = [];
-  const MAX = 10;
-  const SPARE_CAP = 12; // only consider a donor's strongest spare orcs
+  const MAX = 10;     // hill-climb passes
+  const K = 4;        // candidate orcs per color per side
   try {
     let infos = rosters.map((r) => bestTeamInfo(r.items, config));
-    let baseline = infos.reduce((s, info) => s + info.best.score, 0);
-    // a donor may give ONLY orcs that are NOT part of any of his real (full, 7-orc)
-    // top-3 teams, so his power never drops. Loose orcs that don't complete a full
-    // team are free to trade. Donor stays the same, receiver goes up.
-    const lockedByMember = clanState.members.map((m) => {
-      const locked = new Set();
-      (m.teams || [])
-        .filter((t) => t.result.coverage === EMOTIONS.length)
-        .forEach((t) => t.team.filter(Boolean).forEach((it) => locked.add(it.address)));
-      return locked;
-    });
+    const baseline = infos.reduce((s, info) => s + info.best.score, 0);
+
     for (let iter = 0; iter < MAX; iter += 1) {
       setClanActionStatus(`Swap analysis: optimization pass ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
       let best = null;
+      const consider = (cand) => { if (cand.total > 0 && (!best || cand.total > best.total)) best = cand; };
+
       for (let a = 0; a < rosters.length; a += 1) {
-        // donatable orcs = NOT used in any of the donor's top-3 teams → donor power unchanged
-        const spares = rosters[a].items
-          .filter((it) => !lockedByMember[a].has(it.address))
-          .sort((x, y) => y.power - x.power)
-          .slice(0, SPARE_CAP);
-        if (!spares.length) continue;
+        const loose = looseOrcs(infos[a], rosters[a].items); // orcs not in any color's best team
         for (let b = 0; b < rosters.length; b += 1) {
           if (a === b) continue;
-          for (const o of spares) {
-            if (!infos[b].byTone.has(orcTone(o))) continue; // receiver must already run that tribe
-            const res = addOrcGain(infos[b], o, config); // cheap: only o's color recomputed
-            if (res.gain > 0 && (!best || res.gain > best.gain)) {
-              best = { a, b, o, gain: res.gain, beforeTeam: res.beforeTeam, afterTeam: res.afterTeam, beforeScore: infos[b].best.score, afterScore: res.newToneScore, tone: res.tone };
+
+          // (1) ONE-WAY: give a loose orc — donor unaffected, receiver gains
+          for (const o of loose) {
+            const T = orcTone(o);
+            if (!infos[b].byTone.has(T)) continue;
+            const r = lightBestTeam([...infos[b].byTone.get(T).group, o], config);
+            const newB = Math.max(bestExclTone(infos[b], T), r.result.totalScore);
+            const gB = newB - infos[b].best.score;
+            if (gB > 0) consider({
+              kind: "give", total: gB, a, b, orcA: o, tone: T,
+              bBefore: infos[b].byTone.get(T).team, bAfter: r.team,
+              bBeforeScore: infos[b].byTone.get(T).score, bAfterScore: r.result.totalScore, gA: 0, gB
+            });
+          }
+
+          // (2) TWO-WAY: exchange one same-color orc each — both must not lose, total must rise
+          for (const T of infos[a].byTone.keys()) {
+            if (!infos[b].byTone.has(T)) continue;
+            const AT = infos[a].byTone.get(T).group;
+            const BT = infos[b].byTone.get(T).group;
+            const aK = [...AT].sort((x, y) => y.power - x.power).slice(0, K);
+            const bK = [...BT].sort((x, y) => y.power - x.power).slice(0, K);
+            for (const oA of aK) for (const oB of bK) {
+              if (oA.address === oB.address) continue;
+              const nA = lightBestTeam(AT.filter((x) => x.address !== oA.address).concat(oB), config);
+              const nB = lightBestTeam(BT.filter((x) => x.address !== oB.address).concat(oA), config);
+              const newA = Math.max(bestExclTone(infos[a], T), nA.result.totalScore);
+              const newB = Math.max(bestExclTone(infos[b], T), nB.result.totalScore);
+              const gA = newA - infos[a].best.score;
+              const gB = newB - infos[b].best.score;
+              if (gA >= 0 && gB >= 0 && (gA + gB) > 0) consider({
+                kind: "swap", total: gA + gB, a, b, orcA: oA, orcB: oB, tone: T, gA, gB,
+                aBefore: infos[a].byTone.get(T).team, aAfter: nA.team,
+                aBeforeScore: infos[a].byTone.get(T).score, aAfterScore: nA.result.totalScore,
+                bBefore: infos[b].byTone.get(T).team, bAfter: nB.team,
+                bBeforeScore: infos[b].byTone.get(T).score, bAfterScore: nB.result.totalScore
+              });
             }
           }
         }
         await sleep(0);
       }
+
       if (!best) break;
-      // apply transfer
-      rosters[best.a].items = rosters[best.a].items.filter((it) => it.address !== best.o.address);
-      rosters[best.b].items = [...rosters[best.b].items, best.o];
-      transfers.push({
-        fromIndex: rosters[best.a].index, toIndex: rosters[best.b].index, orc: best.o, gain: best.gain,
-        tone: best.tone, beforeTeam: best.beforeTeam, afterTeam: best.afterTeam, beforeScore: best.beforeScore, afterScore: best.afterScore
-      });
-      // refresh only the two affected members
-      infos[best.a] = bestTeamInfo(rosters[best.a].items, config);
-      infos[best.b] = bestTeamInfo(rosters[best.b].items, config);
+      // apply
+      const A = rosters[best.a], B = rosters[best.b];
+      if (best.kind === "give") {
+        A.items = A.items.filter((it) => it.address !== best.orcA.address);
+        B.items = [...B.items, best.orcA];
+      } else {
+        A.items = A.items.filter((it) => it.address !== best.orcA.address).concat(best.orcB);
+        B.items = B.items.filter((it) => it.address !== best.orcB.address).concat(best.orcA);
+      }
+      transfers.push({ ...best, fromIndex: A.index, toIndex: B.index, aIndex: A.index, bIndex: B.index });
+      infos[best.a] = bestTeamInfo(A.items, config);
+      infos[best.b] = bestTeamInfo(B.items, config);
     }
+
     const after = infos.reduce((s, info) => s + info.best.score, 0);
+    clanState.swapDone = true;
+    const mkt = document.getElementById("clanMarketBtn");
+    if (mkt) { mkt.disabled = false; mkt.classList.add("ready"); }
     renderClanSwaps(transfers, after - baseline);
     document.getElementById("clan-swaps").scrollIntoView({ behavior: "smooth", block: "start" });
-    setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial swap(s): +${formatNumber(after - baseline)} clan PWR.` : "No beneficial swaps found — the clan is already well distributed.", "ok", 100);
+    setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial move(s): +${formatNumber(after - baseline)} clan PWR. Market analysis unlocked.` : "No beneficial swaps found — the clan is already well distributed. Market analysis unlocked.", "ok", 100);
   } catch (error) {
     console.error(error);
     setClanActionStatus(error.message || "Swap analysis failed.", "err", 100);
@@ -4880,41 +4925,81 @@ async function runClanSwapAnalysis() {
   }
 }
 
+function bestExclTone(info, T) {
+  let m = 0;
+  for (const [t, v] of info.byTone) if (t !== T && v.score > m) m = v.score;
+  return m;
+}
+function looseOrcs(info, items) {
+  const used = new Set();
+  for (const [, v] of info.byTone) v.team.filter(Boolean).forEach((it) => used.add(it.address));
+  return items.filter((it) => !used.has(it.address));
+}
+
+function diffSets(before, after) {
+  const b = new Set((before || []).filter(Boolean).map((it) => it.address));
+  const a = new Set((after || []).filter(Boolean).map((it) => it.address));
+  return { removed: new Set([...b].filter((x) => !a.has(x))), added: new Set([...a].filter((x) => !b.has(x))) };
+}
+function baBlock(label, beforeTeam, afterTeam, beforeScore, afterScore) {
+  const d = diffSets(beforeTeam, afterTeam);
+  return `
+    <div class="clan-ba-col">
+      <div class="clan-ba-lbl">${escapeHtml(label)} — Before · ${formatNumber(beforeScore)} PWR</div>
+      ${swapTeamMiniHTML(beforeTeam, d.removed, "removed")}
+    </div>
+    <div class="clan-ba-col">
+      <div class="clan-ba-lbl">After · ${formatNumber(afterScore)} PWR</div>
+      ${swapTeamMiniHTML(afterTeam, d.added, "added")}
+    </div>`;
+}
+
 function renderClanSwaps(transfers, totalGain) {
   const grid = document.getElementById("clanSwapGrid");
   document.getElementById("clanSwapMeta").textContent = transfers.length
-    ? `Apply these ${transfers.length} transfer(s) to gain about +${formatNumber(totalGain)} clan power. Only orcs outside the donor's top-3 teams are moved — no donor loses power; the receiver gains.`
-    : "No beneficial transfers — no spare orc (outside someone's top-3 teams) would raise another member's team.";
+    ? `Apply these ${transfers.length} move(s) for about +${formatNumber(totalGain)} clan power. A one-way transfer never lowers the giver; a swap (⇄) raises at least one side and lowers neither.`
+    : "No beneficial moves — the clan is already well distributed.";
   if (!transfers.length) { grid.innerHTML = `<div class="empty-state">No beneficial swaps found.</div>`; return; }
+
   grid.innerHTML = transfers.map((t) => {
     const toneLabel = (t.tone || "").replace(/\b\w/g, (c) => c.toUpperCase());
-    const beforeAddrs = new Set((t.beforeTeam || []).filter(Boolean).map((it) => it.address));
-    const afterAddrs = new Set((t.afterTeam || []).filter(Boolean).map((it) => it.address));
-    const removed = new Set([...beforeAddrs].filter((a) => !afterAddrs.has(a)));
-    const added = new Set([...afterAddrs].filter((a) => !beforeAddrs.has(a)));
+    if (t.kind === "swap") {
+      return `
+      <details class="clan-swap">
+        <summary class="clan-swap-row">
+          <div class="clan-swap-orc">
+            <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
+            <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.aIndex))} · ${formatNumber(t.orcA.power)} PWR</div></div>
+          </div>
+          <div class="arrow">⇄</div>
+          <div class="clan-swap-orc">
+            <img src="${escapeHtml(t.orcB.image)}" onerror="this.src='c-logo-nobg.png'">
+            <div><div class="nm">${escapeHtml(t.orcB.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.bIndex))} · ${formatNumber(t.orcB.power)} PWR</div></div>
+          </div>
+          <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
+          <span class="clan-exp"></span>
+        </summary>
+        <div class="clan-ba-lbl" style="padding:0 2px 4px;">${escapeHtml(labelForIndex(t.aIndex))} · ${escapeHtml(toneLabel)} (gets ${escapeHtml(t.orcB.name)}) · +${formatNumber(t.gA)} PWR</div>
+        <div class="clan-ba">${baBlock(escapeHtml(labelForIndex(t.aIndex)), t.aBefore, t.aAfter, t.aBeforeScore, t.aAfterScore)}</div>
+        <div class="clan-ba-lbl" style="padding:10px 2px 4px;">${escapeHtml(labelForIndex(t.bIndex))} · ${escapeHtml(toneLabel)} (gets ${escapeHtml(t.orcA.name)}) · +${formatNumber(t.gB)} PWR</div>
+        <div class="clan-ba">${baBlock(escapeHtml(labelForIndex(t.bIndex)), t.bBefore, t.bAfter, t.bBeforeScore, t.bAfterScore)}</div>
+      </details>`;
+    }
+    // one-way give
     return `
     <details class="clan-swap">
       <summary class="clan-swap-row">
         <div class="clan-swap-orc">
-          <img src="${escapeHtml(t.orc.image)}" onerror="this.src='c-logo-nobg.png'">
-          <div><div class="nm">${escapeHtml(t.orc.name)}</div><div class="ow">${formatNumber(t.orc.power)} PWR · ${escapeHtml(t.orc.emotion)}</div></div>
+          <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
+          <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${formatNumber(t.orcA.power)} PWR · ${escapeHtml(t.orcA.emotion)}</div></div>
         </div>
         <div class="ow">${escapeHtml(labelForIndex(t.fromIndex))}</div>
         <div class="arrow">→</div>
         <div class="ow">${escapeHtml(labelForIndex(t.toIndex))}</div>
-        <div class="clan-gain">+${formatNumber(t.gain)} PWR</div>
+        <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
         <span class="clan-exp"></span>
       </summary>
-      <div class="clan-ba">
-        <div class="clan-ba-col">
-          <div class="clan-ba-lbl">${escapeHtml(labelForIndex(t.toIndex))} · ${escapeHtml(toneLabel)} team — Before · ${formatNumber(t.beforeScore)} PWR</div>
-          ${swapTeamMiniHTML(t.beforeTeam, removed, "removed")}
-        </div>
-        <div class="clan-ba-col">
-          <div class="clan-ba-lbl">After · ${formatNumber(t.afterScore)} PWR <span class="clan-ba-gain">+${formatNumber(t.gain)}</span></div>
-          ${swapTeamMiniHTML(t.afterTeam, added, "added")}
-        </div>
-      </div>
+      <div class="clan-ba">${baBlock(`${labelForIndex(t.toIndex)} · ${toneLabel} team`, t.bBefore, t.bAfter, t.bBeforeScore, t.bAfterScore)}</div>
     </details>`;
   }).join("");
 }
@@ -4938,17 +5023,25 @@ function swapTeamMiniHTML(team, markSet, mode) {
 
 async function runClanMarketAnalysis() {
   if (clanState.running || !clanState.members.length) return;
+  if (!clanState.swapDone) { showClanGate(); return; } // swap has priority
   clanState.running = true;
   const btn = document.getElementById("clanMarketBtn");
   btn.disabled = true; btn.textContent = "Analyzing...";
   resetStatusProgress("clanActionStatus");
   const config = getClanConfig();
   try {
-    setClanActionStatus("Market analysis: scanning live listings...", "warn", 5);
-    const raw = await fetchListedClanMarketItems((msg, checked, total) => {
-      const pct = total ? clamp(Math.round((checked / total) * 70), 5, 70) : 30;
-      setClanActionStatus(msg, "warn", pct);
-    });
+    let raw;
+    if (clanState.marketRaw) {
+      raw = clanState.marketRaw; // cached from a previous run this session
+      setClanActionStatus(`Market analysis: using cached ${formatNumber(raw.length)} listings...`, "warn", 60);
+    } else {
+      setClanActionStatus("Market analysis: scanning live listings...", "warn", 5);
+      raw = await fetchListedClanMarketItems((msg, checked, total) => {
+        const pct = total ? clamp(Math.round((checked / total) * 70), 5, 70) : 30;
+        setClanActionStatus(msg, "warn", pct);
+      });
+      clanState.marketRaw = raw;
+    }
     let market = raw.map((it) => ({ ...normalizeItem(it, config), salePriceValue: (() => {
       const v = it?.sale?.price?.value; const d = Number(it?.sale?.price?.decimals || 0);
       return v ? Number(v) / Math.pow(10, d) : 0;
@@ -4984,6 +5077,19 @@ async function runClanMarketAnalysis() {
     clanState.running = false;
     btn.disabled = false; btn.textContent = "② Market Analysis (orcs to buy)";
   }
+}
+
+function showClanGate() {
+  const pop = document.getElementById("clanGatePop");
+  if (!pop) return;
+  pop.classList.add("show");
+  pop.setAttribute("aria-hidden", "false");
+}
+function hideClanGate() {
+  const pop = document.getElementById("clanGatePop");
+  if (!pop) return;
+  pop.classList.remove("show");
+  pop.setAttribute("aria-hidden", "true");
 }
 
 function renderClanMarket(perMember) {
@@ -5233,6 +5339,10 @@ window.addEventListener("load", () => {
   if (clanSwapBtn) clanSwapBtn.addEventListener("click", runClanSwapAnalysis);
   const clanMarketBtn = document.getElementById("clanMarketBtn");
   if (clanMarketBtn) clanMarketBtn.addEventListener("click", runClanMarketAnalysis);
+  const clanGateClose = document.getElementById("clanGateClose");
+  if (clanGateClose) clanGateClose.addEventListener("click", hideClanGate);
+  const clanGateRunSwap = document.getElementById("clanGateRunSwap");
+  if (clanGateRunSwap) clanGateRunSwap.addEventListener("click", () => { hideClanGate(); runClanSwapAnalysis(); });
   setupTermsPopup();
   requestAnimationFrame(() => {
     window.scrollTo(0, 0);
