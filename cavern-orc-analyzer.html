@@ -4628,78 +4628,79 @@ function lightBestTeam(items, config) {
   return { team: best, result: evaluateTeam(best, config) };
 }
 
-// up to N strongest teams — EACH team a single skin tone; teams may repeat a color.
-// Greedy across colors: pick the best mono team, lock its orcs, repeat. Cheap & crash-safe.
-async function buildClanMemberTeams(items, config, n, onProgress) {
-  const teams = [];
+function teamScore(team, config) { return evaluateTeam(team, config).totalScore; }
+function withSlot(team, e, orc) { const t = team.slice(); t[e] = orc; return t; }
+
+// COMPLETE (7-orc, single-color) teams buildable from one color group, best-first.
+function colorCompleteTeams(group, config, limit) {
+  const out = [];
   const used = new Set();
-  for (let k = 0; k < n; k += 1) {
-    let best = null;
-    for (const [tone, group] of groupByTone(items)) {
-      const remaining = group.filter((it) => !used.has(it.address));
-      if (remaining.length < 1) continue;
-      const r = lightBestTeam(remaining, config);
-      if (r.result.coverage > 0 && (!best || r.result.totalScore > best.result.totalScore)) {
-        best = { team: r.team, result: r.result, tone };
-      }
-    }
-    if (!best) break;
-    teams.push(best);
-    best.team.filter(Boolean).forEach((it) => used.add(it.address));
-    await sleep(0);
+  for (let k = 0; k < limit; k += 1) {
+    const remaining = group.filter((it) => !used.has(it.address));
+    if (remaining.length < EMOTIONS.length) break;
+    const r = lightBestTeam(remaining, config);
+    if (r.result.coverage !== EMOTIONS.length) break; // STRICTLY 7 — anything less is not a team
+    out.push({ team: r.team, result: r.result, score: r.result.totalScore });
+    r.team.filter(Boolean).forEach((o) => used.add(o.address));
   }
-  return teams;
+  return out;
 }
 
-// fast beam scorer over a SINGLE color group
-function fastMonoBeam(group, config) {
-  const groups = EMOTIONS.map((e) =>
-    group.filter((i) => i.emotion === e).sort((a, b) => b.power - a.power).slice(0, 6)
-  );
-  let beam = [[]];
-  for (const cand of groups) {
-    const pool = cand.length ? cand : [null];
-    const next = [];
-    for (const team of beam) for (const it of pool) next.push([...team, it]);
-    next.sort((a, b) => evaluateTeam(b, config).totalScore - evaluateTeam(a, config).totalScore);
-    beam = next.slice(0, 24);
-  }
-  let best = 0, bestTeam = beam[0] || [];
-  for (const t of beam) { const s = evaluateTeam(t, config).totalScore; if (s > best) { best = s; bestTeam = t; } }
-  return { score: best, team: bestTeam.filter(Boolean) };
-}
-
-// best single-color team across all of this roster's colors
-function fastTeamScore(items, config) {
-  let best = { score: 0, team: [] };
-  for (const [, group] of groupByTone(items)) {
-    const r = fastMonoBeam(group, config);
-    if (r.score > best.score) best = r;
-  }
-  return best;
-}
-
-// per-member snapshot: overall best team + best team per color (for cheap incremental deltas)
-function bestTeamInfo(items, config) {
-  const byTone = new Map();
-  let best = { score: 0, team: [], tone: null };
+// a member's top-N COMPLETE teams across all their colors (the only thing that counts)
+function memberCompleteTeams(items, config, n) {
+  const all = [];
   for (const [tone, group] of groupByTone(items)) {
-    const r = lightBestTeam(group, config);
-    byTone.set(tone, { score: r.result.totalScore, team: r.team, group });
-    if (r.result.totalScore > best.score) best = { score: r.result.totalScore, team: r.team, tone };
+    colorCompleteTeams(group, config, n).forEach((t) => all.push({ ...t, tone }));
   }
-  return { best, byTone };
+  return all.sort((a, b) => b.score - a.score).slice(0, n);
+}
+// kept name/signature for callers (now returns complete teams only)
+async function buildClanMemberTeams(items, config, n) { return memberCompleteTeams(items, config, n); }
+
+// rich per-member snapshot for fast incremental value deltas
+function clanMemberState(items, config) {
+  const byTone = new Map();
+  for (const [tone, group] of groupByTone(items)) {
+    const teams = colorCompleteTeams(group, config, 3);
+    const covered = new Set(group.map((o) => o.emotion));
+    byTone.set(tone, { group, teams, scores: teams.map((t) => t.score), covered });
+  }
+  const all = [];
+  for (const [, v] of byTone) v.scores.forEach((s) => all.push(s));
+  all.sort((a, b) => b - a);
+  const value = all.slice(0, 3).reduce((s, x) => s + x, 0);
+  return { items, byTone, value };
 }
 
-// cheap gain of adding one orc to a member: only its own color team can change
-function addOrcGain(info, orc, config) {
+// clan value = Σ each member's top-3 complete teams; recompute one color, re-merge top-3
+function valueWithColorScores(state, tone, newScores) {
+  const all = [];
+  let replaced = false;
+  for (const [t, v] of state.byTone) {
+    if (t === tone) { newScores.forEach((s) => all.push(s)); replaced = true; }
+    else v.scores.forEach((s) => all.push(s));
+  }
+  if (!replaced) newScores.forEach((s) => all.push(s));
+  all.sort((a, b) => b - a);
+  return all.slice(0, 3).reduce((s, x) => s + x, 0);
+}
+function colorScoresAfter(state, tone, removeAddr, addOrc, config) {
+  const cur = state.byTone.get(tone);
+  let group = cur ? cur.group.slice() : [];
+  if (removeAddr) group = group.filter((o) => o.address !== removeAddr);
+  if (addOrc) group = [...group, addOrc];
+  return colorCompleteTeams(group, config, 3).map((t) => t.score);
+}
+// member value delta from removing one orc and/or adding one orc (same color)
+function deltaRemoveAdd(state, tone, removeAddr, addOrc, config) {
+  const newScores = colorScoresAfter(state, tone, removeAddr, addOrc, config);
+  return valueWithColorScores(state, tone, newScores) - state.value;
+}
+// value delta from just adding an orc (its color only)
+function addValueGain(state, orc, config) {
   const tone = orcTone(orc);
-  const t = info.byTone.get(tone);
-  if (!t) return { gain: 0, newToneScore: 0, beforeTeam: info.best.team, afterTeam: info.best.team };
-  const r = lightBestTeam([...t.group, orc], config);
-  const newToneScore = r.result.totalScore;
-  const gain = Math.max(0, newToneScore - info.best.score);
-  return { gain, newToneScore, tone, beforeTeam: info.best.team, afterTeam: r.team };
+  const newScores = colorScoresAfter(state, tone, null, orc, config);
+  return { gain: valueWithColorScores(state, tone, newScores) - state.value, tone, newScores };
 }
 
 function orcSynergyTokens(item) {
@@ -4862,110 +4863,130 @@ async function runClanSwapAnalysis() {
   const config = getClanConfig();
   const rosters = clanState.members.map((m) => ({ index: m.index, addr: m.addr, items: [...m.items] }));
   const transfers = [];
-  let planGain = 0;   // sum of the gains actually shown on each move
-  const MAX = 16;     // hill-climb passes
-  const K = 4;        // candidate orcs per color per side
+  const MAX = 14;     // hill-climb passes
   try {
-    let infos = rosters.map((r) => bestTeamInfo(r.items, config));
-    const baseline = infos.reduce((s, info) => s + info.best.score, 0);
-    // orcs locked inside a member's COMPLETE (7-orc) top-3 teams — never given away one-way.
-    // (incomplete teams / leftovers ARE giftable; complete teams can still take part in a
-    //  mutually-beneficial two-way swap below.)
-    const lockedFull = clanState.members.map((m) => {
-      const locked = new Set();
-      (m.teams || [])
-        .filter((t) => t.result.coverage === EMOTIONS.length)
-        .forEach((t) => t.team.filter(Boolean).forEach((it) => locked.add(it.address)));
-      return locked;
-    });
+    // value of the clan = Σ each member's top-3 COMPLETE (7-orc) teams. Partial/leftover orcs = 0.
+    let states = rosters.map((r) => clanMemberState(r.items, config));
+    const baseline = states.reduce((s, st) => s + st.value, 0);
+    const moved = new Set(); // every orc trades AT MOST once across the whole plan
+    const bestCTeam = (st, C) => { const v = st.byTone.get(C); return v && v.teams[0] ? v.teams[0] : null; };
 
-    const moved = new Set(); // every orc may be traded AT MOST once across the whole plan
     for (let iter = 0; iter < MAX; iter += 1) {
       setClanActionStatus(`Swap analysis: optimization pass ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
       let best = null;
-      const consider = (cand) => { if (cand.total > 0 && (!best || cand.total > best.total)) best = cand; };
+      const consider = (cand) => { if (cand.total > 1e-6 && (!best || cand.total > best.total)) best = cand; };
 
-      const ts = (team) => evaluateTeam(team, config).totalScore;
-      const withSlot = (team, e, orc) => { const t = team.slice(); t[e] = orc; return t; };
+      // pool of tradable orcs indexed by color|emotion
+      const poolCE = new Map();
+      for (let mi = 0; mi < rosters.length; mi += 1) {
+        for (const o of rosters[mi].items) {
+          if (moved.has(o.address)) continue;
+          const key = `${orcTone(o)}|${o.emotion}`;
+          if (!poolCE.has(key)) poolCE.set(key, []);
+          poolCE.get(key).push({ orc: o, owner: mi });
+        }
+      }
+      poolCE.forEach((arr) => arr.sort((x, y) => y.orc.power - x.orc.power));
 
-      for (let a = 0; a < rosters.length; a += 1) {
-        // giftable = NOT inside any complete top-3 team (leftovers + incomplete-team orcs), capped
-        const loose = rosters[a].items
-          .filter((it) => !lockedFull[a].has(it.address) && !moved.has(it.address))
-          .sort((x, y) => y.power - x.power)
-          .slice(0, 10);
-        for (let b = 0; b < rosters.length; b += 1) {
-          if (a === b) continue;
+      // colors a member can RECEIVE into (already runs a full team there, or is one orc short)
+      const recvColors = states.map((st) => {
+        const set = new Set();
+        for (const [C, v] of st.byTone) if (v.teams.length || v.covered.size >= EMOTIONS.length - 1) set.add(C);
+        return set;
+      });
 
-          // (1) ONE-WAY: give a giftable orc — it competes for its own emotion slot in B's color team
-          for (const o of loose) {
-            const T = orcTone(o);
-            const tb = infos[b].byTone.get(T);
-            if (!tb) continue;
-            const e = EMOTIONS.indexOf(o.emotion);
-            if (e < 0) continue;
-            const cand = withSlot(tb.team, e, o);
-            const candScore = ts(cand);
-            // gain measured on the team being changed (receiver's color team), never on a different one
-            const gB = candScore - tb.score;
-            if (gB > 0) consider({
-              kind: "give", total: gB, a, b, orcA: o, tone: T, gA: 0, gB,
-              bBefore: tb.team, bAfter: cand, bBeforeScore: tb.score, bAfterScore: candScore
-            });
-          }
-
-          // (2) TWO-WAY: swap the same emotion role between two same-color teams — both stay full,
-          //     neither may lose, total must rise (e.g. I need the earring, he needs the bracelet)
-          for (const T of infos[a].byTone.keys()) {
-            const ta = infos[a].byTone.get(T);
-            const tb = infos[b].byTone.get(T);
-            if (!tb) continue;
-            for (let e = 0; e < EMOTIONS.length; e += 1) {
-              const oA = ta.team[e], oB = tb.team[e];
-              if (!oA || !oB || oA.address === oB.address) continue;
-              if (moved.has(oA.address) || moved.has(oB.address)) continue; // each orc trades once
-              const aCand = withSlot(ta.team, e, oB);
-              const bCand = withSlot(tb.team, e, oA);
-              const aScore = ts(aCand), bScore = ts(bCand);
-              // gains measured on each side's OWN color team — neither team may drop
-              const gA = aScore - ta.score;
-              const gB = bScore - tb.score;
-              if (gA >= 0 && gB >= 0 && (gA + gB) > 0) consider({
-                kind: "swap", total: gA + gB, a, b, orcA: oA, orcB: oB, tone: T, gA, gB,
-                aBefore: ta.team, aAfter: aCand, aBeforeScore: ta.score, aAfterScore: aScore,
-                bBefore: tb.team, bAfter: bCand, bBeforeScore: tb.score, bAfterScore: bScore
-              });
+      for (let ti = 0; ti < rosters.length; ti += 1) {
+        // (1) ONE-WAY: bring an orc from another wallet to improve / complete one of T's real teams.
+        //     A donor may lose power — accepted as long as the CLAN total rises.
+        for (const C of recvColors[ti]) {
+          for (let e = 0; e < EMOTIONS.length; e += 1) {
+            const arr = poolCE.get(`${C}|${EMOTIONS[e]}`);
+            if (!arr) continue;
+            let tried = 0;
+            for (const { orc: Y, owner: di } of arr) {
+              if (di === ti) continue;
+              if (tried++ >= 5) break; // top few candidates per slot
+              const gT = addValueGain(states[ti], Y, config).gain;
+              if (gT <= 0) continue;
+              const gD = deltaRemoveAdd(states[di], orcTone(Y), Y.address, null, config); // ≤ 0
+              const net = gT + gD;
+              if (net > 0) consider({ kind: "give", total: net, recv: ti, donor: di, orc: Y, tone: C, gT, gD });
             }
           }
-          await sleep(0);
         }
+        await sleep(0);
+      }
+
+      // (2) TWO-WAY: swap the same role between two members' full same-color teams — net clan rise.
+      const colorMembers = new Map();
+      for (let ti = 0; ti < states.length; ti += 1) for (const [C, v] of states[ti].byTone) {
+        if (!v.teams.length) continue;
+        if (!colorMembers.has(C)) colorMembers.set(C, []);
+        colorMembers.get(C).push(ti);
+      }
+      for (const [C, mem] of colorMembers) {
+        for (let x = 0; x < mem.length; x += 1) for (let y = x + 1; y < mem.length; y += 1) {
+          const ti = mem[x], tj = mem[y];
+          const Ki = bestCTeam(states[ti], C), Kj = bestCTeam(states[tj], C);
+          if (!Ki || !Kj) continue;
+          for (let e = 0; e < EMOTIONS.length; e += 1) {
+            const oI = Ki.team[e], oJ = Kj.team[e];
+            if (!oI || !oJ || oI.address === oJ.address) continue;
+            if (moved.has(oI.address) || moved.has(oJ.address)) continue;
+            const gI = deltaRemoveAdd(states[ti], C, oI.address, oJ, config);
+            const gJ = deltaRemoveAdd(states[tj], C, oJ.address, oI, config);
+            const net = gI + gJ;
+            if (net > 0) consider({ kind: "swap", total: net, i: ti, j: tj, orcI: oI, orcJ: oJ, tone: C, gI, gJ });
+          }
+        }
+        await sleep(0);
       }
 
       if (!best) break;
-      // apply
-      const A = rosters[best.a], B = rosters[best.b];
+
+      // capture before-teams, apply, recompute, capture after-teams
       if (best.kind === "give") {
-        A.items = A.items.filter((it) => it.address !== best.orcA.address);
-        B.items = [...B.items, best.orcA];
+        const T = rosters[best.recv], D = rosters[best.donor], C = best.tone;
+        const beforeRecv = (bestCTeam(states[best.recv], C) || {}).team || [];
+        const beforeRecvScore = (bestCTeam(states[best.recv], C) || {}).score || 0;
+        D.items = D.items.filter((it) => it.address !== best.orc.address);
+        T.items = [...T.items, best.orc];
+        moved.add(best.orc.address);
+        states[best.recv] = clanMemberState(T.items, config);
+        states[best.donor] = clanMemberState(D.items, config);
+        const afterRecv = (bestCTeam(states[best.recv], C) || {}).team || [];
+        const afterRecvScore = (bestCTeam(states[best.recv], C) || {}).score || 0;
+        transfers.push({
+          kind: "give", total: best.total, tone: C, orcA: best.orc,
+          fromIndex: D.index, toIndex: T.index,
+          bBefore: beforeRecv, bAfter: afterRecv, bBeforeScore: beforeRecvScore, bAfterScore: afterRecvScore
+        });
       } else {
-        A.items = A.items.filter((it) => it.address !== best.orcA.address).concat(best.orcB);
-        B.items = B.items.filter((it) => it.address !== best.orcB.address).concat(best.orcA);
+        const I = rosters[best.i], J = rosters[best.j], C = best.tone;
+        const beI = (bestCTeam(states[best.i], C) || {}); const beJ = (bestCTeam(states[best.j], C) || {});
+        I.items = I.items.filter((it) => it.address !== best.orcI.address).concat(best.orcJ);
+        J.items = J.items.filter((it) => it.address !== best.orcJ.address).concat(best.orcI);
+        moved.add(best.orcI.address); moved.add(best.orcJ.address);
+        states[best.i] = clanMemberState(I.items, config);
+        states[best.j] = clanMemberState(J.items, config);
+        const afI = (bestCTeam(states[best.i], C) || {}); const afJ = (bestCTeam(states[best.j], C) || {});
+        transfers.push({
+          kind: "swap", total: best.total, tone: C, orcA: best.orcI, orcB: best.orcJ,
+          aIndex: I.index, bIndex: J.index, gA: best.gI, gB: best.gJ,
+          aBefore: beI.team || [], aAfter: afI.team || [], aBeforeScore: beI.score || 0, aAfterScore: afI.score || 0,
+          bBefore: beJ.team || [], bAfter: afJ.team || [], bBeforeScore: beJ.score || 0, bAfterScore: afJ.score || 0
+        });
       }
-      moved.add(best.orcA.address);
-      if (best.kind === "swap") moved.add(best.orcB.address);
-      planGain += best.total;
-      transfers.push({ ...best, fromIndex: A.index, toIndex: B.index, aIndex: A.index, bIndex: B.index });
-      infos[best.a] = bestTeamInfo(A.items, config);
-      infos[best.b] = bestTeamInfo(B.items, config);
     }
 
-    const after = baseline + planGain;
+    const after = states.reduce((s, st) => s + st.value, 0);
+    const planGain = after - baseline;
     clanState.swapDone = true;
     const mkt = document.getElementById("clanMarketBtn");
     if (mkt) { mkt.disabled = false; mkt.classList.add("ready"); }
     renderClanSwaps(transfers, planGain, baseline, after);
     document.getElementById("clan-swaps").scrollIntoView({ behavior: "smooth", block: "start" });
-    setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial move(s): +${formatNumber(planGain)} clan PWR. Market analysis unlocked.` : "No beneficial swaps found — the clan is already well distributed. Market analysis unlocked.", "ok", 100);
+    setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial move(s): +${formatNumber(planGain)} clan PWR (full teams only). Market analysis unlocked.` : "No beneficial swaps found between full teams — the clan is already well distributed. Market analysis unlocked.", "ok", 100);
   } catch (error) {
     console.error(error);
     setClanActionStatus(error.message || "Swap analysis failed.", "err", 100);
@@ -5115,12 +5136,14 @@ async function runClanMarketAnalysis() {
     for (let i = 0; i < clanState.members.length; i += 1) {
       const m = clanState.members[i];
       setClanActionStatus(`Market analysis: member ${i + 1}/${clanState.members.length}...`, "warn", 70 + Math.round((i / clanState.members.length) * 28));
-      const info = bestTeamInfo(m.items, config); // cheap snapshot, color teams cached
-      const memberTones = new Set(m.items.map(orcTone));
+      const state = clanMemberState(m.items, config); // value = top-3 complete teams
+      // only buy orcs of a tribe the member can field a full team in (or is one short of)
+      const usable = new Set();
+      for (const [C, v] of state.byTone) if (v.teams.length || v.covered.size >= EMOTIONS.length - 1) usable.add(C);
       const picks = market
         .filter((o) => !owned.has(o.address))
-        .filter((o) => memberTones.has(orcTone(o))) // single-color teams: only buy orcs of a tribe the member already runs
-        .map((o) => ({ orc: o, gain: addOrcGain(info, o, config).gain })) // cheap: only o's color recomputed
+        .filter((o) => usable.has(orcTone(o)))
+        .map((o) => ({ orc: o, gain: addValueGain(state, o, config).gain })) // gain to member's full-team value
         .filter((x) => x.gain > 0)
         .sort((a, b) => (b.gain / Math.max(1, b.orc.salePriceValue)) - (a.gain / Math.max(1, a.orc.salePriceValue)) || b.gain - a.gain)
         .slice(0, 3);
