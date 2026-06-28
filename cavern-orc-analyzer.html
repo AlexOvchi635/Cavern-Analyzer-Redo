@@ -4858,6 +4858,7 @@ async function runClanSwapAnalysis() {
   const config = getClanConfig();
   const rosters = clanState.members.map((m) => ({ index: m.index, addr: m.addr, items: [...m.items] }));
   const transfers = [];
+  let planGain = 0;   // sum of the gains actually shown on each move
   const MAX = 16;     // hill-climb passes
   const K = 4;        // candidate orcs per color per side
   try {
@@ -4901,12 +4902,11 @@ async function runClanSwapAnalysis() {
             if (e < 0) continue;
             const cand = withSlot(tb.team, e, o);
             const candScore = ts(cand);
-            const newToneScore = Math.max(tb.score, candScore);
-            const gB = Math.max(bestExclTone(infos[b], T), newToneScore) - infos[b].best.score;
+            // gain measured on the team being changed (receiver's color team), never on a different one
+            const gB = candScore - tb.score;
             if (gB > 0) consider({
               kind: "give", total: gB, a, b, orcA: o, tone: T, gA: 0, gB,
-              bBefore: tb.team, bAfter: candScore > tb.score ? cand : tb.team,
-              bBeforeScore: tb.score, bAfterScore: newToneScore
+              bBefore: tb.team, bAfter: cand, bBeforeScore: tb.score, bAfterScore: candScore
             });
           }
 
@@ -4923,8 +4923,9 @@ async function runClanSwapAnalysis() {
               const aCand = withSlot(ta.team, e, oB);
               const bCand = withSlot(tb.team, e, oA);
               const aScore = ts(aCand), bScore = ts(bCand);
-              const gA = Math.max(bestExclTone(infos[a], T), aScore) - infos[a].best.score;
-              const gB = Math.max(bestExclTone(infos[b], T), bScore) - infos[b].best.score;
+              // gains measured on each side's OWN color team — neither team may drop
+              const gA = aScore - ta.score;
+              const gB = bScore - tb.score;
               if (gA >= 0 && gB >= 0 && (gA + gB) > 0) consider({
                 kind: "swap", total: gA + gB, a, b, orcA: oA, orcB: oB, tone: T, gA, gB,
                 aBefore: ta.team, aAfter: aCand, aBeforeScore: ta.score, aAfterScore: aScore,
@@ -4948,18 +4949,19 @@ async function runClanSwapAnalysis() {
       }
       moved.add(best.orcA.address);
       if (best.kind === "swap") moved.add(best.orcB.address);
+      planGain += best.total;
       transfers.push({ ...best, fromIndex: A.index, toIndex: B.index, aIndex: A.index, bIndex: B.index });
       infos[best.a] = bestTeamInfo(A.items, config);
       infos[best.b] = bestTeamInfo(B.items, config);
     }
 
-    const after = infos.reduce((s, info) => s + info.best.score, 0);
+    const after = baseline + planGain;
     clanState.swapDone = true;
     const mkt = document.getElementById("clanMarketBtn");
     if (mkt) { mkt.disabled = false; mkt.classList.add("ready"); }
-    renderClanSwaps(transfers, after - baseline, baseline, after);
+    renderClanSwaps(transfers, planGain, baseline, after);
     document.getElementById("clan-swaps").scrollIntoView({ behavior: "smooth", block: "start" });
-    setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial move(s): +${formatNumber(after - baseline)} clan PWR. Market analysis unlocked.` : "No beneficial swaps found — the clan is already well distributed. Market analysis unlocked.", "ok", 100);
+    setClanActionStatus(transfers.length ? `Found ${transfers.length} beneficial move(s): +${formatNumber(planGain)} clan PWR. Market analysis unlocked.` : "No beneficial swaps found — the clan is already well distributed. Market analysis unlocked.", "ok", 100);
   } catch (error) {
     console.error(error);
     setClanActionStatus(error.message || "Swap analysis failed.", "err", 100);
