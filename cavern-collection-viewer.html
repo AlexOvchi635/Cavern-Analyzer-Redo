@@ -1117,15 +1117,6 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   </div>
 </section>
 
-<section id="cvSynSec" style="display:none;background:var(--bg2);">
-  <div class="wrap">
-    <div class="lbl">Синергии</div>
-    <div class="ttl">Потенциал <em>синергий</em> кошелька</div>
-    <div class="desc">Сколько одинаковых серёжек / браслетов / лого по всей коллекции и насколько близко до командного бонуса (×4/×5/×6/×7).</div>
-    <div id="cvSynGrid" class="control-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));"></div>
-  </div>
-</section>
-
 <section id="cvRosterSec" style="display:none;">
   <div class="wrap">
     <div class="lbl">Ростер</div>
@@ -4179,7 +4170,7 @@ async function cvLoad(){
   }catch(e){ console.error(e); cvStatus(e.message||"Не удалось загрузить кошелёк.","err",100); }
   finally{ btn.disabled=false; btn.textContent="Загрузить коллекцию"; }
 }
-function cvHideAll(){ ["cvKpis","cvTeamsSec","cvSynSec","cvRosterSec"].forEach(id=>document.getElementById(id).style.display="none"); }
+function cvHideAll(){ ["cvKpis","cvTeamsSec","cvRosterSec"].forEach(id=>document.getElementById(id).style.display="none"); }
 
 function cvRender(orcs){
   const teams = memberCompleteTeams(orcs, CV_CFG, 60); // all complete teams, best-first
@@ -4198,29 +4189,6 @@ function cvRender(orcs){
     : "Полных команд (7 орков одного цвета) пока нет.";
   tg.innerHTML = teams.length ? teams.map((t,i)=>clanTeamCardHTML(t, i+1)).join("") : '<div class="empty-state">Недостаточно орков одного цвета для полной команды (нужно 7).</div>';
   document.getElementById("cvTeamsSec").style.display = "block";
-
-  // synergy potential across whole roster
-  const counts = { Earrings:new Map(), Bracelet:new Map(), Logo:new Map() };
-  for(const o of orcs){
-    const e=getAttributeValue(o,"Earrings"); if(e) counts.Earrings.set(e,(counts.Earrings.get(e)||0)+1);
-    const b=getAttributeValue(o,"Bracelet"); if(b) counts.Bracelet.set(b,(counts.Bracelet.get(b)||0)+1);
-    for(const m of o.logoMatches){ const k=formatTokenLabel(m.token); counts.Logo.set(k,(counts.Logo.get(k)||0)+1); }
-  }
-  const tierFor=(type,c)=>{ const tbl = type==="Earrings"?EARRING_TEAM_BONUS:type==="Bracelet"?BRACELET_TEAM_BONUS:LOGO_TEAM_BONUS; return getTierBonus(Math.min(c,7), tbl); };
-  function synCard(type, title){
-    const rows=[...counts[type].entries()].filter(([,c])=>c>=2).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    if(!rows.length) return "";
-    const body=rows.map(([v,c])=>{
-      const bonus=tierFor(type,c);
-      const tag = bonus>0 ? '<span class="tag" style="color:#c7ecd6;border-color:rgba(77,184,122,.3)">бонус в команде +'+formatNumber(bonus)+'</span>'
-                          : '<span class="tag">до бонуса нужно '+(4-Math.min(c,4))+'</span>';
-      return '<div class="split-help" style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin:6px 0;"><span><b style="color:var(--g3)">'+escapeHtml(v)+'</b> ×'+c+'</span>'+tag+'</div>';
-    }).join("");
-    return '<div class="panel"><h3 style="font-size:16px;margin-bottom:10px;">'+title+'</h3>'+body+'</div>';
-  }
-  const sg=document.getElementById("cvSynGrid");
-  sg.innerHTML = [synCard("Earrings","Серьги"),synCard("Bracelet","Браслеты"),synCard("Logo","Лого")].filter(Boolean).join("") || '<div class="empty-state">Заметных повторов для синергий не найдено.</div>';
-  document.getElementById("cvSynSec").style.display = "block";
 
   // full roster
   const sorted=[...orcs].sort((a,b)=>b.power-a.power);
