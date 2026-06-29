@@ -2714,7 +2714,7 @@ function getValueTokens(value) {
     "fairytale", "martian", "desert", "cavern", "sea", "forest", "mountain", "tropical",
     "elephant", "ruby", "diamond", "emerald", "cyber", "magical", "dollar", "eth", "rub"
   ].forEach((token) => {
-    if (text.includes(token)) {
+    if (new RegExp("\\b" + token + "\\b").test(text)) { // whole-word match (no "teeth"->"eth" false hits)
       tokens.add(token);
     }
   });
