@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Unstoppable Tribe — Команды</title>
+<title>Unstoppable Tribe — Teams</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#0f0f0f;--bg2:#141414;--bg3:#1a1a1a;--bg4:#111;--g3:#919191;--g4:#9b9b9b;--text:#e8e8e8;--dim:#6a6a6a;--bd:rgba(145,145,145,.12);--bd2:rgba(145,145,145,.22);--gold:#c9a870;--green:#4db87a;--red:#c26262;}
@@ -61,20 +61,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 </style>
 </head>
 <body>
-<div class="head"><img src="c-logo-nobg.png" onerror="this.style.display='none'"><div class="t">CAVERN · ОРКИ</div></div>
+<div class="head"><img src="c-logo-nobg.png" onerror="this.style.display='none'"><div class="t">CAVERN · ORCS</div></div>
 <div class="bar">
-  <input id="w" placeholder="UQ... / EQ... кошелёк" autocomplete="off" autocapitalize="off" spellcheck="false">
-  <button id="go">Показать</button>
+  <input id="w" placeholder="UQ... / EQ... wallet" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <button id="go">Show</button>
 </div>
-<div class="hint">Вставь TON-кошелёк — покажу всех орков рядами по командам (полные и неполные). Тапни по орку — полная расшифровка силы и синергий.</div>
+<div class="hint">Paste a TON wallet — see all its orcs in rows by team (full and partial). Tap an orc for a full power & synergy breakdown.</div>
 <div class="status" id="st"></div>
 <div class="kpis" id="kpis" style="display:none;">
-  <div class="kpi"><div class="n" id="kOrcs">0</div><div class="k">Орков</div></div>
-  <div class="kpi"><div class="n" id="kFull">0</div><div class="k">Полных команд</div></div>
-  <div class="kpi"><div class="n" id="kTones">0</div><div class="k">Цветов</div></div>
+  <div class="kpi"><div class="n" id="kOrcs">0</div><div class="k">Orcs</div></div>
+  <div class="kpi"><div class="n" id="kFull">0</div><div class="k">Full teams</div></div>
+  <div class="kpi"><div class="n" id="kTones">0</div><div class="k">Colors</div></div>
 </div>
 <div id="teams"></div>
-<div class="foot">Unstoppable Tribe · данные TonAPI · неофициальный фан-инструмент</div>
+<div class="foot">Unstoppable Tribe · data from TonAPI · unofficial fan tool</div>
 
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
@@ -1385,13 +1385,14 @@ function evaluateTeam(team, config) {
   }
 
   if (realTeam.length === EMOTIONS.length) {
-    const sameTribe = realTeam.every((item) => item.matchesFocus);
+    const tribeTones = new Set(realTeam.map((item) => norm(getAttributeValue(item, "Skin Tone"))));
+    const sameTribe = tribeTones.size === 1; // a full 7-orc single-colour team — any tribe
     if (sameTribe) {
       const sameTribeTotal = config.sameTribeBonus * realTeam.length;
       if (sameTribeTotal) {
         synergyScore += sameTribeTotal;
         synergyDetails.push({
-          trait: `Full team: ${config.traitValue} tribe`,
+          trait: `Full team: ${[...tribeTones][0]} tribe`,
           count: realTeam.length,
           bonus: sameTribeTotal
         });
@@ -3141,7 +3142,7 @@ function teamHTML(t,idx){
     return '<div class="cell" onclick="openOrc(\''+o.address+'\')"><img src="'+esc(o.image)+'" loading="lazy" onerror="this.src=\'c-logo-nobg.png\'"><div class="em">'+esc(emo)+'</div><div class="pw">'+formatNumber(o.power)+'</div></div>';
   }).join("");
   return '<div class="team'+(full?'':' partial')+'">'+
-    '<div class="team-top"><div class="team-name">'+esc(tone)+'<span class="cov">'+cov+'/7'+(full?'':' · неполная')+'</span></div><div class="team-pwr">'+formatNumber(t.score)+' PWR</div></div>'+
+    '<div class="team-top"><div class="team-name">'+esc(tone)+'<span class="cov">'+cov+'/7'+(full?'':' · incomplete')+'</span></div><div class="team-pwr">'+formatNumber(t.score)+' PWR</div></div>'+
     (chips.length?'<div class="chips">'+chips.join("")+'</div>':'')+
     '<div class="row">'+cells+'</div></div>';
 }
@@ -3160,7 +3161,7 @@ function render(orcs){
   document.getElementById("kFull").textContent=teams.filter(t=>t.result.coverage===EMOTIONS.length).length;
   document.getElementById("kTones").textContent=tones.size;
   document.getElementById("kpis").style.display="grid";
-  document.getElementById("teams").innerHTML = teams.length? teams.map((t,i)=>teamHTML(t,i)).join("") : '<div class="empty">Орки не найдены.</div>';
+  document.getElementById("teams").innerHTML = teams.length? teams.map((t,i)=>teamHTML(t,i)).join("") : '<div class="empty">No orcs found.</div>';
 }
 
 function openOrc(addr){
@@ -3169,9 +3170,9 @@ function openOrc(addr){
   o.attributeBreakdown.forEach(a=>{
     rows.push('<div class="brk"><span class="v">'+esc(a.trait_type)+': '+esc(a.value)+'</span><span class="p'+(a.power?'':' zero')+'">'+(a.power?'+'+formatNumber(a.power):'0')+'</span></div>');
   });
-  if(o.numberPower>0) rows.push('<div class="brk"><span class="v">Номер #'+esc(o.number)+' (особый)</span><span class="p">+'+formatNumber(o.numberPower)+'</span></div>');
-  if(o.localComboBonus>0) rows.push('<div class="brk"><span class="v">Комбо: совпадение слов'+(o.localComboLabels&&o.localComboLabels.length?' ('+esc(o.localComboLabels.join(" / "))+')':'')+'</span><span class="p">+'+formatNumber(o.localComboBonus)+'</span></div>');
-  rows.push('<div class="brk total"><span>Итого сила орка</span><span class="p">'+formatNumber(o.power)+'</span></div>');
+  if(o.numberPower>0) rows.push('<div class="brk"><span class="v">Number #'+esc(o.number)+' (special)</span><span class="p">+'+formatNumber(o.numberPower)+'</span></div>');
+  if(o.localComboBonus>0) rows.push('<div class="brk"><span class="v">Combo: shared words'+(o.localComboLabels&&o.localComboLabels.length?' ('+esc(o.localComboLabels.join(" / "))+')':'')+'</span><span class="p">+'+formatNumber(o.localComboBonus)+'</span></div>');
+  rows.push('<div class="brk total"><span>Total orc power</span><span class="p">'+formatNumber(o.power)+'</span></div>');
 
   const sig = (_teamOf[o.address]||{}).signals || {earrings:new Map(),bracelets:new Map(),logos:new Map()};
   const ear=getAttributeValue(o,"Earrings"), br=getAttributeValue(o,"Bracelet");
@@ -3180,19 +3181,19 @@ function openOrc(addr){
   if(br){ if(sig.bracelets.has(norm(br))){const d=sig.bracelets.get(norm(br)); active.push('браслет <b>'+esc(br)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} else idle.push('браслет <b>'+esc(br)+'</b>'); }
   for(const m of o.logoMatches){ const lbl=formatTokenLabel(m.token); if(sig.logos.has(m.token)){const d=sig.logos.get(m.token); active.push('лого <b>'+esc(lbl)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} else idle.push('лого <b>'+esc(lbl)+'</b>'); }
   let synNote="";
-  if(active.length) synNote += '✅ Даёт активную синергию в своей команде: '+active.join(", ")+'.';
-  if(idle.length) synNote += (synNote?'<br><br>':'')+'⚠️ Есть атрибуты, но синергия НЕ активна — в команде нет 4+ одинаковых: '+idle.join(", ")+'.';
-  if(!active.length && !idle.length) synNote = 'У этого орка нет атрибутов, дающих командную синергию.';
-  synNote += '<br><br>Командный бонус начисляется, когда в одной команде <b>4+</b> орков с одинаковыми серьгами / браслетом / лого (×4 +400, ×5 +500, ×6 +700, ×7 +1000).';
+  if(active.length) synNote += '✅ Gives an ACTIVE team synergy: '+active.join(", ")+'.';
+  if(idle.length) synNote += (synNote?'<br><br>':'')+'⚠️ Has the attribute, but the synergy is NOT active — no 4+ matching in this team: '+idle.join(", ")+'.';
+  if(!active.length && !idle.length) synNote = 'This orc has no team-synergy attributes.';
+  synNote += '<br><br>A team bonus applies when a single team has <b>4+</b> orcs with the same earrings / bracelet / logo (×4 +400, ×5 +500, ×6 +700, ×7 +1000). A full 7-orc one-colour team also gives +350.';
 
   document.getElementById("sheet").innerHTML =
     '<button class="x" onclick="closeOrc()">×</button>'+
     '<div class="sheet-hero"><img src="'+esc(o.image)+'" onerror="this.src=\'c-logo-nobg.png\'"><div>'+
       '<div class="nm">'+esc(o.name)+'</div><div class="sub">'+esc(cap1(orcTone(o)||"—"))+' · '+esc(o.emotion)+'</div>'+
       '<div class="big">'+formatNumber(o.power)+' PWR</div></div></div>'+
-    '<div class="sec-t">Из чего сила</div>'+rows.join("")+
-    '<div class="sec-t">Синергии</div><div class="note">'+synNote+'</div>'+
-    '<div class="note" style="margin-top:8px;">Сила орка = сумма силы атрибутов + бонус за особый номер + локальное комбо (совпадение слов между атрибутами). Командные синергии добавляются уже к <b>команде</b>, а не к одному орку.</div>';
+    '<div class="sec-t">Power breakdown</div>'+rows.join("")+
+    '<div class="sec-t">Synergies</div><div class="note">'+synNote+'</div>'+
+    '<div class="note" style="margin-top:8px;">Orc power = sum of attribute power + special sticker number + local combo (shared words between attributes). Team synergies are added to the <b>team</b>, not to a single orc.</div>';
   document.getElementById("modal").classList.add("show");
 }
 function closeOrc(){ document.getElementById("modal").classList.remove("show"); }
@@ -3200,18 +3201,18 @@ document.getElementById("modal").addEventListener("click",e=>{ if(e.target.id===
 
 async function load(){
   const addr=document.getElementById("w").value.trim();
-  if(!addr){ st("Вставьте адрес кошелька TON.","err"); return; }
+  if(!addr){ st("Enter a TON wallet address.","err"); return; }
   try{ localStorage.setItem(LSKEY,addr); }catch(e){}
   const btn=document.getElementById("go"); btn.disabled=true; btn.textContent="...";
   try{
-    st("Сканируем кошелёк...");
+    st("Scanning wallet...");
     const raw=await fetchWalletClanItems(addr,(m)=>st(m));
-    if(!raw.length){ st("На этом кошельке нет орков Unstoppable Tribe.","err"); document.getElementById("teams").innerHTML=""; document.getElementById("kpis").style.display="none"; return; }
-    st("Считаем силу "+raw.length+" орков...");
+    if(!raw.length){ st("No Unstoppable Tribe orcs on this wallet.","err"); document.getElementById("teams").innerHTML=""; document.getElementById("kpis").style.display="none"; return; }
+    st("Scoring "+raw.length+" orcs...");
     render(raw.map(r=>normalizeItem(r,CFG)));
-    st("Готово: "+raw.length+" орков.","ok");
-  }catch(e){ console.error(e); st(e.message||"Ошибка загрузки.","err"); }
-  finally{ btn.disabled=false; btn.textContent="Показать"; }
+    st("Done: "+raw.length+" orcs.","ok");
+  }catch(e){ console.error(e); st(e.message||"Load error.","err"); }
+  finally{ btn.disabled=false; btn.textContent="Show"; }
 }
 document.getElementById("go").addEventListener("click",load);
 document.getElementById("w").addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault();load();} });

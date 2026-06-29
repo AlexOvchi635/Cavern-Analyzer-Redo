@@ -3631,13 +3631,14 @@ function evaluateTeam(team, config) {
   }
 
   if (realTeam.length === EMOTIONS.length) {
-    const sameTribe = realTeam.every((item) => item.matchesFocus);
+    const tribeTones = new Set(realTeam.map((item) => norm(getAttributeValue(item, "Skin Tone"))));
+    const sameTribe = tribeTones.size === 1; // a full 7-orc single-colour team — any tribe
     if (sameTribe) {
       const sameTribeTotal = config.sameTribeBonus * realTeam.length;
       if (sameTribeTotal) {
         synergyScore += sameTribeTotal;
         synergyDetails.push({
-          trait: `Full team: ${config.traitValue} tribe`,
+          trait: `Full team: ${[...tribeTones][0]} tribe`,
           count: realTeam.length,
           bonus: sameTribeTotal
         });
