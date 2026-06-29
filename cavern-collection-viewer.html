@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAVERN Orc Analyzer</title>
-<meta name="description" content="Cavern Orc Analyzer: live ZarGates orc scan, Skin Tone = Cavern filter, and top team ranking by power and synergies.">
+<title>CAVERN — Collection Viewer</title>
+<meta name="description" content="Просмотр всей коллекции орков кошелька Unstoppable Tribe: команды, синергии, ростер.">
 <style>
 :root{
   --bg:#0f0f0f; --bg2:#141414; --bg3:#1a1a1a; --bg4:#111;
@@ -1064,1268 +1064,81 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 <div id="pts"></div>
 
 <nav>
-  <a href="#" class="brand">
+  <a href="cavern-orc-analyzer.html" class="brand">
     <img src="c-logo-nobg.png" alt="Cavern" onerror="this.style.display='none'">
     <span class="brand-txt">CAVERN</span>
   </a>
   <div class="nav-actions">
-    <button type="button" class="nav-link-btn active" data-mode-nav="analyzer">Team Analyzer</button>
-    <button type="button" class="nav-link-btn" data-mode-nav="wallet">Wallet Advisor</button>
-    <button type="button" class="nav-link-btn" data-mode-nav="clan">Clan Wars</button>
-    <a class="nav-link-btn" href="cavern-collection-viewer.html">Collection</a>
-    <button type="button" class="nav-link-btn" data-mode-nav="lore">Lore</button>
-    <button type="button" class="nav-link-btn" data-mode-nav="tribe">Tribe</button>
-    <button type="button" class="nav-link-btn" data-mode-nav="vibe">Vibe City</button>
-    <button type="button" class="nav-link-btn" data-mode-nav="battle">Battle</button>
-    <button type="button" class="nav-link-btn" data-mode-nav="defence">Cavern Defence</button>
+    <a class="nav-link-btn" href="cavern-orc-analyzer.html">Team Analyzer</a>
+    <a class="nav-link-btn" href="cavern-orc-analyzer.html">Clan Wars</a>
+    <span class="nav-link-btn active">Collection</span>
   </div>
 </nav>
 
-<section class="hero" id="heroSection">
-  <div class="hero-bg"></div>
-  <div class="hero-content">
-    <div class="hero-tag"><span class="pulse"></span>Live Data · Getgems collection · Cavern filter</div>
-    <div class="hero-lockup">
-      <h1 class="ht">CAVERN</h1>
-      <div class="hero-sub">Orc Analyzer · Power + Synergy Engine</div>
-    </div>
-    <p class="hero-h">Cave orcs.<br><span>White skin. Dark force.</span></p>
-    <div class="btns">
-      <button type="button" class="btn-m" data-open-mode="tribe">Learn About the Tribe</button>
-      <a href="https://t.me/zargates_news" class="btn-o" target="_blank">Join</a>
-    </div>
-  </div>
-  <div class="hero-visual">
-    <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
-    <img src="c-banner.png" class="hero-img" alt="Cavern" onerror="this.src='c-logo-nobg.png'">
-  </div>
-</section>
-
-<div class="hr" id="heroTopDivider"></div>
-
-<div class="sbar" id="heroStatsBar">
-  <div class="si"><span class="sv">Live</span><span class="sl">Data Source</span></div>
-  <div class="si"><span class="sv">PWR</span><span class="sl">Power + Synergy Score</span></div>
-  <div class="si"><span class="sv">Cavern</span><span class="sl">Skin Tone Filter</span></div>
-</div>
-
-<div class="hr" id="heroBottomDivider"></div>
-
-<section id="workspace">
+<section style="padding-top:120px;">
   <div class="wrap">
-    <div class="mode-tabs" id="modeTabs">
-      <button type="button" class="mode-tab active" data-mode-tab="analyzer">Team Analyzer</button>
-      <button type="button" class="mode-tab" data-mode-tab="wallet">Wallet Advisor</button>
-      <button type="button" class="mode-tab" data-mode-tab="clan">Clan Wars</button>
-    </div>
-    <div class="mode-page active" id="analyzerModePanel">
+    <div class="lbl">Collection Viewer</div>
+    <div class="ttl">Вся <em>коллекция кошелька</em></div>
+    <div class="desc">Вставь TON-кошелёк — увидишь всех его орков Unstoppable Tribe (любой цвет), собранные в полные команды (7 орков одного цвета) с синергиями, плюс полный ростер.</div>
     <div class="panel">
-      <div class="panel-head">
-        <h3>Analyzer</h3>
-      </div>
-      <input id="collectionInput" class="sr-only" value="https://getgems.io/unstoppabletribe?filter=%7B%22attributes%22%3A%7B%22Skin+Tone%22%3A%5B%22Cavern%22%5D%7D%7D">
-      <div class="actions">
-        <button type="button" class="btn-m" id="startAnalysisBtn">Start Analysis</button>
-      </div>
-
-      <div class="status" id="loadStatus">
-        <div class="status-title">Current Step</div>
-        <div class="status-text">Ready to start.</div>
-        <div class="status-bar">
-          <div class="status-fill"></div>
-          <div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div>
+      <div class="field-grid">
+        <div class="field full">
+          <label for="wIn">TON Wallet</label>
+          <input id="wIn" placeholder="UQ... / EQ...">
         </div>
       </div>
-    </div>
-    </div>
-    <div class="mode-page" id="walletModePanel">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Wallet Advisor</h3>
-        </div>
-        <div class="field-grid">
-          <div class="field full">
-            <label for="walletInput">TON Wallet</label>
-            <input id="walletInput" placeholder="UQ...">
-          </div>
-        </div>
-        <div class="actions">
-          <button type="button" class="btn-m" id="analyzeWalletBtn">Analyze Wallet</button>
-        </div>
-        <div class="status" id="walletStatus">
-          <div class="status-title">Current Step</div>
-          <div class="status-text">Ready to analyze a wallet.</div>
-          <div class="status-bar">
-            <div class="status-fill"></div>
-            <div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div>
-          </div>
-        </div>
+      <div class="actions"><button type="button" class="btn-m" id="wBtn">Загрузить коллекцию</button></div>
+      <div class="status" id="wStatus">
+        <div class="status-title">Текущий шаг</div>
+        <div class="status-text">Вставьте кошелёк и нажмите «Загрузить коллекцию».</div>
+        <div class="status-bar"><div class="status-fill"></div><div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div></div>
       </div>
-    </div>
-    <div class="mode-page" id="clanModePanel">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Clan Wars</h3>
-        </div>
-        <p style="margin-bottom:18px;">
-          Собери клан до <b>20 участников</b>. Вставь TON-кошелёк каждого — движок сканирует <b>всех их орков Unstoppable Tribe</b>
-          (не только Cavern) и показывает <b>3 сильнейшие команды</b> каждого по силе и синергиям. Затем запусти
-          <b>анализ обменов</b> (перераспределить орков между кошельками ради общей силы клана) и <b>анализ рынка</b>
-          (каких орков докупить на каждый кошелёк для синергии).
-        </p>
-        <div class="clan-grid" id="clanWalletGrid"></div>
-        <div class="actions" style="margin-top:16px;gap:10px;flex-wrap:wrap;">
-          <button type="button" class="btn-m" id="analyzeClanBtn">Анализ клана</button>
-          <button type="button" class="btn-o" id="clanFillDemoBtn">Очистить всё</button>
-        </div>
-        <div class="status" id="clanStatus">
-          <div class="status-title">Текущий шаг</div>
-          <div class="status-text">Вставьте кошельки и нажмите «Анализ клана».</div>
-          <div class="status-bar">
-            <div class="status-fill"></div>
-            <div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mode-page" id="defenceModePanel">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Cavern Defence</h3>
-        </div>
-        <p>
-          A future endless tower defense set inside the Cavern tribe identity. The goal of this tab is to shape the visual language,
-          route-building logic, towers, monsters, and the first playable fantasy before production starts.
-        </p>
-      </div>
-    </div>
-    <div class="mode-page" id="vibeModePanel"></div>
-    <div class="mode-page" id="battleModePanel"></div>
-    <div class="mode-page" id="tribeModePanel"></div>
-    <div class="mode-page" id="loreModePanel"></div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="top-teams" class="mode-section active" data-mode-section="analyzer">
-  <div class="wrap">
-    <div class="lbl">Top Variants</div>
-    <div class="ttl">Top <em>10 Teams</em> by Power and Synergies</div>
-    <div class="variant-total" id="topTeamsTotal">
-      <div>
-        <div class="variant-total-label">Total Power Across Top 10</div>
-        <div class="variant-total-value">0 PWR</div>
-      </div>
-      <div class="variant-total-sub">Combined total score of all ranked teams.</div>
-    </div>
-    <div class="variant-grid" id="topTeamsGrid">
-      <div class="empty-state">After the scan, the 10 strongest unique Cavern teams will appear here.</div>
     </div>
   </div>
 </section>
 
-<section id="wallet-summary" class="mode-section" data-mode-section="wallet">
+<section id="cvKpis" style="display:none;padding-top:0;">
   <div class="wrap">
     <div class="metrics-grid">
-      <div class="metric">
-        <div class="n" id="walletOwnedCount">0</div>
-        <div class="k">Owned Cavern Orcs</div>
-        <div class="v">Filtered from the wallet address.</div>
-      </div>
-      <div class="metric">
-        <div class="n" id="walletFinalTeamScore">0 PWR</div>
-        <div class="k">Final Team Score</div>
-        <div class="v">Best total score from owned plus listed market orcs.</div>
-      </div>
-      <div class="metric">
-        <div class="n" id="walletMarketCount">0</div>
-        <div class="k">Listed Cavern Orcs</div>
-        <div class="v">Live market candidates checked right now.</div>
-      </div>
-      <div class="metric">
-        <div class="n" id="walletBuyCount">0</div>
-        <div class="k">Orcs To Buy</div>
-        <div class="v" id="walletBuyCostText">Current plan buy cost: 0 TON.</div>
-      </div>
+      <div class="metric"><div class="n" id="cvOrcs">0</div><div class="k">Всего орков</div><div class="v">Орки Unstoppable Tribe на кошельке.</div></div>
+      <div class="metric"><div class="n" id="cvTeams">0</div><div class="k">Полных команд</div><div class="v">Команды из 7 орков одного цвета.</div></div>
+      <div class="metric"><div class="n" id="cvPwr">0</div><div class="k">Сила (топ-3)</div><div class="v">Сумма трёх сильнейших команд.</div></div>
+      <div class="metric"><div class="n" id="cvTones">0</div><div class="k">Цветов кожи</div><div class="v">Сколько разных племён в коллекции.</div></div>
     </div>
   </div>
 </section>
 
-<div class="hr"></div>
-
-<section id="wallet-current-team" class="mode-section" data-mode-section="wallet">
+<section id="cvTeamsSec" style="display:none;">
   <div class="wrap">
-    <div class="lbl">Current Team</div>
-    <div class="ttl">Best <em>Owned Team</em></div>
-    <div class="desc" id="walletCurrentTeamMeta">Analyze a wallet to see the strongest team from already owned Cavern orcs.</div>
-    <div class="variant-card" id="walletCurrentTeamCard">
-      <div class="empty-state">No wallet analysis yet.</div>
-    </div>
+    <div class="lbl">Команды</div>
+    <div class="ttl">Полные <em>команды по цветам</em></div>
+    <div class="desc" id="cvTeamsMeta"></div>
+    <div id="cvTeamsGrid" class="variant-grid"></div>
   </div>
 </section>
 
-<div class="hr"></div>
-
-<section id="wallet-upgrade" class="mode-section" data-mode-section="wallet">
+<section id="cvSynSec" style="display:none;background:var(--bg2);">
   <div class="wrap">
-    <div class="lbl">Best Team Plan</div>
-    <div class="ttl">Strongest <em>Keep + Buy Plan</em></div>
-    <div class="desc" id="walletUpgradeMeta">The advisor will build the strongest possible Cavern team from owned orcs plus listed market candidates, then show what to keep and what to buy.</div>
-    <div class="variant-card" id="walletUpgradeCard">
-      <div class="empty-state">Analyze a wallet to get the strongest combined team plan and the list of Cavern orcs to buy.</div>
-    </div>
+    <div class="lbl">Синергии</div>
+    <div class="ttl">Потенциал <em>синергий</em> кошелька</div>
+    <div class="desc">Сколько одинаковых серёжек / браслетов / лого по всей коллекции и насколько близко до командного бонуса (×4/×5/×6/×7).</div>
+    <div id="cvSynGrid" class="control-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));"></div>
   </div>
 </section>
 
-<div class="hr"></div>
-
-<section id="wallet-owned-roster" class="mode-section" data-mode-section="wallet">
+<section id="cvRosterSec" style="display:none;">
   <div class="wrap">
-    <div class="lbl">Owned Cavern</div>
-    <div class="ttl">Wallet <em>Orcs</em></div>
-    <div class="desc">These are the Cavern orcs currently owned by the wallet and used for the recommendation model.</div>
-    <div class="roster-grid" id="walletOwnedGrid">
-      <div class="empty-state">No wallet data loaded yet.</div>
-    </div>
+    <div class="lbl">Ростер</div>
+    <div class="ttl">Все <em>орки кошелька</em></div>
+    <div class="desc">Полный список орков по силе. У каждого — цвет, эмоция, разбивка силы и атрибуты.</div>
+    <div class="roster-grid" id="cvRosterGrid"></div>
   </div>
 </section>
 
-<div class="hr"></div>
-
-<section id="clan-summary" class="mode-section" data-mode-section="clan">
-  <div class="wrap">
-    <div class="metrics-grid">
-      <div class="metric"><div class="n" id="clanMemberCount">0</div><div class="k">Участников</div><div class="v">Кошельки, где есть хотя бы один орк.</div></div>
-      <div class="metric"><div class="n" id="clanOrcCount">0</div><div class="k">Орков в клане</div><div class="v">Все орки Unstoppable Tribe на кошельках.</div></div>
-      <div class="metric"><div class="n" id="clanPower">0 PWR</div><div class="k">Сила клана</div><div class="v">Сумма топ-3 команд каждого участника.</div></div>
-      <div class="metric"><div class="n" id="clanTopMember">—</div><div class="k">Сильнейший</div><div class="v">Наибольшая сила топ-3 команд.</div></div>
-    </div>
-    <div class="actions" style="margin-top:18px;gap:10px;flex-wrap:wrap;">
-      <button type="button" class="btn-m" id="clanSwapBtn" disabled>① Анализ обменов (синергии)</button>
-      <button type="button" class="btn-m" id="clanMarketBtn" disabled>② Анализ рынка (что докупить)</button>
-    </div>
-    <div class="status" id="clanActionStatus" style="margin-top:14px;">
-      <div class="status-title">Анализ</div>
-      <div class="status-text">Сначала просканируйте клан, затем используйте две кнопки анализа.</div>
-      <div class="status-bar"><div class="status-fill"></div><div class="status-flag"><img src="c-logo-nobg.png" alt="Cavern"></div></div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="clan-members" class="mode-section" data-mode-section="clan">
-  <div class="wrap">
-    <div class="lbl">Состав</div>
-    <div class="ttl">3 сильнейшие <em>команды каждого</em></div>
-    <div class="desc">Top three unique teams per wallet, ranked by personal power plus Earring / Bracelet / Logo synergies.</div>
-    <div id="clanMembersGrid">
-      <div class="empty-state">Анализа клана ещё нет. Добавьте кошельки во вкладке Clan Wars и нажмите «Анализ клана».</div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="clan-swaps" class="mode-section" data-mode-section="clan">
-  <div class="wrap">
-    <div class="lbl">План обменов</div>
-    <div class="ttl">Пошаговая <em>цепочка обменов</em></div>
-    <div class="desc" id="clanSwapMeta">Обмены орками между участниками, повышающие общую силу клана через синергии команд.</div>
-    <div class="clan-result" id="clanSwapSummary" style="display:none;">
-      <div class="clan-result-col">
-        <div class="clan-result-k">Сила клана</div>
-        <div class="clan-result-flow"><span id="clanResBefore">0</span><span class="clan-result-arrow">→</span><span class="clan-result-after" id="clanResAfter">0</span></div>
-      </div>
-      <div class="clan-result-col">
-        <div class="clan-result-k">Прирост</div>
-        <div class="clan-result-gain" id="clanResGain">+0 PWR</div>
-      </div>
-      <div class="clan-result-col">
-        <div class="clan-result-k">Ходов</div>
-        <div class="clan-result-moves" id="clanResMoves">0</div>
-      </div>
-    </div>
-    <div id="clanSwapGrid">
-      <div class="empty-state">Нажмите «Анализ обменов» после сканирования клана.</div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="clan-market" class="mode-section" data-mode-section="clan">
-  <div class="wrap">
-    <div class="lbl">План закупок</div>
-    <div class="ttl">Каких орков <em>докупить на кошелёк</em></div>
-    <div class="desc" id="clanMarketMeta">Живые листинги, которые сильнее всего поднимут силу и синергию команд участников.</div>
-    <div id="clanMarketGrid">
-      <div class="empty-state">Нажмите «Анализ рынка» после сканирования клана.</div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="defence-overview" class="mode-section" data-mode-section="defence">
-  <div class="wrap">
-    <div class="lbl">Vibe City · Ziggurat</div>
-    <div class="ttl">Cavern <em>Defence</em></div>
-    <div class="desc">
-      Endless siege meets route-shaping defense. The player is not just placing towers, but acting as the Cavern chief who rebuilds the
-      underground path, traps the enemy inside kill corridors, and holds the tribe's deep fortress through an endless AI-generated assault.
-    </div>
-    <div class="concept-grid">
-      <div class="concept-stack">
-        <div class="concept-card">
-          <h3>Core Fantasy</h3>
-          <ul>
-            <li>You defend a living Cavern stronghold instead of a generic lane.</li>
-            <li>Each wave lets you reshape the route with stone gates, bone barricades, rune pivots, and cave choke-points.</li>
-            <li>The siege is endless, but the map keeps evolving, so every session feels like a surviving ritual rather than a fixed puzzle.</li>
-            <li>Cavern identity leads everything: pale stone, fungal glow, tribal metal, ash, bone, and ritual gold.</li>
-          </ul>
-        </div>
-        <div class="concept-card">
-          <h3>Visual Pillars</h3>
-          <div class="palette-grid">
-            <div class="palette-chip">
-              <div class="palette-swatch" style="background:#9f9f9f"></div>
-              <div class="palette-name">#9f9f9f</div>
-              <div class="palette-meta">Main neutral gray for UI stone, soft metal, and broad surface balance.</div>
-            </div>
-            <div class="palette-chip">
-              <div class="palette-swatch" style="background:#848484"></div>
-              <div class="palette-name">#848484</div>
-              <div class="palette-meta">Core shadow-gray for structure depth and quieter tower detailing.</div>
-            </div>
-            <div class="palette-chip">
-              <div class="palette-swatch" style="background:#b3aba9"></div>
-              <div class="palette-name">#b3aba9</div>
-              <div class="palette-meta">Warm ash tone for cracked route tiles, carved blocks, and pale map surfaces.</div>
-            </div>
-            <div class="palette-chip">
-              <div class="palette-swatch" style="background:#2c2930"></div>
-              <div class="palette-name">#2c2930</div>
-              <div class="palette-meta">Deep cavern base for voids, roots, banner cloth, and strongest shadow masses.</div>
-            </div>
-            <div class="palette-chip">
-              <div class="palette-swatch" style="background:#c1bac1"></div>
-              <div class="palette-name">#c1bac1</div>
-              <div class="palette-meta">Pale highlight for bone trim, soft edge lighting, and cleaner readable materials.</div>
-            </div>
-            <div class="palette-chip">
-              <div class="palette-swatch" style="background:#bbb6bd"></div>
-              <div class="palette-name">#bbb6bd</div>
-              <div class="palette-meta">Light muted accent for route contrast, tower readability, and polished interface panels.</div>
-            </div>
-            <div class="palette-chip">
-              <div class="palette-swatch" style="background:#27314e"></div>
-              <div class="palette-name">#27314e</div>
-              <div class="palette-meta">Main magical accent for blue fire, rune glow, and cold tower energy.</div>
-            </div>
-            <div class="palette-chip">
-              <div class="palette-swatch" style="background:#b3ada7"></div>
-              <div class="palette-name">#b3ada7</div>
-              <div class="palette-meta">Secondary route stone and ash-bone bridge tone for lighter cave geometry.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="concept-stack">
-        <div class="concept-card">
-          <h3>Current Visual Board</h3>
-          <div class="defence-map">
-            <img src="cavern-defence-board.png" alt="Cavern Defence concept board" loading="lazy">
-            <div class="defence-map-legend">
-              <span class="legend-pill">Light Route Blocks</span>
-              <span class="legend-pill">Blue Fire Accent</span>
-              <span class="legend-pill">Banner Only</span>
-              <span class="legend-pill">No Top HUD</span>
-            </div>
-            <div class="defence-board-note">
-              This board is now the main visual anchor for the project: lighter ash-stone routes, stronger blue fire accents, banner-only right side,
-              and a calmer monochrome identity closer to the Cavern site palette.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="lore-overview" class="mode-section" data-mode-section="lore">
-  <div class="wrap">
-    <div class="lbl">Comics</div>
-    <div class="ttl">Ashes <em>of the Depths</em></div>
-    <div class="comic-hero-sub">Tribe of the Deep · Cavern Chronicle</div>
-    <div class="comic-hero-hook">Pale cave orcs.<br><span>White skin. Dark force.</span></div>
-    <div class="lore-stack">
-      <div class="lore-hero">
-        <img src="cavern-lore-episode-01.png" alt="Cavern lore comic key art" loading="lazy">
-      </div>
-      <div class="lore-copy">
-        <div class="lore-head">
-          <div class="lore-kicker">Chronicle I</div>
-          <div class="lore-title">Ashes of the Depths</div>
-          <div class="lore-runes">ᚱ ᚲ ᚹ</div>
-        </div>
-        <p>
-          Deep in the caves, a Cavern warband descends in search of an ancient relic remembered only through fragments of songs and
-          legends. The lower they go, the stronger the old rune on the rune-keeper's neck responds, warning that the target is close.
-        </p>
-        <p>
-          Below, a battle awaits them with a mystical creature that guards the trophy and lets no one near the altar.
-          Perhaps the ancient ruins hold more than one secret...
-        </p>
-        <div class="comic-cta-actions">
-          <button type="button" class="btn-m comic-action-btn is-primary" id="readComicBtn">Read Episode 01</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="tribe-overview" class="mode-section" data-mode-section="tribe">
-  <div class="wrap">
-    <div class="tribe-story-wrap">
-      <div class="fi">
-        <div class="lbl">History</div>
-        <div class="ttl">Who Are<br><em>Cavern</em></div>
-        <div class="tribe-story-quote">"While other tribes fought for the surface, we gathered strength in the dark."</div>
-        <p class="tribe-story-copy">Cavern is a tribe born from the depths. Millennia underground made their skin white and their minds sharp. They came into the light later than the others, but brought with them the knowledge of the deep that no one above possesses.</p>
-        <p class="tribe-story-copy">The rhino is their totem. Endurance, patience, and the strike that lands at the exact moment the enemy is already certain of victory. In the world of Zargates, Cavern is a tribe that does not make noise without reason, but knows how to impose its strength.</p>
-        <p class="tribe-story-copy">Today Cavern is strengthening its presence in Vibe City, competing in the Battle of Tribes, and gradually building its own identity around the clan through lore, tribe culture, and future game experiences.</p>
-        <div class="tribe-story-traits">
-          <div class="tribe-story-trait"><div class="tribe-story-name">Rarity</div><div class="tribe-story-val">EPIC · White Skin</div></div>
-          <div class="tribe-story-trait"><div class="tribe-story-name">Totem</div><div class="tribe-story-val">Rhino</div></div>
-          <div class="tribe-story-trait"><div class="tribe-story-name">Power</div><div class="tribe-story-val">20 per orc</div></div>
-          <div class="tribe-story-trait"><div class="tribe-story-name">Habitat</div><div class="tribe-story-val">Underground / Depths</div></div>
-        </div>
-      </div>
-      <div class="tribe-story-emblem fi d1">
-        <img src="c-logo-nobg.png" alt="Cavern Emblem" onerror="this.style.display='none'">
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="tribe-merch" class="mode-section" data-mode-section="tribe">
-  <div class="wrap">
-    <div class="lbl">Merch · Stickers · Gifts</div>
-    <div class="ttl">Wear <em>Cavern</em></div>
-    <div class="desc">Stickers, TG gifts, and digital merch built around the tribe's identity. A way to support the clan and show where you belong.</div>
-    <div class="merch-grid">
-      <div class="mc fi">
-        <div class="mc-cover">
-          <img src="c-orc.jpg" alt="Sticker pack" onerror="this.style.display='none'">
-          <div class="mc-cover-ph" id="sticker-ph" style="display:none;">Stickers</div>
-        </div>
-        <div class="mc-body">
-          <div class="mc-tag">Telegram · Sticker Pack</div>
-          <div class="mc-name">Cavern Orcs Pack</div>
-          <div class="mc-desc">Animated Cavern orc stickers for Telegram. Recognizable white skin, unmistakable tribe character.</div>
-          <div class="mc-price">In Development</div>
-          <div class="mc-soon">Soon · Notify Me</div>
-        </div>
-      </div>
-      <div class="mc fi d1">
-        <div class="mc-cover">
-          <div class="mc-cover-ph">TG Gift</div>
-        </div>
-        <div class="mc-body">
-          <div class="mc-tag">Telegram · Gift</div>
-          <div class="mc-name">Cavern Gift</div>
-          <div class="mc-desc">An exclusive TG gift with Cavern identity. Send it to tribe members or give it to newcomers as an invitation.</div>
-          <div class="mc-price">In Development</div>
-          <div class="mc-soon">Soon · Members Only</div>
-        </div>
-      </div>
-      <div class="mc fi d2">
-        <div class="mc-cover">
-          <div class="mc-cover-ph">Pack</div>
-        </div>
-        <div class="mc-body">
-          <div class="mc-tag">Digital · Guide Pack</div>
-          <div class="mc-name">Cavern Starter Pack</div>
-          <div class="mc-desc">A guide to the Zargates ecosystem, a breakdown of Vibe City mechanics, and a startup checklist. Everything a newcomer needs in one pack.</div>
-          <div class="mc-price">100 Stars</div>
-          <div class="mc-soon">Message on Telegram</div>
-        </div>
-      </div>
-      <div class="mc fi d3">
-        <div class="mc-cover">
-          <img src="c-logo-nobg.png" alt="NFT" onerror="this.style.display='none'">
-          <div class="mc-cover-ph">NFT</div>
-        </div>
-        <div class="mc-body">
-          <div class="mc-tag">NFT · Cavern Orcs</div>
-          <div class="mc-name">Cavern Orcs</div>
-          <div class="mc-desc">Cavern orcs on the Zargates market. EPIC rarity, white skin, and traits tuned for ecosystem events.</div>
-          <div class="mc-price">Zargates Market</div>
-          <div class="mc-soon">Available Now</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="vibe-overview" class="mode-section" data-mode-section="vibe">
-  <div class="wrap">
-    <div class="vc-split">
-      <div class="fi">
-        <div class="lbl">Zargates Ecosystem</div>
-        <div class="ttl">What Is<br><em>Vibe City</em></div>
-        <p style="font-size:14px;color:var(--dim2);line-height:1.88;margin-bottom:24px;">Vibe City is Zargates' gaming platform. The community builds the buildings, and each one is a separate AI product: games in different genres, services, and tools. A building generates turnover, and share holders receive their portion.</p>
-        <div class="vc-quote"><strong>A building share = a percentage of all transactions inside it, forever.</strong> As the platform grows, your income grows with it. Payouts come in Stars and USDT.</div>
-      </div>
-      <div class="vc-cards fi d1">
-        <div class="vcc">
-          <div class="vcc-name">How to Get Shares</div>
-          <div class="vcc-desc">Events: orcs with the right trait receive shares in a specific building. Golden orcs: shares drop automatically whenever a new building opens.</div>
-          <div class="vcc-tag">Events · Golden Orcs</div>
-        </div>
-        <div class="vcc">
-          <div class="vcc-name">Where Revenue Comes From</div>
-          <div class="vcc-desc">Players spend Stars inside the buildings. That flow is distributed among share holders in proportion to their stake.</div>
-          <div class="vcc-tag">Stars + USDT · Passive</div>
-        </div>
-        <div class="vcc">
-          <div class="vcc-name">Liquidity</div>
-          <div class="vcc-desc">You can hold shares and earn income, or sell them. The same goes for market orcs. Everything inside the Zargates ecosystem is tradable.</div>
-          <div class="vcc-tag">Sell · Hold · Reinvest</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="battle-overview" class="mode-section" data-mode-section="battle">
-  <div class="wrap">
-    <div class="lbl">Competition</div>
-    <div class="ttl">Battle of <em>Tribes</em></div>
-    <div class="desc">A seasonal competition among 18 Zargates tribes. The winner receives building shares for the entire lineup.</div>
-    <div class="battle-flow fi">
-      <div class="bf-step">
-        <div class="bf-num">1</div>
-        <div class="bf-title">Gather Orcs</div>
-        <div class="bf-desc">Cavern orcs are EPIC rarity and worth 20 Power each. Trait synergies provide a team bonus.</div>
-      </div>
-      <div class="bf-step">
-        <div class="bf-num">2</div>
-        <div class="bf-title">Build Your Lineup</div>
-        <div class="bf-desc">The best combination of traits equals the highest total team Power.</div>
-      </div>
-      <div class="bf-step">
-        <div class="bf-num">3</div>
-        <div class="bf-title">Compete in the Season</div>
-        <div class="bf-desc">The tribe with the highest total Power at the end of the season wins.</div>
-      </div>
-      <div class="bf-step">
-        <div class="bf-num">4</div>
-        <div class="bf-title">Claim Rewards</div>
-        <div class="bf-desc">Grand Casino and other building shares for every member of the winning lineup.</div>
-        <div class="bf-reward">Building Shares</div>
-      </div>
-    </div>
-    <div class="battle-note fi">
-      <p>Cavern is currently building its lineup. <strong>If you own Cavern tribe orcs, message us.</strong> A stronger lineup means a better chance to win and more shares for every participant.</p>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="tribe-earn" class="mode-section" data-mode-section="tribe" style="background:var(--bg2);">
-  <div class="wrap">
-    <div class="lbl">No Waiting</div>
-    <div class="ttl">What Works <em>Right Now</em></div>
-    <div class="desc">Not after listing. Not after winning the Battle. Today.</div>
-    <div class="earn-grid">
-      <div class="ec fi">
-        <div class="ec-n">Method 01</div>
-        <div class="ec-title">Boxes -> Scratch -> Stars</div>
-        <div class="ec-desc">Every box contains a scratch card with a random amount of Stars. Open it, claim it, withdraw it, or reinvest it.</div>
-        <div class="ec-result">Stars the same day</div>
-      </div>
-      <div class="ec fi d1">
-        <div class="ec-n">Method 02</div>
-        <div class="ec-title">Orcs on the Market</div>
-        <div class="ec-desc">List orcs from boxes on the Zargates market. There is always demand for orcs with traits that match active events.</div>
-        <div class="ec-result">Instant liquidity</div>
-      </div>
-      <div class="ec fi d2">
-        <div class="ec-n">Method 03</div>
-        <div class="ec-title">Events -> Vibe City Shares</div>
-        <div class="ec-desc">Orcs with the right trait receive building shares. The Ethereum event is a live example. The next event is the next opportunity.</div>
-        <div class="ec-result">Shares -> passive income</div>
-      </div>
-      <div class="ec fi d3">
-        <div class="ec-n">Method 04</div>
-        <div class="ec-title">Golden Orcs</div>
-        <div class="ec-desc">After every new building opens in Vibe City, holders of golden orcs receive shares automatically. No conditions.</div>
-        <div class="ec-result">Auto-drop from every building</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="tribe-events" class="mode-section" data-mode-section="tribe">
-  <div class="wrap">
-    <div class="lbl">Mechanics & Events</div>
-    <div class="ttl">Orc Traits Are the <em>Key to Drops</em></div>
-    <div class="desc">Zargates regularly announces events. Each one has different conditions, and the right trait at the right moment can bring building shares.</div>
-    <div class="ev-grid">
-      <div class="ev fi">
-        <span class="ev-badge b-past">Past</span>
-        <div class="ev-label">Event</div>
-        <div class="ev-name">Ethereum Drop</div>
-        <div class="ev-body">Orcs with the <strong>"Ethereum"</strong> trait in any slot received Vibe City shares, with no Battle win and no extra conditions required.</div>
-        <div class="ev-reward">Vibe City Shares</div>
-      </div>
-      <div class="ev fi d1">
-        <span class="ev-badge b-on">Permanent</span>
-        <div class="ev-label">Mechanic</div>
-        <div class="ev-name">Golden Orcs</div>
-        <div class="ev-body">Every new building in Vibe City triggers an automatic share drop for all golden orc holders. It works without events.</div>
-        <div class="ev-reward">Shares from every building</div>
-      </div>
-      <div class="ev fi d2">
-        <span class="ev-badge b-soon">Soon</span>
-        <div class="ev-label">Next Event</div>
-        <div class="ev-name">New Conditions</div>
-        <div class="ev-body">Zargates will announce the next event with a new set of traits. Cavern breaks down every event, so subscribe if you want the analysis first.</div>
-        <div class="ev-reward">Breakdown in the Cavern channel</div>
-      </div>
-    </div>
-    <div class="scratch-row fi" style="margin-top:40px;">
-      <div class="sc-card" onclick="scratch(this)">
-        <div class="sc-hint">Scratch Card from a Box</div>
-        <div class="sc-val" id="scv">?</div>
-        <div class="sc-sub" id="scs">tap to reveal</div>
-      </div>
-      <div class="sc-info">
-        <p>Every box in Zargates contains a scratch card with a random amount of Stars. Scratch it and you see how much you got.</p>
-        <ul class="sc-list">
-          <li><span class="ar">→</span><span><strong>Premium Pass</strong> — increases Stars and orc rarity</span></li>
-          <li><span class="ar">→</span><span><strong>Horseshoe</strong> — boosts the chance of getting rare and golden orcs</span></li>
-          <li><span class="ar">→</span><span><strong>Golden Orc</strong> — grants shares from every new building forever</span></li>
-        </ul>
-      </div>
-    </div>
-    <div class="notify fi">
-      <div class="notify-txt">
-        <h4>Event Alerts</h4>
-        <p>Leave your contact and we will send you the breakdown of the next Zargates event.</p>
-      </div>
-      <form class="nf" onsubmit="submitForm(event)">
-        <input type="text" id="sub-input" placeholder="@telegram or email">
-        <button type="submit">Get Alerts</button>
-      </form>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="tribe-join" class="mode-section" data-mode-section="tribe" style="background:var(--bg2);">
-  <div class="wrap">
-    <div class="lbl">Membership</div>
-    <div class="ttl">Three Levels of <em>Participation</em></div>
-    <div class="desc" style="margin-bottom:28px;">Choose the format that fits you, from free entry to full immersion with personal review.</div>
-    <div class="tiers">
-      <div class="tier fi">
-        <div class="t-lv">Level 1</div>
-        <div class="t-name">Recruit</div>
-        <div class="t-sub">Start here. Understand the ecosystem.</div>
-        <div class="t-price"><span class="amt">Free</span><span class="per">basic access</span></div>
-        <ul class="t-list">
-          <li><span class="ck">✓</span><span>Cavern chat in Telegram</span></li>
-          <li><span class="ck">✓</span><span>Guide: Vibe City, orcs, boxes</span></li>
-          <li><span class="ck">✓</span><span>Starter pack — how to begin earning</span></li>
-          <li><span class="xx">—</span><span style="opacity:.35">Event breakdowns</span></li>
-          <li><span class="xx">—</span><span style="opacity:.35">Collection analysis</span></li>
-          <li><span class="xx">—</span><span style="opacity:.35">Trading desk</span></li>
-        </ul>
-        <a href="https://t.me/zargates_news" class="t-btn tb-o" target="_blank">Join</a>
-      </div>
-      <div class="tier hot fi d1">
-        <div class="t-ribbon">Popular</div>
-        <div class="t-lv">Level 2</div>
-        <div class="t-name">Warrior</div>
-        <div class="t-sub">Events, traits, market.</div>
-        <div class="t-price"><span class="amt">500 ★</span><span class="per">per season</span></div>
-        <ul class="t-list">
-          <li><span class="ck">✓</span><span>Everything in Recruit</span></li>
-          <li><span class="ck">✓</span><span><strong>Breakdown of every event</strong> — traits, buildings, conditions</span></li>
-          <li><span class="ck">✓</span><span><strong>Analysis of your collection</strong> — who qualifies for drops</span></li>
-          <li><span class="ck">✓</span><span><strong>Trading desk</strong> — orcs inside Cavern</span></li>
-          <li><span class="ck">✓</span><span>A spot in the Battle of Tribes lineup</span></li>
-          <li><span class="xx">—</span><span style="opacity:.35">Personal portfolio review</span></li>
-        </ul>
-        <a href="https://t.me/zargates_news" class="t-btn tb-m" target="_blank">Join →</a>
-      </div>
-      <div class="tier fi d2">
-        <div class="t-lv">Level 3</div>
-        <div class="t-name">Elite</div>
-        <div class="t-sub">Maximum value from every season.</div>
-        <div class="t-price"><span class="amt">2000 ★</span><span class="per">per season</span></div>
-        <ul class="t-list">
-          <li><span class="ck">✓</span><span>Everything in Warrior</span></li>
-          <li><span class="ck">✓</span><span><strong>Personal review</strong> — optimization for shares</span></li>
-          <li><span class="ck">✓</span><span><strong>Top lineup</strong> — your place in the strongest team</span></li>
-          <li><span class="ck">✓</span><span><strong>Weekly report</strong> on events and buildings</span></li>
-          <li><span class="ck">✓</span><span><strong>VIP channel</strong> — private breakdowns</span></li>
-          <li><span class="ck">✓</span><span>Priority in the trading desk</span></li>
-        </ul>
-        <a href="https://t.me/zargates_news" class="t-btn tb-o" target="_blank">Join →</a>
-      </div>
-    </div>
-    <p style="text-align:center;color:var(--dim);margin-top:18px;font-size:10px;">Payment: Telegram Stars · TON · Sapphires · Activation within 24h</p>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="tribe-contact" class="mode-section" data-mode-section="tribe">
-  <div class="wrap">
-    <div class="contact-wrap">
-      <div class="contact-txt fi">
-        <div class="lbl">Contact</div>
-        <h3>Have a question?<br><em>Write to us.</em></h3>
-        <p>If you already own Cavern orcs, have questions about events, or want to join the lineup, write to us directly. We will reply.</p>
-        <p>Or just leave a contact and we will tell you what is happening in Cavern right now.</p>
-        <div style="margin-top:20px;">
-          <a href="https://t.me/zargates_news" class="btn-m" target="_blank" style="margin-right:10px;">Write on Telegram</a>
-        </div>
-      </div>
-      <div class="fi d1">
-        <div class="cf">
-          <input type="text" placeholder="Name or @telegram">
-          <input type="text" placeholder="Topic — orcs, event, lineup...">
-          <textarea placeholder="Message" rows="4"></textarea>
-          <button class="btn-m" onclick="this.textContent='Sent';this.style.background='#4db87a';setTimeout(()=>{this.textContent='Send';this.style.background='';},3000);">Send</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<div class="mode-section meme" data-mode-section="tribe">
-  <img src="c-orc.jpg" alt="Orc" onerror="this.style.display='none'">
-  <div class="meme-t">
-    <h2>WEN TGE? <em>Right now.</em></h2>
-    <p>Orcs bring Stars today. Events bring building shares. Vibe City is live. Cavern is inside it. There is no reason to wait — the only question is whether you will be with us.</p>
-  </div>
-</div>
-
-<div class="hr"></div>
-
-<section id="tribe-faq" class="mode-section" data-mode-section="tribe">
-  <div class="wrap">
-    <div class="lbl">FAQ</div>
-    <div class="ttl">Frequently Asked <em>Questions</em></div>
-    <div class="faq-col">
-      <div class="fq"><div class="fq-q" onclick="faq(this)">What is Cavern and how is it connected to Zargates?<span>▼</span></div><div class="fq-a"><div class="fq-ai">Cavern is one of the 18 tribes in Zargates. A tribe is a group of orcs united under one banner. Cavern is EPIC rarity, with white-skinned orcs and a rhino totem. It competes in the Battle of Tribes, takes part in events, and builds its presence inside Vibe City.</div></div></div>
-      <div class="fq"><div class="fq-q" onclick="faq(this)">How do I get Vibe City building shares?<span>▼</span></div><div class="fq-a"><div class="fq-ai">There are two paths: <strong>1)</strong> Events — orcs with the right trait receive shares, as in the Ethereum event. <strong>2)</strong> Golden orcs — automatic share drops whenever a new building opens. Winning the Battle also grants Grand Casino shares.</div></div></div>
-      <div class="fq"><div class="fq-q" onclick="faq(this)">What does a box in Zargates give you?<span>▼</span></div><div class="fq-a"><div class="fq-ai">Orcs from different tribes and a <strong>scratch card with Stars</strong>. The amount is random, and you only find out after opening it. The Premium Pass and the Horseshoe increase Stars and improve the chance of rare orcs.</div></div></div>
-      <div class="fq"><div class="fq-q" onclick="faq(this)">Why Cavern if other tribes also have EPIC rarity?<span>▼</span></div><div class="fq-a"><div class="fq-ai">EPIC rarity is the entry point, not the uniqueness. Cavern stands out because of its own identity <strong>(white skin, rhino)</strong>, its <strong>presence in Vibe City</strong>, its event-focused community, and the content built around the tribe — stickers, guides, and merch.</div></div></div>
-      <div class="fq"><div class="fq-q" onclick="faq(this)">How much does it cost to join?<span>▼</span></div><div class="fq-a"><div class="fq-ai">Base entry is free. Warrior costs 500 Stars per season and includes event breakdowns, collection analysis, and the trading desk. Elite costs 2000 Stars per season and adds personal review, top-lineup placement, and the VIP channel.</div></div></div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section class="mode-section fcta" data-mode-section="tribe">
-  <img src="c-logo-nobg.png" alt="Cavern" style="height:50px;object-fit:contain;margin-bottom:18px;opacity:.85;" onerror="this.style.display='none'">
-  <h2>The tribe is waiting.<br>Are you with us?</h2>
-  <p>Orcs, shares, Stars, and Vibe City — all of it is already live. Cavern is inside the Zargates ecosystem. Step in.</p>
-  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-    <a href="https://t.me/zargates_news" class="btn-m" target="_blank">Join Cavern</a>
-    <button type="button" class="btn-o" data-open-mode="tribe">Learn About the Tribe ↑</button>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="defence-route-systems" class="mode-section" data-mode-section="defence">
-  <div class="wrap">
-    <div class="lbl">Route Modules</div>
-    <div class="ttl">Path Building <em>Systems</em></div>
-    <div class="system-grid">
-      <article class="system-card">
-        <div class="system-kicker">Route Logic</div>
-        <div class="system-title">Pale Stone Blocks</div>
-        <div class="system-copy">The basic route extension piece. Cheap, reliable, and used to create long lanes or emergency detours during endless escalation.</div>
-        <div class="system-list">
-          <div class="system-row"><strong>Best Use</strong><span>Stretch long lines for Ballista towers.</span></div>
-          <div class="system-row"><strong>Risk</strong><span>Too much greed opens weak corners for rushers.</span></div>
-          <div class="system-row"><strong>Style</strong><span>Carved cave bone mixed with basalt joints.</span></div>
-        </div>
-      </article>
-      <article class="system-card">
-        <div class="system-kicker">Dynamic Control</div>
-        <div class="system-title">Jaw Gates</div>
-        <div class="system-copy">Open or close these gates between waves to force enemies into a different loop. Some elite waves may even pressure a specific gate lane.</div>
-        <div class="system-list">
-          <div class="system-row"><strong>Best Use</strong><span>Re-route enemies into already buffed tower pockets.</span></div>
-          <div class="system-row"><strong>Risk</strong><span>Closing too aggressively may shorten the lane too much.</span></div>
-          <div class="system-row"><strong>Style</strong><span>Stone fangs, ritual hinges, hidden teeth trap.</span></div>
-        </div>
-      </article>
-      <article class="system-card">
-        <div class="system-kicker">Map Modifier</div>
-        <div class="system-title">Spore Hollows</div>
-        <div class="system-copy">Special route pockets that add fungal aura rules. They can heal tribe structures, feed economy towers, or mutate monsters when left uncontrolled.</div>
-        <div class="system-list">
-          <div class="system-row"><strong>Best Use</strong><span>Pair with support and harvest towers.</span></div>
-          <div class="system-row"><strong>Risk</strong><span>Can become enemy mutation zones in late waves.</span></div>
-          <div class="system-row"><strong>Style</strong><span>Soft green glow, spores, wet cavern flora.</span></div>
-        </div>
-      </article>
-      <article class="system-card">
-        <div class="system-kicker">Pivot Nodes</div>
-        <div class="system-title">Rune Switches</div>
-        <div class="system-copy">Temporary route pivots that can send enemies left or right depending on the wave type. They turn the map into a tactical routing puzzle instead of a static lane.</div>
-        <div class="system-list">
-          <div class="system-row"><strong>Best Use</strong><span>Separate swarms from tanks into different kill zones.</span></div>
-          <div class="system-row"><strong>Risk</strong><span>Wrong switch choice can bypass your main defense.</span></div>
-          <div class="system-row"><strong>Style</strong><span>Cold rune circles with steel and ash dust.</span></div>
-        </div>
-      </article>
-      <article class="system-card">
-        <div class="system-kicker">Endless Pressure</div>
-        <div class="system-title">Collapse Zones</div>
-        <div class="system-copy">In late waves some path segments become unstable. The player must either reinforce them or redesign the route around a collapse event.</div>
-        <div class="system-list">
-          <div class="system-row"><strong>Best Use</strong><span>Forces adaptation and keeps endless mode fresh.</span></div>
-          <div class="system-row"><strong>Risk</strong><span>Can destroy over-invested corridors.</span></div>
-          <div class="system-row"><strong>Style</strong><span>Cracked stone, dust bursts, molten seams.</span></div>
-        </div>
-      </article>
-      <article class="system-card">
-        <div class="system-kicker">Chief Layer</div>
-        <div class="system-title">Relic Altars</div>
-        <div class="system-copy">Optional route modules that trade space for power. When placed in the path grid they unlock temporary tribal doctrines like fear pulses, bonus gold, or route-wide buffs.</div>
-        <div class="system-list">
-          <div class="system-row"><strong>Best Use</strong><span>High-risk endless scaling and identity moments.</span></div>
-          <div class="system-row"><strong>Risk</strong><span>Takes space from tower platforms or safer loops.</span></div>
-          <div class="system-row"><strong>Style</strong><span>Chief gold, rune ash, sacred bone crown motifs.</span></div>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="defence-loop" class="mode-section" data-mode-section="defence">
-  <div class="wrap">
-    <div class="lbl">Endless Session Loop</div>
-    <div class="ttl">How A <em>Run</em> Works</div>
-    <div class="loop-grid">
-      <div class="loop-step">
-        <div class="loop-step-num">01</div>
-        <h4>Scout the Breach</h4>
-        <p>The cave opens with one breach lane and several blocked pockets. The player reads the terrain, initial enemy tags, and first resource nodes.</p>
-      </div>
-      <div class="loop-step">
-        <div class="loop-step-num">02</div>
-        <h4>Shape the Route</h4>
-        <p>Before or between waves the player extends the path with pale stone blocks, trap corridors, fungal forks, and tribal gates.</p>
-      </div>
-      <div class="loop-step">
-        <div class="loop-step-num">03</div>
-        <h4>Anchor Towers</h4>
-        <p>Cavern towers are placed on carved platforms. Some are raw damage, some spread fear, some harvest spores, and some reward longer enemy travel.</p>
-      </div>
-      <div class="loop-step">
-        <div class="loop-step-num">04</div>
-        <h4>Survive Forever</h4>
-        <p>The run never ends. Enemies mutate, map rules evolve, and the player keeps rebuilding the route to hold the chief's undercity one wave longer.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="defence-towers" class="mode-section" data-mode-section="defence">
-  <div class="wrap">
-    <div class="lbl">Tower Set</div>
-    <div class="ttl">First <em>Cavern Towers</em></div>
-    <div class="unit-grid">
-      <article class="unit-card">
-        <div class="unit-type">Damage Core</div>
-        <div class="unit-name">Bone Ballista</div>
-        <div class="unit-copy">A tribal heavy launcher built from carved rib-bone and rune steel. Excels at deleting frontliners and armored elites on long straight paths.</div>
-        <div class="unit-tags"><span class="unit-tag">Pierce</span><span class="unit-tag">Long Lane Bonus</span><span class="unit-tag">Anti-Elite</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Area Damage</div>
-        <div class="unit-name">Spore Furnace</div>
-        <div class="unit-copy">A fungal kiln that releases burning spores into clustered enemies. Better when routes are curled into loops and choke-points.</div>
-        <div class="unit-tags"><span class="unit-tag">Splash</span><span class="unit-tag">Burn</span><span class="unit-tag">Loop Control</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Control</div>
-        <div class="unit-name">Totem of Dread</div>
-        <div class="unit-copy">A chief-era fear idol that makes enemies slow, panic, or lose formation. Used to keep waves inside kill corridors.</div>
-        <div class="unit-tags"><span class="unit-tag">Fear</span><span class="unit-tag">Slow</span><span class="unit-tag">Formation Break</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Support</div>
-        <div class="unit-name">Runic Beacon</div>
-        <div class="unit-copy">A pale obelisk that amplifies nearby towers through cold rune light. It turns a small defense pocket into a ritual execution zone.</div>
-        <div class="unit-tags"><span class="unit-tag">Buff Aura</span><span class="unit-tag">Synergy</span><span class="unit-tag">Anchor Tower</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Trap Layer</div>
-        <div class="unit-name">Jaw Gate</div>
-        <div class="unit-copy">A cave gate with hidden stone teeth. It can be opened to redirect the route or closed to punish enemies that pass through a narrow choke.</div>
-        <div class="unit-tags"><span class="unit-tag">Route Tool</span><span class="unit-tag">Burst Trap</span><span class="unit-tag">Choke Point</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Economy</div>
-        <div class="unit-name">Mushroom Excavator</div>
-        <div class="unit-copy">A support growth structure that converts long-lasting kills near fungal zones into extra resource drops, rewarding efficient route shaping.</div>
-        <div class="unit-tags"><span class="unit-tag">Economy</span><span class="unit-tag">Harvest</span><span class="unit-tag">Endless Scaling</span></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="defence-upgrades" class="mode-section" data-mode-section="defence">
-  <div class="wrap">
-    <div class="lbl">Upgrade Paths</div>
-    <div class="ttl">Tower <em>Growth</em> By Tier</div>
-    <div class="upgrade-grid">
-      <article class="upgrade-card">
-        <div class="upgrade-name">Bone Ballista</div>
-        <div class="tier-stack">
-          <div class="tier-block">
-            <div class="tier-label">Tier I</div>
-            <div class="tier-title">Rib Launcher</div>
-            <div class="tier-copy">Low-cost early anti-armor line holder. Great when paired with long straight basalt lanes.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier II</div>
-            <div class="tier-title">Chiefbreaker Harpoon</div>
-            <div class="tier-copy">Adds pierce and execution damage against elite units already affected by fear or rune debuffs.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier III</div>
-            <div class="tier-title">Ancestor Spine Cannon</div>
-            <div class="tier-copy">Launches massive rune-bone bolts that crack armor and mark the lane so nearby towers deal bonus damage.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Gameplay Role</div>
-            <div class="tier-title">Lane Execution Tower</div>
-            <div class="tier-copy">Best on long straight lines, elite targets, and boss lanes. The whole upgrade line is about rewarding planned route geometry.</div>
-          </div>
-        </div>
-      </article>
-      <article class="upgrade-card">
-        <div class="upgrade-name">Spore Furnace</div>
-        <div class="tier-stack">
-          <div class="tier-block">
-            <div class="tier-label">Tier I</div>
-            <div class="tier-title">Ash Kiln</div>
-            <div class="tier-copy">Creates steady burn and splash around choke-points.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier II</div>
-            <div class="tier-title">Venom Bloom Chamber</div>
-            <div class="tier-copy">Burn stacks mutate into poison clouds if enemies stay too long in the same loop.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier III</div>
-            <div class="tier-title">Cathedral of Spores</div>
-            <div class="tier-copy">Turns an entire kill pocket into a hazard zone that rewards route looping, fear control, and swarm stacking.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Gameplay Role</div>
-            <div class="tier-title">Loop Pressure Tower</div>
-            <div class="tier-copy">This line is your main answer to swarm density and long looping routes. It becomes stronger the longer enemies stay grouped.</div>
-          </div>
-        </div>
-      </article>
-      <article class="upgrade-card">
-        <div class="upgrade-name">Totem of Dread</div>
-        <div class="tier-stack">
-          <div class="tier-block">
-            <div class="tier-label">Tier I</div>
-            <div class="tier-title">Whisper Totem</div>
-            <div class="tier-copy">Applies a light slow and panic tick. Early control tool that keeps fast runners from slipping past short routes.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier II</div>
-            <div class="tier-title">Totem of Submission</div>
-            <div class="tier-copy">Upgrades into stronger fear pulses. Enemies briefly lose formation, exposing swarms to splash damage and lanes to execution shots.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier III</div>
-            <div class="tier-title">Totem of Deep Winter</div>
-            <div class="tier-copy">Converts panic into a heavier slow field. Strong against armored waves and route-breaking enemies moving through choke-points.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier IV</div>
-            <div class="tier-title">Totem of the Chief Below</div>
-            <div class="tier-copy">Ultimate control tower. Creates a ritual zone where enemies are slowed, marked, and periodically forced back into the kill corridor.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Gameplay Role</div>
-            <div class="tier-title">Primary Slow / Control Line</div>
-            <div class="tier-copy">This is the main slowdown tower family. It should be the core answer to speed waves, formation breaking, and keeping endless routes manageable.</div>
-          </div>
-        </div>
-      </article>
-      <article class="upgrade-card">
-        <div class="upgrade-name">Runic Beacon</div>
-        <div class="tier-stack">
-          <div class="tier-block">
-            <div class="tier-label">Tier I</div>
-            <div class="tier-title">Beacon of Guidance</div>
-            <div class="tier-copy">Basic amplification aura for nearby towers and route modules. The safest way to strengthen a compact defense pocket.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier II</div>
-            <div class="tier-title">Rune Prism</div>
-            <div class="tier-copy">Adds target marking so nearby towers focus the most dangerous units first and gain improved efficiency against marked elites.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier III</div>
-            <div class="tier-title">Chief's Resonance Obelisk</div>
-            <div class="tier-copy">Turns the whole defense pocket into a ritual zone, boosting tower output and creating a stronger answer to boss waves.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Gameplay Role</div>
-            <div class="tier-title">Pocket Amplifier</div>
-            <div class="tier-copy">This line is not about direct damage. It is about multiplying the value of other towers, especially around fixed choke-points.</div>
-          </div>
-        </div>
-      </article>
-      <article class="upgrade-card">
-        <div class="upgrade-name">Jaw Gate</div>
-        <div class="tier-stack">
-          <div class="tier-block">
-            <div class="tier-label">Tier I</div>
-            <div class="tier-title">Stone Maw</div>
-            <div class="tier-copy">Simple route gate with burst damage on narrow passage. Best for early choke-point control and emergency reroutes.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier II</div>
-            <div class="tier-title">Bone Grinder</div>
-            <div class="tier-copy">Adds stronger bite damage and bleed on enemies forced through the same lane repeatedly.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier III</div>
-            <div class="tier-title">Abyssal Lockjaw</div>
-            <div class="tier-copy">Becomes a major route-control structure that can temporarily seal a branch and punish anything trapped inside.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Gameplay Role</div>
-            <div class="tier-title">Trap + Route Hybrid</div>
-            <div class="tier-copy">This line sits between map editing and tower defense. It should feel like a tactical decision, not just a damage building.</div>
-          </div>
-        </div>
-      </article>
-      <article class="upgrade-card">
-        <div class="upgrade-name">Mushroom Excavator</div>
-        <div class="tier-stack">
-          <div class="tier-block">
-            <div class="tier-label">Tier I</div>
-            <div class="tier-title">Spore Harvester</div>
-            <div class="tier-copy">Collects extra resources from nearby kills and rewards stable route control.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier II</div>
-            <div class="tier-title">Root Distillery</div>
-            <div class="tier-copy">Converts long-lasting kill zones into stronger income and occasional healing bursts for nearby cave modules.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Tier III</div>
-            <div class="tier-title">Elder Mycelium Vault</div>
-            <div class="tier-copy">Late endless-economy structure that powers up both resource gain and ritual support effects in fungal sectors.</div>
-          </div>
-          <div class="tier-block">
-            <div class="tier-label">Gameplay Role</div>
-            <div class="tier-title">Endless Economy Engine</div>
-            <div class="tier-copy">This line exists so long runs can scale without becoming only about raw damage. It rewards stable, efficient route planning.</div>
-          </div>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="defence-monsters" class="mode-section" data-mode-section="defence">
-  <div class="wrap">
-    <div class="lbl">Monster Set</div>
-    <div class="ttl">First <em>Enemy Families</em></div>
-    <div class="unit-grid">
-      <article class="unit-card">
-        <div class="unit-type">Rusher</div>
-        <div class="unit-name">Ash Runners</div>
-        <div class="unit-copy">Fast surface raiders that punish greedy long routes. They pressure the player into building layered slow and fear tools early.</div>
-        <div class="unit-tags"><span class="unit-tag">Role: Runner</span><span class="unit-tag">Fast</span><span class="unit-tag">Wave Opener</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Tank</div>
-        <div class="unit-name">Siege Tuskers</div>
-        <div class="unit-copy">Massive cave-breakers covered in bone plating. They absorb pressure and create windows for weaker enemies to slip through.</div>
-        <div class="unit-tags"><span class="unit-tag">Role: Tank</span><span class="unit-tag">Armor</span><span class="unit-tag">Frontline</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Support Enemy</div>
-        <div class="unit-name">Glow Leeches</div>
-        <div class="unit-copy">Parasites that attach to bigger monsters and regenerate them under cave light, forcing the player to prioritize the right targets.</div>
-        <div class="unit-tags"><span class="unit-tag">Role: Healer</span><span class="unit-tag">Heal</span><span class="unit-tag">Priority Target</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Route Counter</div>
-        <div class="unit-name">Tunnel Burrowers</div>
-        <div class="unit-copy">These creatures damage or bypass parts of the route, challenging the core fantasy and forcing constant rebuild decisions.</div>
-        <div class="unit-tags"><span class="unit-tag">Role: Route Breaker</span><span class="unit-tag">Path Breaker</span><span class="unit-tag">Adaptation Check</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Swarm</div>
-        <div class="unit-name">Spite Bats</div>
-        <div class="unit-copy">Flying cave vermin that ignore parts of the lane and test anti-air or aura coverage. They stop the design from becoming ground-only.</div>
-        <div class="unit-tags"><span class="unit-tag">Role: Flying Swarm</span><span class="unit-tag">Air</span><span class="unit-tag">Swarm</span></div>
-      </article>
-      <article class="unit-card">
-        <div class="unit-type">Boss Wave</div>
-        <div class="unit-name">Sun-Eater Pilgrim</div>
-        <div class="unit-copy">A ritual invader carrying a relic of the surface. It changes nearby enemies, distorts route sections, and serves as a late-wave identity boss.</div>
-        <div class="unit-tags"><span class="unit-tag">Role: Boss</span><span class="unit-tag">Boss</span><span class="unit-tag">Aura Mutator</span></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<section id="defence-progress" class="mode-section" data-mode-section="defence">
-  <div class="wrap">
-    <div class="lbl">Wave Doctrine</div>
-    <div class="ttl">Enemy <em>Progression</em> Over Time</div>
-    <div class="progress-grid">
-      <article class="progress-card">
-        <div class="progress-stage">Stage 01</div>
-        <h4>Scout Pressure</h4>
-        <p>Fast Ash Runners and light swarms test whether the player understands route length, first choke-points, and early support towers.</p>
-      </article>
-      <article class="progress-card">
-        <div class="progress-stage">Stage 02</div>
-        <h4>Armor + Support</h4>
-        <p>Siege Tuskers and Glow Leeches force target priority. The player must balance anti-elite pressure with control and splash damage.</p>
-      </article>
-      <article class="progress-card">
-        <div class="progress-stage">Stage 03</div>
-        <h4>Route Counterplay</h4>
-        <p>Tunnel Burrowers and flying Spite Bats attack the current strategy itself, forcing rebuilds, anti-air layers, and alternate lane planning.</p>
-      </article>
-      <article class="progress-card">
-        <div class="progress-stage">Stage 04</div>
-        <h4>Ritual Siege</h4>
-        <p>Boss entities like the Sun-Eater Pilgrim modify the map, mutate nearby enemies, and create rule-breaking waves that define the endless identity.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<div class="item-modal" id="itemModal" aria-hidden="true">
-  <div class="item-modal-card" role="dialog" aria-modal="true" aria-labelledby="itemModalTitle">
-    <div class="item-modal-head">
-      <div>
-        <div class="item-modal-title" id="itemModalTitle">Orc details</div>
-        <div class="item-modal-sub" id="itemModalSub">Synergy breakdown</div>
-      </div>
-      <button class="item-modal-close" type="button" data-close-item-modal>Close</button>
-    </div>
-    <div id="itemModalBody"></div>
-    <div class="item-modal-footer">
-      <button class="item-modal-close" type="button" data-close-item-modal>Close</button>
-    </div>
-  </div>
-</div>
-
-<div class="hr"></div>
-
-<footer class="site-footer">
-  <div class="site-footer-inner">
-    <div class="site-footer-ip">
-      © 2024–2025 <b>Cavern-Analyzer-Redo</b>. This repository — its idea, source code, design and methodology —
-      is the <b>intellectual property of its author</b>. All rights reserved.
-      Unauthorized copying, cloning or reproduction of this repository is not permitted.
-      <br><br>
-      <span style="color:var(--dim);">Unofficial, fan-made analytics tool. Not affiliated with or endorsed by ZarGates. All third-party brands and artwork belong to their owners and will be removed on the rights holder's request.</span>
-    </div>
-    <div class="site-footer-bottom">
-      <span>© 2024–2025 Cavern-Analyzer-Redo — all rights reserved.</span>
-      <span>Intellectual property of the author</span>
-    </div>
-  </div>
-</footer>
-
-<div class="terms-pop" id="clanGatePop" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="terms-card">
-    <div class="terms-ic">🔁</div>
-    <h3>Сначала «Анализ обменов»</h3>
-    <p>
-      <b>Анализ обменов</b> в приоритете — он перераспределяет уже имеющихся орков между кошельками и даёт силу бесплатно.
-      Запусти его первым, затем <b>Анализ рынка</b> подскажет, что докупить поверх оптимизированных составов.
-    </p>
-    <div class="terms-actions">
-      <button type="button" class="btn-m" id="clanGateRunSwap">① Запустить анализ обменов</button>
-      <button type="button" class="btn-o" id="clanGateClose" style="padding:13px 22px;">Закрыть</button>
-    </div>
-  </div>
-</div>
-
-<div class="terms-pop" id="termsPop" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="terms-card">
-    <div class="terms-ic">⚠️</div>
-    <h3>Notice</h3>
-    <p>
-      This site is the <b>Cavern-Analyzer-Redo</b> project. Its <b>idea, source code, design and methodology</b>
-      are the <b>intellectual property of its author</b>. All rights reserved.
-    </p>
-    <label class="terms-check" for="termsAgree">
-      <input type="checkbox" id="termsAgree">
-      <span>I have read and agree that <b>Cavern-Analyzer-Redo</b> is the intellectual property of its author, and I will not copy, clone or reproduce this repository.</span>
-    </label>
-    <div class="terms-actions">
-      <button type="button" class="btn-m" id="termsAcceptBtn" disabled>I Agree &amp; Continue</button>
-    </div>
-    <div class="terms-note">Unofficial fan-made tool · not affiliated with or endorsed by ZarGates · removed on the rights holder's request · shown once per device.</div>
-  </div>
-</div>
+<div class="site-footer"><div class="site-footer-inner"><div class="site-footer-ip">© 2024–2025 Cavern-Analyzer-Redo. Идея, код, дизайн и методика — интеллектуальная собственность автора. Неофициальный фан-инструмент, не аффилирован с ZarGates; бренды и арт принадлежат владельцам.</div></div></div>
 
 <script>
+
 const EMOTIONS = ["In Love", "Greeting", "Capped", "Shoked", "Do Something", "To The Moon", "Wen TGE"];
 const KNOWN_GETGEMS_COLLECTIONS = {
   unstoppabletribe: "EQBGNoXXfQR07HdDhtkmIu1ojTTwcjB0EhHYOMSH3P7sZGJR"
@@ -5345,141 +4158,90 @@ function setupTermsPopup() {
   }
 }
 
-createParticles();
-window.addEventListener("load", () => {
-  resetInitialViewport();
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("vis");
-      }
-    });
-  }, { threshold: 0.08 });
-  document.querySelectorAll(".fi").forEach((element) => revealObserver.observe(element));
-  document.querySelectorAll("[data-mode-tab]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const mode = button.getAttribute("data-mode-tab");
-      if (mode) {
-        setActiveMode(mode);
-      }
-    });
-  });
-  document.querySelectorAll("[data-mode-nav]").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      const mode = button.getAttribute("data-mode-nav");
-      if (!mode) {
-        return;
-      }
-      setActiveMode(mode);
-      const workspace = document.getElementById("workspace");
-      if (workspace) {
-        event.preventDefault();
-        workspace.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    });
-  });
-  document.querySelectorAll("[data-open-mode]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const mode = button.getAttribute("data-open-mode");
-      if (!mode) {
-        return;
-      }
-      setActiveMode(mode);
-      const workspace = document.getElementById("workspace");
-      if (workspace) {
-        workspace.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    });
-  });
-  document.querySelectorAll(".tribe-fq-q").forEach((button) => {
-    button.addEventListener("click", () => {
-      const item = button.closest(".tribe-fq");
-      if (!item) {
-        return;
-      }
-      const willOpen = !item.classList.contains("open");
-      item.classList.toggle("open", willOpen);
-      button.setAttribute("aria-expanded", String(willOpen));
-    });
-  });
-  const topTeamsGrid = document.getElementById("topTeamsGrid");
-  if (topTeamsGrid) {
-    topTeamsGrid.addEventListener("click", (event) => {
-      const trigger = event.target.closest("[data-open-item-modal]");
-      if (!trigger) {
-        return;
-      }
-      const teamIndex = Number(trigger.getAttribute("data-team-index"));
-      const address = trigger.getAttribute("data-item-address");
-      const entry = state.topTeams[teamIndex];
-      if (!entry || !address) {
-        return;
-      }
-      const item = entry.team.find((candidate) => candidate && candidate.address === address);
-      if (!item) {
-        return;
-      }
-      openItemModal(item, computeTeamSignals(entry.team));
-    });
+
+const CV_CFG = getClanConfig();
+function cvStatus(text, kind, prog){ setStatusFor("wStatus", text, kind||"", prog==null?null:prog); }
+let cvOrcs = [];
+
+async function cvLoad(){
+  const addr = document.getElementById("wIn").value.trim();
+  if(!addr){ cvStatus("Вставьте адрес кошелька TON.","err",100); return; }
+  const btn = document.getElementById("wBtn");
+  btn.disabled = true; btn.textContent = "Загрузка...";
+  try{
+    cvStatus("Сканируем кошелёк...","warn",10);
+    const raw = await fetchWalletClanItems(addr, (m)=>cvStatus(m,"warn",45));
+    if(!raw.length){ cvStatus("На этом кошельке нет орков Unstoppable Tribe.","err",100); cvHideAll(); return; }
+    cvStatus("Считаем силу и синергии "+raw.length+" орков...","warn",80);
+    cvOrcs = raw.map(r=>normalizeItem(r, CV_CFG));
+    cvRender(cvOrcs);
+    cvStatus("Готово: "+cvOrcs.length+" орков в коллекции.","ok",100);
+  }catch(e){ console.error(e); cvStatus(e.message||"Не удалось загрузить кошелёк.","err",100); }
+  finally{ btn.disabled=false; btn.textContent="Загрузить коллекцию"; }
+}
+function cvHideAll(){ ["cvKpis","cvTeamsSec","cvSynSec","cvRosterSec"].forEach(id=>document.getElementById(id).style.display="none"); }
+
+function cvRender(orcs){
+  const teams = memberCompleteTeams(orcs, CV_CFG, 60); // all complete teams, best-first
+  const tones = new Set(orcs.map(orcTone).filter(Boolean));
+  const top3 = teams.slice(0,3).reduce((s,t)=>s+t.score,0);
+  document.getElementById("cvOrcs").textContent = formatNumber(orcs.length);
+  document.getElementById("cvTeams").textContent = formatNumber(teams.length);
+  document.getElementById("cvPwr").textContent = formatNumber(top3)+" PWR";
+  document.getElementById("cvTones").textContent = tones.size;
+  document.getElementById("cvKpis").style.display = "block";
+
+  // teams
+  const tg = document.getElementById("cvTeamsGrid");
+  document.getElementById("cvTeamsMeta").textContent = teams.length
+    ? "Найдено полных команд: "+teams.length+". Каждая — 7 орков одного цвета, отсортированы по силе с учётом синергий."
+    : "Полных команд (7 орков одного цвета) пока нет.";
+  tg.innerHTML = teams.length ? teams.map((t,i)=>clanTeamCardHTML(t, i+1)).join("") : '<div class="empty-state">Недостаточно орков одного цвета для полной команды (нужно 7).</div>';
+  document.getElementById("cvTeamsSec").style.display = "block";
+
+  // synergy potential across whole roster
+  const counts = { Earrings:new Map(), Bracelet:new Map(), Logo:new Map() };
+  for(const o of orcs){
+    const e=getAttributeValue(o,"Earrings"); if(e) counts.Earrings.set(e,(counts.Earrings.get(e)||0)+1);
+    const b=getAttributeValue(o,"Bracelet"); if(b) counts.Bracelet.set(b,(counts.Bracelet.get(b)||0)+1);
+    for(const m of o.logoMatches){ const k=formatTokenLabel(m.token); counts.Logo.set(k,(counts.Logo.get(k)||0)+1); }
   }
-  const itemModal = document.getElementById("itemModal");
-  if (itemModal) {
-    itemModal.addEventListener("click", (event) => {
-      if (event.target === itemModal || event.target.closest("[data-close-item-modal]")) {
-        closeItemModal();
-      }
-    });
+  const tierFor=(type,c)=>{ const tbl = type==="Earrings"?EARRING_TEAM_BONUS:type==="Bracelet"?BRACELET_TEAM_BONUS:LOGO_TEAM_BONUS; return getTierBonus(Math.min(c,7), tbl); };
+  function synCard(type, title){
+    const rows=[...counts[type].entries()].filter(([,c])=>c>=2).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    if(!rows.length) return "";
+    const body=rows.map(([v,c])=>{
+      const bonus=tierFor(type,c);
+      const tag = bonus>0 ? '<span class="tag" style="color:#c7ecd6;border-color:rgba(77,184,122,.3)">бонус в команде +'+formatNumber(bonus)+'</span>'
+                          : '<span class="tag">до бонуса нужно '+(4-Math.min(c,4))+'</span>';
+      return '<div class="split-help" style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin:6px 0;"><span><b style="color:var(--g3)">'+escapeHtml(v)+'</b> ×'+c+'</span>'+tag+'</div>';
+    }).join("");
+    return '<div class="panel"><h3 style="font-size:16px;margin-bottom:10px;">'+title+'</h3>'+body+'</div>';
   }
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeItemModal();
-    }
-  });
-  const startButton = document.getElementById("startAnalysisBtn");
-  if (startButton) {
-    startButton.addEventListener("click", () => {
-      runAnalysis();
-    });
-  }
-  const walletButton = document.getElementById("analyzeWalletBtn");
-  if (walletButton) {
-    walletButton.addEventListener("click", () => {
-      setActiveMode("wallet");
-      runWalletAnalysis();
-    });
-  }
-  const walletInput = document.getElementById("walletInput");
-  if (walletInput) {
-    walletInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        setActiveMode("wallet");
-        runWalletAnalysis();
-      }
-    });
-  }
-  buildClanCells();
-  const clanBtn = document.getElementById("analyzeClanBtn");
-  if (clanBtn) clanBtn.addEventListener("click", () => { setActiveMode("clan"); runClanAnalysis(); });
-  const clanClear = document.getElementById("clanFillDemoBtn");
-  if (clanClear) clanClear.addEventListener("click", () => {
-    document.querySelectorAll("[data-clan-input]").forEach((el) => { el.value = ""; });
-    document.querySelectorAll("[data-clan-nick]").forEach((el) => { el.value = ""; });
-    document.querySelectorAll("[data-clan-st]").forEach((el) => { el.className = "st"; });
-  });
-  const clanSwapBtn = document.getElementById("clanSwapBtn");
-  if (clanSwapBtn) clanSwapBtn.addEventListener("click", runClanSwapAnalysis);
-  const clanMarketBtn = document.getElementById("clanMarketBtn");
-  if (clanMarketBtn) clanMarketBtn.addEventListener("click", runClanMarketAnalysis);
-  const clanGateClose = document.getElementById("clanGateClose");
-  if (clanGateClose) clanGateClose.addEventListener("click", hideClanGate);
-  const clanGateRunSwap = document.getElementById("clanGateRunSwap");
-  if (clanGateRunSwap) clanGateRunSwap.addEventListener("click", () => { hideClanGate(); runClanSwapAnalysis(); });
-  setupTermsPopup();
-  requestAnimationFrame(() => {
-    window.scrollTo(0, 0);
-  });
+  const sg=document.getElementById("cvSynGrid");
+  sg.innerHTML = [synCard("Earrings","Серьги"),synCard("Bracelet","Браслеты"),synCard("Logo","Лого")].filter(Boolean).join("") || '<div class="empty-state">Заметных повторов для синергий не найдено.</div>';
+  document.getElementById("cvSynSec").style.display = "block";
+
+  // full roster
+  const sorted=[...orcs].sort((a,b)=>b.power-a.power);
+  const rg=document.getElementById("cvRosterGrid");
+  rg.innerHTML = sorted.slice(0,300).map(o=>{
+    const attrs=o.attributeBreakdown.map(a=>'<div class="attr"><b>'+escapeHtml(a.trait_type)+'</b><span>'+escapeHtml(a.value)+' · +'+formatNumber(a.power)+'</span></div>').join("");
+    return '<article class="orc-card"><div class="orc-cover"><img src="'+escapeHtml(o.image)+'" loading="lazy" onerror="this.src=\'c-logo-nobg.png\'"></div>'+
+      '<div class="orc-body"><div class="orc-name">'+escapeHtml(o.name)+'</div>'+
+      '<div class="orc-sub">'+escapeHtml(cap1(orcTone(o)||"—"))+' · '+escapeHtml(o.emotion)+'</div>'+
+      '<div class="orc-stats"><span class="tag">Сила '+formatNumber(o.power)+'</span><span class="tag">Атрибуты '+formatNumber(o.attributePower)+'</span><span class="tag">Номер +'+formatNumber(o.numberPower)+'</span><span class="tag">Комбо +'+formatNumber(o.localComboBonus)+'</span></div>'+
+      '<div class="attr-stack">'+(attrs||'<div class="attr"><b>—</b><span>нет атрибутов</span></div>')+'</div></div></article>';
+  }).join("");
+  if(sorted.length>300) rg.insertAdjacentHTML("beforeend",'<div class="empty-state">Показаны первые 300 из '+formatNumber(sorted.length)+'.</div>');
+  document.getElementById("cvRosterSec").style.display = "block";
+}
+
+window.addEventListener("load", ()=>{
+  const b=document.getElementById("wBtn"); if(b) b.addEventListener("click", cvLoad);
+  const i=document.getElementById("wIn"); if(i) i.addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ e.preventDefault(); cvLoad(); }});
 });
+
 </script>
 </body>
 </html>
