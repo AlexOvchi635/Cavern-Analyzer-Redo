@@ -3126,7 +3126,7 @@ function teamHTML(t,idx){
   const tone=cap1(t.tone||"—");
   const chips=[];
   t.result.synergyDetails.filter(d=>!d.trait.startsWith("Full team:")).slice(0,3).forEach(d=>{
-    const lbl=d.trait.replace(/^Earrings?:/,"Серьги:").replace(/^Logo:/,"Лого:").replace(/^Bracelet:/,"Браслет:");
+    const lbl=d.trait.replace(/^Earrings?:/,"Earring:").replace(/^Logo:/,"Logo:").replace(/^Bracelet:/,"Bracelet:");
     chips.push('<span class="chip">'+escapeHtml(lbl)+' ×'+d.count+' +'+formatNumber(d.bonus)+'</span>');
   });
   const cells=EMOTIONS.map((emo,i)=>{
@@ -3169,15 +3169,11 @@ function openOrc(addr){
 
   const sig = (_teamOf[o.address]||{}).signals || {earrings:new Map(),bracelets:new Map(),logos:new Map()};
   const ear=getAttributeValue(o,"Earrings"), br=getAttributeValue(o,"Bracelet");
-  const active=[], idle=[];
-  if(ear){ if(sig.earrings.has(norm(ear))){const d=sig.earrings.get(norm(ear)); active.push('серьги <b>'+esc(ear)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} else idle.push('серьги <b>'+esc(ear)+'</b>'); }
-  if(br){ if(sig.bracelets.has(norm(br))){const d=sig.bracelets.get(norm(br)); active.push('браслет <b>'+esc(br)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} else idle.push('браслет <b>'+esc(br)+'</b>'); }
-  for(const m of o.logoMatches){ const lbl=formatTokenLabel(m.token); if(sig.logos.has(m.token)){const d=sig.logos.get(m.token); active.push('лого <b>'+esc(lbl)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} else idle.push('лого <b>'+esc(lbl)+'</b>'); }
-  let synNote="";
-  if(active.length) synNote += '✅ Gives an ACTIVE team synergy: '+active.join(", ")+'.';
-  if(idle.length) synNote += (synNote?'<br><br>':'')+'⚠️ Has the attribute, but the synergy is NOT active — no 4+ matching in this team: '+idle.join(", ")+'.';
-  if(!active.length && !idle.length) synNote = 'This orc has no team-synergy attributes.';
-  synNote += '<br><br>A team bonus applies when a single team has <b>4+</b> orcs with the same earrings / bracelet / logo (×4 +400, ×5 +500, ×6 +700, ×7 +1000). A full 7-orc one-colour team also gives +350.';
+  const active=[];
+  if(ear && sig.earrings.has(norm(ear))){const d=sig.earrings.get(norm(ear)); active.push('earrings <b>'+esc(ear)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');}
+  if(br && sig.bracelets.has(norm(br))){const d=sig.bracelets.get(norm(br)); active.push('bracelet <b>'+esc(br)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');}
+  for(const m of o.logoMatches){ if(sig.logos.has(m.token)){const d=sig.logos.get(m.token); active.push('logo <b>'+esc(formatTokenLabel(m.token))+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} }
+  const synNote = active.length ? 'Active team synergy: '+active.join(", ")+'.' : 'No active team synergy.';
 
   document.getElementById("sheet").innerHTML =
     '<button class="x" onclick="closeOrc()">×</button>'+
@@ -3185,8 +3181,7 @@ function openOrc(addr){
       '<div class="nm">'+esc(o.name)+'</div><div class="sub">'+esc(cap1(orcTone(o)||"—"))+' · '+esc(o.emotion)+'</div>'+
       '<div class="big">'+formatNumber(o.power)+' PWR</div></div></div>'+
     '<div class="sec-t">Power breakdown</div>'+rows.join("")+
-    '<div class="sec-t">Synergies</div><div class="note">'+synNote+'</div>'+
-    '<div class="note" style="margin-top:8px;">Orc power = sum of attribute power + special sticker number + local combo (shared words between attributes). Team synergies are added to the <b>team</b>, not to a single orc.</div>';
+    '<div class="sec-t">Synergies</div><div class="note">'+synNote+'</div>';
   document.getElementById("modal").classList.add("show");
 }
 function closeOrc(){ document.getElementById("modal").classList.remove("show"); }
