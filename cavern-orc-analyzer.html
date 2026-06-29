@@ -2768,11 +2768,11 @@ function attrWords(value) {
 }
 function wordsLink(a, b) {
   for (const x of a) for (const y of b) {
-    if (x === y) return x;
-    if (x.length >= 4 && y.includes(x)) return x;
-    if (y.length >= 4 && x.includes(y)) return y;
+    if (x === y) return x;                                  // same word
+    if (x.length >= 4 && y.startsWith(x)) return x;         // prefix: gold->golden, magic->magical, mushroom->mushrooms
+    if (y.length >= 4 && x.startsWith(y)) return y;
   }
-  return null;
+  return null;                                              // (suffix/infix like cola in chocolate, plate in breastplate => NO match)
 }
 function buildLocalAttributeCombo(attributes) {
   const relevant = attributes
