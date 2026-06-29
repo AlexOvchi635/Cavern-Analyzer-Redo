@@ -1117,7 +1117,7 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 <section id="cvTeamsSec" style="display:none;">
   <div class="wrap">
     <div class="lbl">Команды</div>
-    <div class="ttl">Полные <em>команды по цветам</em></div>
+    <div class="ttl"><em>Команды по цветам</em> (полные и неполные)</div>
     <div class="desc" id="cvTeamsMeta"></div>
     <div id="cvTeamsGrid" class="variant-grid"></div>
   </div>
@@ -4178,22 +4178,41 @@ async function cvLoad(){
 }
 function cvHideAll(){ ["cvKpis","cvTeamsSec","cvRosterSec"].forEach(id=>document.getElementById(id).style.display="none"); }
 
+// all teams per color — complete AND incomplete (greedy: best team, lock its orcs, repeat)
+function cvBuildAllTeams(orcs){
+  const out=[];
+  for(const [tone,group] of groupByTone(orcs)){
+    const used=new Set(); let guard=0;
+    while(guard++<20){
+      const rem=group.filter(it=>!used.has(it.address));
+      if(!rem.length) break;
+      const r=lightBestTeam(rem, CV_CFG);
+      const filled=r.team.filter(Boolean);
+      if(!filled.length) break;
+      out.push({team:r.team, result:r.result, tone, score:r.result.totalScore});
+      filled.forEach(o=>used.add(o.address));
+    }
+  }
+  return out.sort((a,b)=>b.score-a.score);
+}
+
 function cvRender(orcs){
-  const teams = memberCompleteTeams(orcs, CV_CFG, 60); // all complete teams, best-first
+  const teams = cvBuildAllTeams(orcs); // полные И неполные команды
+  const fullCount = teams.filter(t=>t.result.coverage===EMOTIONS.length).length;
   const tones = new Set(orcs.map(orcTone).filter(Boolean));
-  const top3 = teams.slice(0,3).reduce((s,t)=>s+t.score,0);
+  const top3 = teams.filter(t=>t.result.coverage===EMOTIONS.length).slice(0,3).reduce((s,t)=>s+t.score,0);
   document.getElementById("cvOrcs").textContent = formatNumber(orcs.length);
-  document.getElementById("cvTeams").textContent = formatNumber(teams.length);
+  document.getElementById("cvTeams").textContent = formatNumber(fullCount);
   document.getElementById("cvPwr").textContent = formatNumber(top3)+" PWR";
   document.getElementById("cvTones").textContent = tones.size;
   document.getElementById("cvKpis").style.display = "block";
 
-  // teams
+  // teams (complete + incomplete)
   const tg = document.getElementById("cvTeamsGrid");
   document.getElementById("cvTeamsMeta").textContent = teams.length
-    ? "Найдено полных команд: "+teams.length+". Каждая — 7 орков одного цвета, отсортированы по силе с учётом синергий."
-    : "Полных команд (7 орков одного цвета) пока нет.";
-  tg.innerHTML = teams.length ? teams.map((t,i)=>clanTeamCardHTML(t, i+1)).join("") : '<div class="empty-state">Недостаточно орков одного цвета для полной команды (нужно 7).</div>';
+    ? "Всего команд: "+teams.length+" (полных: "+fullCount+"). Каждая — орки одного цвета; неполные показаны с пустыми слотами."
+    : "Орки не найдены.";
+  tg.innerHTML = teams.length ? teams.map((t,i)=>clanTeamCardHTML(t, i+1)).join("") : '<div class="empty-state">Команды не собрались.</div>';
   document.getElementById("cvTeamsSec").style.display = "block";
 
   // full roster
