@@ -2486,10 +2486,12 @@ function faq(element) {
   }
 }
 
+const _HOMOGLYPH = { "а":"a","в":"b","е":"e","к":"k","м":"m","н":"h","о":"o","р":"p","с":"c","т":"t","у":"y","х":"x","ё":"e","і":"i","ј":"j","ѕ":"s" };
 function norm(value) {
   return String(value || "")
     .trim()
     .toLowerCase()
+    .replace(/[авекмнортухсёіјѕ]/g, (ch) => _HOMOGLYPH[ch] || ch) // Cyrillic look-alikes -> Latin (e.g. "WС Sign" with Cyrillic С)
     .replace(/[’']/g, "'")
     .replace(/\s+/g, " ");
 }
@@ -3627,18 +3629,15 @@ function evaluateTeam(team, config) {
   }
 
   if (realTeam.length === EMOTIONS.length) {
+    // BASE STATS: a full team (all 7 emotions) gives +20 to each orc...
+    synergyScore += 20 * realTeam.length;
+    synergyDetails.push({ trait: "Full team (all emotions)", count: realTeam.length, bonus: 20 * realTeam.length });
+    // ...and +50 more to each orc if the whole team is one tribe (single colour).
     const tribeTones = new Set(realTeam.map((item) => norm(getAttributeValue(item, "Skin Tone"))));
-    const sameTribe = tribeTones.size === 1; // a full 7-orc single-colour team — any tribe
-    if (sameTribe) {
+    if (tribeTones.size === 1) {
       const sameTribeTotal = config.sameTribeBonus * realTeam.length;
-      if (sameTribeTotal) {
-        synergyScore += sameTribeTotal;
-        synergyDetails.push({
-          trait: `Full team: ${[...tribeTones][0]} tribe`,
-          count: realTeam.length,
-          bonus: sameTribeTotal
-        });
-      }
+      synergyScore += sameTribeTotal;
+      synergyDetails.push({ trait: `Full team: ${[...tribeTones][0]} tribe`, count: realTeam.length, bonus: sameTribeTotal });
     }
   }
 
