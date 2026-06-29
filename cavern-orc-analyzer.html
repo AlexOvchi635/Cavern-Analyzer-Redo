@@ -3629,10 +3629,8 @@ function evaluateTeam(team, config) {
   }
 
   if (realTeam.length === EMOTIONS.length) {
-    // BASE STATS: a full team (all 7 emotions) gives +20 to each orc...
-    synergyScore += 20 * realTeam.length;
-    synergyDetails.push({ trait: "Full team (all emotions)", count: realTeam.length, bonus: 20 * realTeam.length });
-    // ...and +50 more to each orc if the whole team is one tribe (single colour).
+    // full team of ONE tribe (single colour): +50 per orc = +350.
+    // (the +20/orc "all-emotions" bonus from the base-stats sheet was a dev mistake — NOT counted)
     const tribeTones = new Set(realTeam.map((item) => norm(getAttributeValue(item, "Skin Tone"))));
     if (tribeTones.size === 1) {
       const sameTribeTotal = config.sameTribeBonus * realTeam.length;
