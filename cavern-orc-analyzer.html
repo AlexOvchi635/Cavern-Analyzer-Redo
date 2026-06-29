@@ -5476,9 +5476,18 @@ window.addEventListener("load", () => {
   const clanGateRunSwap = document.getElementById("clanGateRunSwap");
   if (clanGateRunSwap) clanGateRunSwap.addEventListener("click", () => { hideClanGate(); runClanSwapAnalysis(); });
   setupTermsPopup();
-  requestAnimationFrame(() => {
-    window.scrollTo(0, 0);
-  });
+  // open the right mode when arriving from another page via #hash (e.g. #clan, #lore)
+  const hashMode = (location.hash || "").replace("#", "");
+  const KNOWN_MODES = ["analyzer", "wallet", "clan", "lore", "tribe", "vibe", "battle", "defence"];
+  if (KNOWN_MODES.includes(hashMode)) {
+    setActiveMode(hashMode);
+    requestAnimationFrame(() => {
+      const ws = document.getElementById("workspace");
+      if (ws) ws.scrollIntoView({ behavior: "auto", block: "start" });
+    });
+  } else {
+    requestAnimationFrame(() => { window.scrollTo(0, 0); });
+  }
 });
 </script>
 </body>
