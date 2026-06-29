@@ -3148,9 +3148,13 @@ function teamHTML(t,idx){
 function esc(s){return escapeHtml(s);}
 
 let _idmap={};
+let _teamOf={};
 function render(orcs){
   ORCS=orcs; _idmap={}; orcs.forEach(o=>_idmap[o.address]=o);
   const teams=buildAllTeams(orcs);
+  // remember each orc's team + its real synergy signals (to judge ACTIVE vs not in the modal)
+  _teamOf={};
+  teams.forEach(t=>{ const sig=computeTeamSignals(t.team); t.team.filter(Boolean).forEach(o=>{ _teamOf[o.address]={signals:sig}; }); });
   const tones=new Set(orcs.map(orcTone).filter(Boolean));
   document.getElementById("kOrcs").textContent=formatNumber(orcs.length);
   document.getElementById("kFull").textContent=teams.filter(t=>t.result.coverage===EMOTIONS.length).length;
@@ -3169,15 +3173,17 @@ function openOrc(addr){
   if(o.localComboBonus>0) rows.push('<div class="brk"><span class="v">Комбо: совпадение слов'+(o.localComboLabels&&o.localComboLabels.length?' ('+esc(o.localComboLabels.join(" / "))+')':'')+'</span><span class="p">+'+formatNumber(o.localComboBonus)+'</span></div>');
   rows.push('<div class="brk total"><span>Итого сила орка</span><span class="p">'+formatNumber(o.power)+'</span></div>');
 
+  const sig = (_teamOf[o.address]||{}).signals || {earrings:new Map(),bracelets:new Map(),logos:new Map()};
   const ear=getAttributeValue(o,"Earrings"), br=getAttributeValue(o,"Bracelet");
-  const logos=o.logoMatches.map(m=>formatTokenLabel(m.token));
-  const synParts=[];
-  if(ear) synParts.push('серьги <b>'+esc(ear)+'</b>');
-  if(br) synParts.push('браслет <b>'+esc(br)+'</b>');
-  if(logos.length) synParts.push('лого <b>'+esc(logos.join(", "))+'</b>');
-  const synNote = synParts.length
-    ? 'Этот орк участвует в командных синергиях: '+synParts.join(", ")+'. Командный бонус начисляется, когда в одной команде <b>4+</b> орков с одинаковыми серьгами / браслетом / лого (×4 +400, ×5 +500, ×6 +700, ×7 +1000).'
-    : 'У этого орка нет атрибутов, дающих командную синергию.';
+  const active=[], idle=[];
+  if(ear){ if(sig.earrings.has(norm(ear))){const d=sig.earrings.get(norm(ear)); active.push('серьги <b>'+esc(ear)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} else idle.push('серьги <b>'+esc(ear)+'</b>'); }
+  if(br){ if(sig.bracelets.has(norm(br))){const d=sig.bracelets.get(norm(br)); active.push('браслет <b>'+esc(br)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} else idle.push('браслет <b>'+esc(br)+'</b>'); }
+  for(const m of o.logoMatches){ const lbl=formatTokenLabel(m.token); if(sig.logos.has(m.token)){const d=sig.logos.get(m.token); active.push('лого <b>'+esc(lbl)+'</b> ×'+d.count+' (+'+formatNumber(d.bonus)+')');} else idle.push('лого <b>'+esc(lbl)+'</b>'); }
+  let synNote="";
+  if(active.length) synNote += '✅ Даёт активную синергию в своей команде: '+active.join(", ")+'.';
+  if(idle.length) synNote += (synNote?'<br><br>':'')+'⚠️ Есть атрибуты, но синергия НЕ активна — в команде нет 4+ одинаковых: '+idle.join(", ")+'.';
+  if(!active.length && !idle.length) synNote = 'У этого орка нет атрибутов, дающих командную синергию.';
+  synNote += '<br><br>Командный бонус начисляется, когда в одной команде <b>4+</b> орков с одинаковыми серьгами / браслетом / лого (×4 +400, ×5 +500, ×6 +700, ×7 +1000).';
 
   document.getElementById("sheet").innerHTML =
     '<button class="x" onclick="closeOrc()">×</button>'+
