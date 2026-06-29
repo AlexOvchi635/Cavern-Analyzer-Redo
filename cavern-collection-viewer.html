@@ -1565,16 +1565,30 @@ function getLogoMatches(attributes) {
   return logos;
 }
 
+// Local combo (official rule): two attributes combo if a WORD from one appears in the
+// other's name. Substring allowed only for words >=4 chars, so short ones (ETH/RUB/TON)
+// don't false-match (e.g. eth in teeth). Fake Gold never links via "gold"; Wallpaper~Paper;
+// Skin Tone ignored.  2 attrs => +100, 3+ => +300.
+function attrWords(value) {
+  const t = norm(value);
+  const words = new Set(t.split(/[^a-z0-9]+/).filter(Boolean));
+  if (t.includes("fake gold")) words.delete("gold");
+  if (t.includes("wallpaper")) words.add("paper");
+  return [...words];
+}
+function wordsLink(a, b) {
+  for (const x of a) for (const y of b) {
+    if (x === y) return x;
+    if (x.length >= 4 && y.includes(x)) return x;
+    if (y.length >= 4 && x.includes(y)) return y;
+  }
+  return null;
+}
 function buildLocalAttributeCombo(attributes) {
-  // Build the largest connected local combo group where each attribute shares
-  // at least one normalized word/root with another attribute in the same orc.
   const relevant = attributes
     .filter((attr) => norm(attr.trait_type) !== "skin tone")
-    .map((attr) => ({
-      label: `${attr.trait_type}: ${attr.value}`,
-      tokens: [...getValueTokens(attr.value)]
-    }))
-    .filter((attr) => attr.tokens.length);
+    .map((attr) => ({ label: `${attr.trait_type}: ${attr.value}`, words: attrWords(attr.value) }))
+    .filter((attr) => attr.words.length);
 
   let bestLabels = [];
   let bestTokens = [];
@@ -1583,42 +1597,24 @@ function buildLocalAttributeCombo(attributes) {
   for (let i = 0; i < relevant.length; i += 1) {
     const seen = new Set([i]);
     const queue = [i];
+    const shared = new Set();
     while (queue.length) {
       const current = queue.shift();
       for (let j = 0; j < relevant.length; j += 1) {
-        if (seen.has(j)) {
-          continue;
-        }
-        const intersects = relevant[current].tokens.some((token) => relevant[j].tokens.includes(token));
-        if (intersects) {
-          seen.add(j);
-          queue.push(j);
-        }
+        if (seen.has(j)) continue;
+        const w = wordsLink(relevant[current].words, relevant[j].words);
+        if (w) { seen.add(j); queue.push(j); shared.add(w); }
       }
     }
     if (seen.size > bestSize) {
       bestSize = seen.size;
       bestLabels = [...seen].map((index) => relevant[index].label);
-      const tokenCounts = new Map();
-      [...seen].forEach((index) => {
-        relevant[index].tokens.forEach((token) => {
-          tokenCounts.set(token, (tokenCounts.get(token) || 0) + 1);
-        });
-      });
-      bestTokens = [...tokenCounts.entries()]
-        .filter(([, count]) => count >= 2)
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ru"))
-        .map(([token]) => token);
+      bestTokens = [...shared];
     }
   }
 
   const effectiveSize = bestSize >= 3 ? 3 : bestSize;
-  return {
-    size: bestSize,
-    bonus: ITEM_COMBO_BONUS[effectiveSize] || 0,
-    labels: bestLabels,
-    tokens: bestTokens
-  };
+  return { size: bestSize, bonus: ITEM_COMBO_BONUS[effectiveSize] || 0, labels: bestLabels, tokens: bestTokens };
 }
 
 function getLocalComboSummary(item) {
