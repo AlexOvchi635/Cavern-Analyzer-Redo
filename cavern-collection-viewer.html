@@ -1571,7 +1571,7 @@ function getLogoMatches(attributes) {
 // Skin Tone ignored.  2 attrs => +100, 3+ => +300.
 function attrWords(value) {
   const t = norm(value);
-  const words = new Set(t.split(/[^a-z0-9]+/).filter(Boolean));
+  const words = new Set(t.split(/[^a-z0-9]+/).filter((w) => w.length >= 2)); // drop 1-char artefacts like possessive "s"
   if (t.includes("fake gold")) words.delete("gold");
   if (t.includes("wallpaper")) words.add("paper");
   return [...words];
