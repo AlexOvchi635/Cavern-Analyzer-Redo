@@ -1,0 +1,3217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Unstoppable Tribe — Команды</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#0f0f0f;--bg2:#141414;--bg3:#1a1a1a;--bg4:#111;--g3:#919191;--g4:#9b9b9b;--text:#e8e8e8;--dim:#6a6a6a;--bd:rgba(145,145,145,.12);--bd2:rgba(145,145,145,.22);--gold:#c9a870;--green:#4db87a;--red:#c26262;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:12px 12px 40px;font-size:14px;}
+.head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.head img{height:26px;}
+.head .t{font-size:13px;font-weight:900;letter-spacing:3px;}
+.bar{display:flex;gap:8px;margin-bottom:6px;}
+.bar input{flex:1;min-width:0;background:var(--bg4);border:1px solid var(--bd2);border-radius:10px;padding:12px;color:var(--text);font-size:14px;outline:none;}
+.bar input:focus{border-color:var(--g3);}
+.bar button{background:linear-gradient(135deg,var(--g3),var(--g4));border:none;border-radius:10px;color:#fff;font-weight:800;padding:0 16px;font-size:13px;}
+.bar button:disabled{opacity:.5;}
+.hint{font-size:11px;color:var(--dim);margin-bottom:14px;}
+.status{font-size:12px;color:var(--g4);margin:8px 0 14px;min-height:16px;}
+.status.err{color:var(--red);} .status.ok{color:var(--green);}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.kpi{background:var(--bg3);border:1px solid var(--bd);border-radius:12px;padding:10px;text-align:center;}
+.kpi .n{font-size:18px;font-weight:900;color:#fff;}
+.kpi .k{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-top:3px;}
+.team{background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:12px;}
+.team.partial{border-color:rgba(194,98,98,.3);}
+.team-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.team-name{font-size:14px;font-weight:900;}
+.team-name .cov{font-size:11px;color:var(--dim);font-weight:700;margin-left:6px;}
+.team-pwr{font-size:13px;font-weight:900;color:var(--gold);}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.chip{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;background:rgba(77,184,122,.12);border:1px solid rgba(77,184,122,.28);color:#c7ecd6;}
+.row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+@media(max-width:430px){.row{grid-template-columns:repeat(4,1fr);}}
+.cell{background:var(--bg4);border:1px solid var(--bd2);border-radius:9px;padding:5px 3px;text-align:center;cursor:pointer;}
+.cell.empty{opacity:.35;}
+.cell img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:6px;}
+.cell .em{font-size:8px;color:var(--dim);margin-top:3px;text-transform:uppercase;line-height:1.1;}
+.cell .pw{font-size:11px;font-weight:900;color:#efe2bf;}
+.modal{position:fixed;inset:0;background:rgba(5,5,5,.86);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;z-index:100;}
+.modal.show{display:flex;}
+.sheet{width:100%;max-width:520px;background:var(--bg2);border:1px solid var(--bd2);border-radius:18px 18px 0 0;padding:18px 16px 28px;max-height:88vh;overflow-y:auto;}
+.sheet .x{float:right;font-size:22px;color:var(--dim);background:none;border:none;}
+.sheet-hero{display:flex;gap:12px;align-items:center;margin-bottom:14px;}
+.sheet-hero img{width:74px;height:74px;border-radius:12px;object-fit:contain;background:var(--bg4);border:1px solid var(--bd2);}
+.sheet-hero .nm{font-size:16px;font-weight:900;}
+.sheet-hero .sub{font-size:12px;color:var(--g4);margin-top:2px;}
+.sheet-hero .big{font-size:24px;font-weight:900;color:var(--gold);margin-top:4px;}
+.sec-t{font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--g3);margin:16px 0 8px;}
+.brk{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px;}
+.brk:last-child{border-bottom:none;}
+.brk .v{color:#cdcdcd;} .brk .p{font-weight:900;color:#efe2bf;white-space:nowrap;}
+.brk .p.zero{color:var(--dim);}
+.brk.total{font-weight:900;font-size:15px;color:#fff;border-top:1px solid var(--bd2);margin-top:4px;padding-top:10px;}
+.note{font-size:12px;line-height:1.6;color:#a9a9a9;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-top:8px;}
+.note b{color:#cfcfcf;}
+.empty{padding:40px 16px;text-align:center;color:var(--dim);}
+.foot{margin-top:22px;font-size:10px;color:#444;text-align:center;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="head"><img src="c-logo-nobg.png" onerror="this.style.display='none'"><div class="t">CAVERN · ОРКИ</div></div>
+<div class="bar">
+  <input id="w" placeholder="UQ... / EQ... кошелёк" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <button id="go">Показать</button>
+</div>
+<div class="hint">Вставь TON-кошелёк — покажу всех орков рядами по командам (полные и неполные). Тапни по орку — полная расшифровка силы и синергий.</div>
+<div class="status" id="st"></div>
+<div class="kpis" id="kpis" style="display:none;">
+  <div class="kpi"><div class="n" id="kOrcs">0</div><div class="k">Орков</div></div>
+  <div class="kpi"><div class="n" id="kFull">0</div><div class="k">Полных команд</div></div>
+  <div class="kpi"><div class="n" id="kTones">0</div><div class="k">Цветов</div></div>
+</div>
+<div id="teams"></div>
+<div class="foot">Unstoppable Tribe · данные TonAPI · неофициальный фан-инструмент</div>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+
+const EMOTIONS = ["In Love", "Greeting", "Capped", "Shoked", "Do Something", "To The Moon", "Wen TGE"];
+const KNOWN_GETGEMS_COLLECTIONS = {
+  unstoppabletribe: "EQBGNoXXfQR07HdDhtkmIu1ojTTwcjB0EhHYOMSH3P7sZGJR"
+};
+const ATTRIBUTE_POWER_TABLES = {
+  "skin tone": {
+    golden: 50, lunar: 50, cosmic: 50, demonic: 50,
+    cavern: 20, desert: 20, fairytale: 20, martian: 20, magical: 20, silver: 20,
+    forest: 10, urban: 10, beach: 10, mountain: 10, meadow: 10, swamp: 10, tropical: 10, taiga: 10
+  },
+  stick: {
+    "traffic police baton": 500, "wc sign": 50, "stop sign": 50, bat: 50, "golf club": 50, guitar: 50,
+    staff: 20, "giant fork": 20, spine: 20, tentacle: 20, rail: 20, spear: 20, crowbar: 20, oar: 20,
+    chair: 10, branch: 10, mop: 10, pipe: 10
+  },
+  earrings: {
+    gold: 50, "spiked gold": 50, emerald: 50, ruby: 50, diamond: 50, demonic: 50, "dragon teeth": 50, "no earrings": 50,
+    "spiked silver": 20, silver: 20, "phoenix feathers": 20, "magic mushrooms": 20,
+    "fly agaric": 10, wooden: 10, "spiked wooden": 10, bones: 10, "mechanic's nuts": 10, toadstools: 10
+  },
+  armor: {
+    "breastplate of the dead": 50, dragon: 50, ruby: 50,
+    cyber: 20, spiked: 20, phoenix: 20, sea: 20, martian: 20, fairytale: 20, magical: 20,
+    leather: 10, "turtle shell": 10, iron: 10, forest: 10, wooden: 10, paper: 10, mountain: 10, tropical: 10
+  },
+  heart: {
+    zargates: 500, ton: 50, telegram: 50, bitcoin: 50, "tribo games": 50, lunar: 50, ruby: 50,
+    rub: 20, eth: 20, dollar: 20, "pure silver": 20, silver: 20, sea: 20, phoenix: 20,
+    elephant: 10, red: 10, stone: 10, chocolate: 10
+  },
+  ring: {
+    zargates: 500, "golden bitcoin": 50, ton: 50, telegram: 50, "tribo games": 50, emerald: 50, lunar: 50, diamond: 50,
+    eth: 20, rub: 20, dollar: 20, silver: 20, "spiked silver": 20,
+    elephant: 10, wooden: 10, "fake gold": 10, "mechanic's gear": 10, stone: 10
+  },
+  cap: {
+    zargates: 500, bitcoin: 50, ton: 50, telegram: 50, "cosmic black": 50, "demonic red": 50, gold: 50, maga: 50,
+    eth: 20, rub: 20, dollar: 20, "desert white": 20, phoenix: 20, "sea blue": 20, "cavern brown": 20,
+    elephant: 10, "mountain blue": 10, "forest green": 10
+  },
+  glasses: {
+    "zargates business": 1000, zargates: 500, bitcoin: 50, gold: 50, "professor ton": 50, cosmic: 50, demonic: 50,
+    "tribo games": 50, telegram: 50,
+    phoenix: 20, fairytale: 20, cyber: 20, sea: 20, desert: 20, martian: 20,
+    steampunk: 10, mountain: 10, tropical: 10
+  },
+  cup: {
+    zargates: 500, "demonic wine": 50, "cosmic cocktail": 50, "lunar cocktail": 50, latte: 50,
+    "mystic smoothie": 20, "unicorn milk": 20, "fairytale champagne": 20, "martian cola": 20, "cyber tonic": 20,
+    "forest beer": 10, "mushroom juice": 10, "taiga tincture": 10, "swamp cocktail": 10, "protein shake": 10,
+    "mechanic's cocktail": 10, "tropical cocktail": 10, "chocolate shake": 10
+  },
+  bracelet: {
+    "runed gold": 50, "spiked gold": 50, "spiked cosmic": 50, "spiked demonic": 50, "spiked lunar": 50, "gold braid": 50,
+    "runed silver": 20, "spiked silver": 20, "spiked stone": 20, "spiked mechanical": 20, "fairytale beads": 20,
+    rope: 10, mechanical: 10, wooden: 10, bone: 10, stone: 10, paper: 10, tropical: 10
+  },
+  "pendant chain": {
+    zargates: 500, bitcoin: 50, telegram: 50, ton: 50, demonic: 50, "tribo games": 50, gold: 50, "gold rope": 50, lunar: 50,
+    dollar: 20, eth: 20, rub: 20, silver: 20, phoenix: 20, fairytale: 20, magical: 20,
+    elephant: 10, rope: 10
+  },
+  hamster: {
+    zargates: 500, "lunar blue": 50, gold: 50, "demonic red": 50, "cosmic black": 50, "tribo games": 50, bitcoin: 50, telegram: 50, ton: 50,
+    "cavern brown": 20, "desert white": 20, dollar: 20, eth: 20, rub: 20,
+    elephant: 10, "forest green": 10, "mountain blue": 10, "meadow yellow": 10
+  },
+  sign: {
+    "grandma's wallpaper": 500, "burnt paper": 50, paper: 50, "vintage wallpaper": 50, cardboard: 50,
+    "torn cardboard": 20, glass: 20, granite: 20, "concrete block": 20, "copper plate": 20, styrofoam: 20,
+    "new brick wall chunk": 20, "aerated concrete block": 20, metal: 20,
+    "old brick wall chunk": 10, "stone slab": 10, "ripped-off plank": 10, "ripped-off fence": 10
+  }
+};
+const STICKER_NUMBER_POWER = {
+  0: 1000, 1: 1000, 2: 1000, 3: 1000, 4: 1000, 5: 1000, 6: 1000, 7: 1000, 8: 1000, 9: 1000,
+  11: 500, 22: 500, 33: 500, 44: 500, 55: 500, 66: 500, 77: 500, 88: 500, 99: 500,
+  111: 500, 222: 500, 333: 500, 444: 500, 555: 500, 666: 500, 777: 500, 888: 500, 999: 500,
+  1111: 500, 2222: 500, 3333: 500, 4444: 500, 5555: 500, 6666: 500, 7777: 500, 8888: 500, 9999: 500,
+  11111: 5000
+};
+// Local attribute synergy inside one orc:
+// - Skin Tone never counts
+// - 2 matched attributes => +100
+// - 3 or more matched attributes => +300
+// - at least one normalized word/root must match between attribute values
+// - special cases from the rule sheet include Wallpaper -> Paper
+// - Fake Gold must never match Gold
+const ITEM_COMBO_BONUS = { 2: 100, 3: 300 };
+const EARRING_TEAM_BONUS = { 4: 400, 5: 500, 6: 700, 7: 1000 };
+const BRACELET_TEAM_BONUS = { 4: 400 };
+const LOGO_TEAM_BONUS = { 4: 400, 5: 500, 6: 700, 7: 1000 };
+const FULL_TEAM_BONUS_PER_ORC = 50;
+const REQUEST_TIMEOUT_MS = 20000;
+const WALLET_COLLECTION_NAME = "Unstoppable Tribe from ZarGates";
+const TEAM_LOGO_KEYS = new Set([
+  "zargates", "bitcoin", "telegram", "ton", "tribo games", "dollar", "eth", "rub", "elephant"
+]);
+const state = {
+  items: [],
+  filtered: [],
+  topTeams: [],
+  sortMode: "strongest",
+  lastRun: null,
+  isRunning: false,
+  activeMode: "analyzer",
+  walletRunning: false,
+  walletItems: [],
+  walletMarketItems: [],
+  walletCurrentTeam: null,
+  walletPlan: null
+};
+
+const scratchValues = [12, 47, 83, 156, 204, 310, 28, 91, 375, 512, 64, 138];
+function scratch() {
+  const value = scratchValues[Math.floor(Math.random() * scratchValues.length)];
+  const number = document.getElementById("scv");
+  const sub = document.getElementById("scs");
+  if (number) {
+    number.textContent = `${value} ★`;
+  }
+  if (sub) {
+    sub.textContent = "Telegram Stars";
+  }
+}
+
+function submitForm(event) {
+  event.preventDefault();
+  const input = document.getElementById("sub-input");
+  const value = String(input?.value || "").trim();
+  if (!value) {
+    return;
+  }
+  const button = event.target?.querySelector("button");
+  if (!button) {
+    return;
+  }
+  button.textContent = "Saved";
+  button.style.background = "#4db87a";
+  if (input) {
+    input.value = "";
+  }
+  window.setTimeout(() => {
+    button.textContent = "Get Alerts";
+    button.style.background = "";
+  }, 3000);
+}
+
+function faq(element) {
+  const item = element?.parentElement;
+  if (!item) {
+    return;
+  }
+  const isOpen = item.classList.contains("open");
+  document.querySelectorAll(".fq.open").forEach((node) => node.classList.remove("open"));
+  if (!isOpen) {
+    item.classList.add("open");
+  }
+}
+
+function norm(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[’']/g, "'")
+    .replace(/\s+/g, " ");
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatNumber(value) {
+  return new Intl.NumberFormat("en-US").format(Number(value || 0));
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function canonicalTraitType(traitType) {
+  const text = norm(traitType);
+  if (text === "earring" || text === "earrings") {
+    return "Earrings";
+  }
+  if (text === "bracelets") {
+    return "Bracelet";
+  }
+  return String(traitType || "").trim();
+}
+
+function createNetworkErrorMessage(error, url) {
+  const host = (() => {
+    try {
+      return new URL(url).hostname;
+    } catch (_error) {
+      return "remote host";
+    }
+  })();
+  const browserOffline = typeof navigator !== "undefined" && navigator.onLine === false;
+  if (browserOffline) {
+    return "No internet connection detected in the browser.";
+  }
+  if (error?.name === "AbortError") {
+    return `Request to ${host} timed out. This can happen when TonAPI is slow or when your network works better with VPN.`;
+  }
+  return `Could not reach ${host}. This may be a temporary network issue, a blocked request, or a region/VPN problem.`;
+}
+
+function createParticles() {
+  const root = document.getElementById("pts");
+  for (let i = 0; i < 44; i += 1) {
+    const el = document.createElement("div");
+    el.className = "pt";
+    const size = Math.random() * 4 + 1;
+    el.style.width = size + "px";
+    el.style.height = size + "px";
+    el.style.left = Math.random() * 100 + "%";
+    el.style.bottom = "-10px";
+    el.style.background = `rgba(145,145,145,${Math.random() * 0.45 + 0.08})`;
+    el.style.animationDuration = Math.random() * 12 + 12 + "s";
+    el.style.animationDelay = Math.random() * 10 + "s";
+    root.appendChild(el);
+  }
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function setStatusFor(statusId, message, kind = "", progress = null) {
+  const status = document.getElementById(statusId);
+  if (!status) {
+    return;
+  }
+  const text = status.querySelector(".status-text");
+  const fill = status.querySelector(".status-fill");
+  const flag = status.querySelector(".status-flag");
+  const requestedProgress = progress === null ? (kind === "ok" || kind === "err" ? 100 : 0) : clamp(Number(progress) || 0, 0, 100);
+  const previousProgress = Number(status.dataset.progress || 0);
+  const safeProgress = requestedProgress <= 0
+    ? 0
+    : Math.max(previousProgress, requestedProgress);
+  status.className = "status" + (kind ? " " + kind : "");
+  status.dataset.progress = String(safeProgress);
+  if (text) {
+    text.textContent = message;
+  }
+  if (fill) {
+    fill.style.width = `${safeProgress}%`;
+  }
+  if (flag) {
+    flag.style.left = `${safeProgress}%`;
+    flag.style.opacity = safeProgress <= 0 ? "0" : "1";
+  }
+}
+
+function setStatus(message, kind = "", progress = null) {
+  setStatusFor("loadStatus", message, kind, progress);
+}
+
+function setWalletStatus(message, kind = "", progress = null) {
+  setStatusFor("walletStatus", message, kind, progress);
+}
+
+function setClanStatus(message, kind = "", progress = null) {
+  setStatusFor("clanStatus", message, kind, progress);
+}
+
+function setClanActionStatus(message, kind = "", progress = null) {
+  setStatusFor("clanActionStatus", message, kind, progress);
+}
+
+function resetStatusProgress(statusId = "loadStatus") {
+  const status = document.getElementById(statusId);
+  if (status) {
+    status.dataset.progress = "0";
+  }
+}
+
+function getElementValue(id, fallback = "") {
+  const element = document.getElementById(id);
+  if (!element) {
+    return fallback;
+  }
+  return element.value;
+}
+
+function getConfig() {
+  return {
+    collectionInput: String(getElementValue("collectionInput", "https://getgems.io/unstoppabletribe?filter=%7B%22attributes%22%3A%7B%22Skin+Tone%22%3A%5B%22Cavern%22%5D%7D%7D")).trim(),
+    traitType: String(getElementValue("traitTypeInput", "Skin Tone")).trim(),
+    traitValue: String(getElementValue("traitValueInput", "Cavern")).trim(),
+    searchWidth: Math.max(50, Math.min(500, Number(getElementValue("candidateCapInput", 180) || 180))),
+    pageLimit: Math.max(25, Math.min(200, Number(getElementValue("pageLimitInput", 200) || 200))),
+    fallbackPower: Math.max(0, Number(getElementValue("fallbackPowerInput", 0) || 0)),
+    sameTribeBonus: FULL_TEAM_BONUS_PER_ORC,
+    focusBonus: Math.max(0, Number(getElementValue("focusBonusInput", 0) || 0))
+  };
+}
+
+async function parseCollectionAddress(rawInput) {
+  const raw = rawInput.trim();
+  if (!raw) {
+    throw new Error("A collection address or Getgems URL is required.");
+  }
+
+  if (/^(EQ|UQ|kQ|0:)[A-Za-z0-9_-]+$/.test(raw)) {
+    return raw;
+  }
+
+  try {
+    const url = new URL(raw);
+    const parts = url.pathname.split("/").filter(Boolean);
+    const collectionIndex = parts.indexOf("collection");
+    if (collectionIndex !== -1 && parts[collectionIndex + 1]) {
+      return decodeURIComponent(parts[collectionIndex + 1]);
+    }
+
+    if (/getgems\.io$/i.test(url.hostname)) {
+      const slug = parts[0] ? decodeURIComponent(parts[0]).toLowerCase() : "";
+      if (slug && KNOWN_GETGEMS_COLLECTIONS[slug]) {
+        return KNOWN_GETGEMS_COLLECTIONS[slug];
+      }
+    }
+  } catch (error) {
+    /* noop */
+  }
+
+  throw new Error("Could not parse the collection address. Supported inputs right now: EQ..., a Getgems collection URL, and the `unstoppabletribe` slug.");
+}
+
+function getImage(item) {
+  const previews = Array.isArray(item.previews) ? item.previews : [];
+  const preferred = previews.find((preview) => preview.resolution === "500x500")
+    || previews.find((preview) => preview.resolution === "100x100")
+    || previews[0];
+  return preferred?.url || item.metadata?.image || "c-logo-nobg.png";
+}
+
+function extractEmotion(name) {
+  const lower = norm(name);
+  return EMOTIONS.find((emotion) => lower.includes(norm(emotion))) || "Unknown";
+}
+
+function extractNumber(name) {
+  const match = String(name || "").match(/#(\d+)/);
+  return match ? Number(match[1]) : null;
+}
+
+function getAttributePower(traitType, value, fallbackPower) {
+  const table = ATTRIBUTE_POWER_TABLES[norm(traitType)];
+  const exact = table ? table[norm(value)] : undefined;
+  return exact ?? fallbackPower;
+}
+
+function getStickerNumberPower(number) {
+  if (number === null || number === undefined) {
+    return 0;
+  }
+  return STICKER_NUMBER_POWER[number] || 0;
+}
+
+function getValueTokens(value) {
+  const text = norm(value);
+  const tokens = new Set();
+
+  // Fake Gold is explicitly excluded from Gold synergy.
+  if (!text.includes("fake gold") && /\bgold(?:en)?\b/.test(text)) tokens.add("gold");
+  if (/\bsilver\b/.test(text)) tokens.add("silver");
+  if (/\bspiked?\b/.test(text)) tokens.add("spiked");
+  if (/\brope\b/.test(text)) tokens.add("rope");
+  if (/\bmechanic(?:al)?\b/.test(text) || /\bmechanic's\b/.test(text)) tokens.add("mechanical");
+  if (/\bmagic\b/.test(text) || /\bmagical\b/.test(text)) tokens.add("magic");
+  if (/\bmushroom(?:s)?\b/.test(text) || /\btoadstool(?:s)?\b/.test(text) || text.includes("fly agaric")) tokens.add("mushroom");
+  // Rule-sheet special cases: Vintage Wallpaper + Paper and Grandma's Wallpaper + Paper.
+  if (/\bpaper\b/.test(text) || /\bwallpaper\b/.test(text)) tokens.add("paper");
+
+  [
+    "zargates", "telegram", "bitcoin", "tribo games", "lunar", "demonic", "cosmic", "phoenix",
+    "fairytale", "martian", "desert", "cavern", "sea", "forest", "mountain", "tropical",
+    "elephant", "ruby", "diamond", "emerald", "cyber", "magical", "dollar", "eth", "rub"
+  ].forEach((token) => {
+    if (text.includes(token)) {
+      tokens.add(token);
+    }
+  });
+
+  if (text.includes("professor ton") || /\bton\b/.test(text)) tokens.add("ton");
+  return tokens;
+}
+
+function getLogoKey(value) {
+  const text = norm(value);
+  if (text === "zargates" || text === "zargates business") return "zargates";
+  if (text === "bitcoin") return "bitcoin";
+  if (text === "telegram") return "telegram";
+  if (text === "ton" || text === "professor ton") return "ton";
+  if (text === "tribo games") return "tribo games";
+  if (text === "dollar") return "dollar";
+  if (text === "eth") return "eth";
+  if (text === "rub") return "rub";
+  if (text === "elephant") return "elephant";
+  return null;
+}
+
+function getLogoMatches(attributes) {
+  const logos = [];
+  for (const attr of attributes) {
+    if (norm(attr.trait_type) === "skin tone") {
+      continue;
+    }
+    const logoKey = getLogoKey(attr.value);
+    if (logoKey && TEAM_LOGO_KEYS.has(logoKey)) {
+      logos.push({
+        token: logoKey,
+        traitType: attr.trait_type,
+        value: attr.value
+      });
+    }
+  }
+  return logos;
+}
+
+function buildLocalAttributeCombo(attributes) {
+  // Build the largest connected local combo group where each attribute shares
+  // at least one normalized word/root with another attribute in the same orc.
+  const relevant = attributes
+    .filter((attr) => norm(attr.trait_type) !== "skin tone")
+    .map((attr) => ({
+      label: `${attr.trait_type}: ${attr.value}`,
+      tokens: [...getValueTokens(attr.value)]
+    }))
+    .filter((attr) => attr.tokens.length);
+
+  let bestLabels = [];
+  let bestTokens = [];
+  let bestSize = 1;
+
+  for (let i = 0; i < relevant.length; i += 1) {
+    const seen = new Set([i]);
+    const queue = [i];
+    while (queue.length) {
+      const current = queue.shift();
+      for (let j = 0; j < relevant.length; j += 1) {
+        if (seen.has(j)) {
+          continue;
+        }
+        const intersects = relevant[current].tokens.some((token) => relevant[j].tokens.includes(token));
+        if (intersects) {
+          seen.add(j);
+          queue.push(j);
+        }
+      }
+    }
+    if (seen.size > bestSize) {
+      bestSize = seen.size;
+      bestLabels = [...seen].map((index) => relevant[index].label);
+      const tokenCounts = new Map();
+      [...seen].forEach((index) => {
+        relevant[index].tokens.forEach((token) => {
+          tokenCounts.set(token, (tokenCounts.get(token) || 0) + 1);
+        });
+      });
+      bestTokens = [...tokenCounts.entries()]
+        .filter(([, count]) => count >= 2)
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ru"))
+        .map(([token]) => token);
+    }
+  }
+
+  const effectiveSize = bestSize >= 3 ? 3 : bestSize;
+  return {
+    size: bestSize,
+    bonus: ITEM_COMBO_BONUS[effectiveSize] || 0,
+    labels: bestLabels,
+    tokens: bestTokens
+  };
+}
+
+function getLocalComboSummary(item) {
+  if (!item.localComboBonus) {
+    return null;
+  }
+  const tokenLabel = item.localComboTokens && item.localComboTokens.length
+    ? item.localComboTokens.map((token) => formatTokenLabel(token)).join(", ")
+    : "Shared words";
+  const sourceLabel = item.localComboLabels && item.localComboLabels.length
+    ? item.localComboLabels.join(" / ")
+    : "";
+  return {
+    tokenLabel,
+    sourceLabel
+  };
+}
+
+function getItemModalSections(item, signals) {
+  const attributeRows = item.attributeBreakdown.map((attr) => ({
+    title: `${attr.trait_type}`,
+    subtitle: attr.value,
+    bonus: attr.power
+  }));
+  const internalRows = [];
+  const teamRows = [];
+  const combo = getLocalComboSummary(item);
+  const earring = getAttributeValue(item, "Earrings");
+  const bracelet = getAttributeValue(item, "Bracelet");
+
+  if (combo) {
+    internalRows.push({
+      title: `Attributes Synergy: ${combo.tokenLabel}`,
+      subtitle: combo.sourceLabel || "Matched words between this orc's attributes.",
+      bonus: item.localComboBonus
+    });
+  }
+  if (item.numberPower > 0) {
+    internalRows.push({
+      title: `Number Power`,
+      subtitle: `Sticker #${item.number ?? "?"}`,
+      bonus: item.numberPower
+    });
+  }
+  if (earring) {
+    const earringSync = signals.earrings.get(norm(earring));
+    if (earringSync) {
+      teamRows.push({
+        title: `Team Earring`,
+        subtitle: `${earringSync.value} x${earringSync.count}`,
+        bonus: earringSync.bonus
+      });
+    }
+  }
+  if (bracelet) {
+    const braceletSync = signals.bracelets.get(norm(bracelet));
+    if (braceletSync) {
+      teamRows.push({
+        title: `Team Bracelet`,
+        subtitle: `${braceletSync.value} x${braceletSync.count}`,
+        bonus: braceletSync.bonus
+      });
+    }
+  }
+  const logoGroups = new Map();
+  for (const match of item.logoMatches) {
+    const logoSync = signals.logos.get(match.token);
+    if (!logoSync) {
+      continue;
+    }
+    const current = logoGroups.get(match.token) || { sync: logoSync, attrs: [] };
+    current.attrs.push(`${match.traitType}: ${match.value}`);
+    logoGroups.set(match.token, current);
+  }
+  for (const { sync, attrs } of logoGroups.values()) {
+    teamRows.push({
+      title: `Team Logo`,
+      subtitle: `${formatTokenLabel(sync.token)} x${sync.count} · ${attrs.join(" / ")}`,
+      bonus: sync.bonus
+    });
+  }
+
+  return {
+    attributeRows,
+    internalRows,
+    teamRows
+  };
+}
+
+function renderItemModalRows(rows) {
+  return rows.map((row) => `
+    <div class="item-row">
+      <div>
+        <div class="item-row-main">${escapeHtml(row.title)}</div>
+        <div class="item-row-sub">${escapeHtml(row.subtitle)}</div>
+      </div>
+      <div class="item-row-score">${formatNumber(row.bonus)} PWR</div>
+    </div>
+  `).join("");
+}
+
+function renderItemModalSection(title, rows) {
+  if (!rows.length) {
+    return "";
+  }
+  return `
+    <div class="item-section">
+      <div class="item-section-title">${escapeHtml(title)}</div>
+      ${renderItemModalRows(rows)}
+    </div>
+  `;
+}
+
+function openItemModal(item, teamSignals) {
+  const modal = document.getElementById("itemModal");
+  const body = document.getElementById("itemModalBody");
+  const title = document.getElementById("itemModalTitle");
+  const sub = document.getElementById("itemModalSub");
+  if (!modal || !body || !title || !sub || !item) {
+    return;
+  }
+
+  const sections = getItemModalSections(item, teamSignals);
+  title.textContent = item.name;
+  sub.textContent = `${item.emotion} · ${formatNumber(item.power)} PWR`;
+  body.innerHTML = `
+    <div class="item-modal-top">
+      <div class="item-hero">
+        <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'">
+        <div class="item-hero-number">#${escapeHtml(item.number ?? "?")} · ${formatNumber(item.power)} PWR</div>
+        <div class="item-hero-tags">
+          <span class="slot-pill">${escapeHtml(item.emotion)}</span>
+          ${item.localComboBonus > 0 ? `<span class="slot-pill combo">Synergy</span>` : ""}
+          ${item.numberPower > 0 ? `<span class="slot-pill number">Number</span>` : ""}
+        </div>
+      </div>
+      <div class="item-modal-sections">
+        ${renderItemModalSection("Attributes Synergy", sections.internalRows)}
+        ${renderItemModalSection("Team Synergy", sections.teamRows)}
+        ${renderItemModalSection("Attributes", sections.attributeRows)}
+      </div>
+    </div>
+  `;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeItemModal() {
+  const modal = document.getElementById("itemModal");
+  if (!modal) {
+    return;
+  }
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+function getTierBonus(count, table) {
+  return Object.keys(table)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .reduce((bonus, threshold) => (count >= threshold ? table[threshold] : bonus), 0);
+}
+
+function formatTokenLabel(token) {
+  if (token === "tribo games") {
+    return "Tribo Games";
+  }
+  if (token === "eth") {
+    return "ETH";
+  }
+  if (token === "rub") {
+    return "RUB";
+  }
+  if (token === "ton") {
+    return "TON";
+  }
+  if (token === "zargates") {
+    return "ZarGates";
+  }
+  if (token === "tribo games") {
+    return "Tribo Games";
+  }
+  return token.split(" ").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
+}
+
+function getRangedProgress(current, total, start, end) {
+  if (!total || total <= 0) {
+    return start;
+  }
+  return clamp(start + (current / total) * (end - start), start, end);
+}
+
+function getAdaptivePageProgress(page, start, end) {
+  const safePage = Math.max(0, Number(page) || 0);
+  const span = Math.max(0, end - start);
+  const eased = 1 - Math.exp(-safePage / 4.5);
+  return clamp(start + eased * span, start, end);
+}
+
+function getFetchProgress(checkedCount, totalCount) {
+  return getRangedProgress(checkedCount, totalCount, 0, 72);
+}
+
+function getBuildProgress(step, total) {
+  return getRangedProgress(step, total, 76, 98);
+}
+
+function getWalletOwnedFetchProgress(page) {
+  return getAdaptivePageProgress(page, 0, 22);
+}
+
+function getWalletOwnedBuildProgress(step, total) {
+  return getRangedProgress(step, total, 24, 46);
+}
+
+function getWalletMarketFetchProgress(checkedCount, totalCount) {
+  return getRangedProgress(checkedCount, totalCount, 48, 78);
+}
+
+function getWalletPlanBuildProgress(step, total) {
+  return getRangedProgress(step, total, 80, 98);
+}
+
+function resetInitialViewport() {
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+  if (window.location.hash) {
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
+  window.scrollTo(0, 0);
+}
+
+function rawItemMatchesFocus(rawItem, config) {
+  const attributes = Array.isArray(rawItem?.metadata?.attributes) ? rawItem.metadata.attributes : [];
+  const targetTrait = norm(config.traitType);
+  const targetValue = norm(config.traitValue);
+  return attributes.some((attr) =>
+    attr
+    && attr.trait_type !== undefined
+    && attr.value !== undefined
+    && norm(attr.trait_type) === targetTrait
+    && norm(attr.value) === targetValue
+  );
+}
+
+function getAttributeValue(item, traitType) {
+  return item.attributes.find((entry) => norm(entry.trait_type) === norm(traitType))?.value || null;
+}
+
+function computeTeamSignals(team) {
+  const realTeam = team.filter(Boolean);
+  const active = {
+    fullCavern: realTeam.length === EMOTIONS.length && realTeam.every((item) => item.matchesFocus),
+    earrings: new Map(),
+    bracelets: new Map(),
+    logos: new Map()
+  };
+  const earringCounts = new Map();
+  const braceletCounts = new Map();
+  const logoCounts = new Map();
+
+  for (const item of realTeam) {
+    const earring = getAttributeValue(item, "Earrings");
+    const bracelet = getAttributeValue(item, "Bracelet");
+    if (earring) {
+      const key = norm(earring);
+      earringCounts.set(key, { count: (earringCounts.get(key)?.count || 0) + 1, value: earring });
+    }
+    if (bracelet) {
+      const key = norm(bracelet);
+      braceletCounts.set(key, { count: (braceletCounts.get(key)?.count || 0) + 1, value: bracelet });
+    }
+    for (const match of item.logoMatches) {
+      const current = logoCounts.get(match.token) || { count: 0, attrs: [] };
+      current.count += 1;
+      current.attrs.push(`${match.traitType}: ${match.value}`);
+      logoCounts.set(match.token, current);
+    }
+  }
+
+  for (const [key, data] of earringCounts.entries()) {
+    const bonus = getTierBonus(data.count, EARRING_TEAM_BONUS);
+    if (bonus > 0) {
+      active.earrings.set(key, { value: data.value, count: data.count, bonus });
+    }
+  }
+  for (const [key, data] of braceletCounts.entries()) {
+    const bonus = getTierBonus(data.count, BRACELET_TEAM_BONUS);
+    if (bonus > 0) {
+      active.bracelets.set(key, { value: data.value, count: data.count, bonus });
+    }
+  }
+  for (const [token, data] of logoCounts.entries()) {
+    const bonus = getTierBonus(data.count, LOGO_TEAM_BONUS);
+    if (bonus > 0) {
+      active.logos.set(token, { token, count: data.count, bonus, attrs: data.attrs });
+    }
+  }
+
+  return active;
+}
+
+function getItemTeamBadges(item, signals) {
+  const badges = [];
+  const earring = getAttributeValue(item, "Earrings");
+  const bracelet = getAttributeValue(item, "Bracelet");
+
+  if (item.numberPower > 0) {
+    badges.push({ label: "Number", kind: "number" });
+  }
+  if (item.localComboBonus > 0) {
+    badges.push({ label: "Combo", kind: "combo" });
+  }
+  if (earring && signals.earrings.has(norm(earring))) {
+    badges.push({ label: "Earring", kind: "earring" });
+  }
+  if (bracelet && signals.bracelets.has(norm(bracelet))) {
+    badges.push({ label: "Bracelet", kind: "bracelet" });
+  }
+  return badges.slice(0, 3);
+}
+
+function hasItemSynergyDetails(item, signals) {
+  const earring = getAttributeValue(item, "Earrings");
+  const bracelet = getAttributeValue(item, "Bracelet");
+  return Boolean(
+    item.localComboBonus > 0
+    || (earring && signals.earrings.has(norm(earring)))
+    || (bracelet && signals.bracelets.has(norm(bracelet)))
+  );
+}
+
+function getItemSynergyBreakdown(item, signals) {
+  const lines = [];
+  const earring = getAttributeValue(item, "Earrings");
+  const bracelet = getAttributeValue(item, "Bracelet");
+
+  if (item.numberPower > 0) {
+    lines.push(`Number Power: +${formatNumber(item.numberPower)}`);
+  }
+  if (item.localComboBonus > 0) {
+    const combo = getLocalComboSummary(item);
+    lines.push(`Local Combo: ${combo.tokenLabel} +${formatNumber(item.localComboBonus)}`);
+    if (combo.sourceLabel) {
+      lines.push(`Combo Source: ${combo.sourceLabel}`);
+    }
+  }
+  if (earring) {
+    const earringSync = signals.earrings.get(norm(earring));
+    if (earringSync) {
+      lines.push(`Team Earring: ${earringSync.value} x${earringSync.count} +${formatNumber(earringSync.bonus)}`);
+    }
+  }
+  if (bracelet) {
+    const braceletSync = signals.bracelets.get(norm(bracelet));
+    if (braceletSync) {
+      lines.push(`Team Bracelet: ${braceletSync.value} x${braceletSync.count} +${formatNumber(braceletSync.bonus)}`);
+    }
+  }
+  return lines;
+}
+
+function getItemFeatureKeys(item) {
+  const keys = [];
+  const earring = getAttributeValue(item, "Earrings");
+  const bracelet = getAttributeValue(item, "Bracelet");
+
+  if (earring) {
+    keys.push(`earring:${norm(earring)}`);
+  }
+  if (bracelet) {
+    keys.push(`bracelet:${norm(bracelet)}`);
+  }
+  for (const token of new Set(item.logoMatches.map((match) => match.token))) {
+    keys.push(`logo:${token}`);
+  }
+  if (item.numberPower > 0) {
+    keys.push("special:number");
+  }
+  if (item.localComboBonus > 0) {
+    keys.push("special:combo");
+  }
+
+  return keys;
+}
+
+function getTeamLeadLabel(entry) {
+  const top = entry.result.synergyDetails[0]?.trait || "";
+  if (top.startsWith("Logo: ")) {
+    return top.replace("Logo: ", "");
+  }
+  if (top.startsWith("Earrings: ")) {
+    return top.replace("Earrings: ", "");
+  }
+  if (top.startsWith("Bracelet: ")) {
+    return top.replace("Bracelet: ", "");
+  }
+  if (top.startsWith("Full team: ")) {
+    return top.replace("Full team: ", "");
+  }
+  return "Cavern";
+}
+
+function buildEmotionCandidatePool(items, searchWidth) {
+  const sorted = [...items].sort((a, b) =>
+    b.score - a.score
+    || b.power - a.power
+    || b.attributeBreakdown.length - a.attributeBreakdown.length
+    || a.name.localeCompare(b.name, "ru")
+  );
+  const selected = new Map();
+  const baseTake = Math.max(18, Math.min(sorted.length, Math.floor(searchWidth * 0.45)));
+  sorted.slice(0, baseTake).forEach((item) => selected.set(item.address, item));
+
+  const featureBuckets = new Map();
+  for (const item of sorted) {
+    for (const key of getItemFeatureKeys(item)) {
+      const bucket = featureBuckets.get(key) || [];
+      if (bucket.length < 4) {
+        bucket.push(item);
+        featureBuckets.set(key, bucket);
+      }
+    }
+  }
+
+  for (const bucket of featureBuckets.values()) {
+    bucket.forEach((item) => selected.set(item.address, item));
+  }
+
+  return [...selected.values()]
+    .sort((a, b) => b.score - a.score || b.power - a.power || a.name.localeCompare(b.name, "ru"))
+    .slice(0, Math.max(searchWidth, 60));
+}
+
+function getRemainingMaxPower(groups, startIndex) {
+  let total = 0;
+  for (let index = startIndex; index < groups.length; index += 1) {
+    total += groups[index].length ? groups[index][0].score : 0;
+  }
+  return total;
+}
+
+function getTeamIdentity(team) {
+  return team.filter(Boolean).map((item) => item.address).join("|");
+}
+
+async function buildBeamBestTeam(items, config, onProgress) {
+  const groups = EMOTIONS.map((emotion) =>
+    buildEmotionCandidatePool(items.filter((item) => item.emotion === emotion), config.searchWidth)
+  );
+  const beamWidth = Math.max(120, Math.min(2000, config.searchWidth * 6));
+  let beam = [{
+    team: [],
+    result: evaluateTeam([], config),
+    optimistic: getRemainingMaxPower(groups, 0)
+  }];
+
+  for (let index = 0; index < groups.length; index += 1) {
+    const candidates = groups[index];
+    const next = [];
+    const seen = new Map();
+
+    if (!candidates.length) {
+      beam = beam.map((entry) => {
+        const team = [...entry.team, null];
+        const result = evaluateTeam(team, config);
+        return {
+          team,
+          result,
+          optimistic: result.totalScore + getRemainingMaxPower(groups, index + 1)
+        };
+      });
+      continue;
+    }
+
+    for (const entry of beam) {
+      for (const item of candidates) {
+        const team = [...entry.team, item];
+        const result = evaluateTeam(team, config);
+        const optimistic = result.totalScore + getRemainingMaxPower(groups, index + 1);
+        const key = getTeamIdentity(team);
+        const current = seen.get(key);
+        if (!current || optimistic > current.optimistic || result.totalScore > current.result.totalScore) {
+          seen.set(key, { team, result, optimistic });
+        }
+      }
+    }
+
+    beam = [...seen.values()]
+      .sort((a, b) =>
+        b.result.coverage - a.result.coverage
+        || b.optimistic - a.optimistic
+        || b.result.totalScore - a.result.totalScore
+      )
+      .slice(0, beamWidth);
+
+    if (typeof onProgress === "function") {
+      onProgress(`Building top teams: emotion ${index + 1}/7...`, { step: index + 1, total: groups.length, beamSize: beam.length });
+    }
+    await sleep(0);
+  }
+
+  return beam
+    .filter((entry) => entry.result.coverage > 0)
+    .sort((a, b) =>
+      b.result.coverage - a.result.coverage
+      || b.result.totalScore - a.result.totalScore
+      || b.result.synergyScore - a.result.synergyScore
+    )[0] || null;
+}
+
+async function buildTopTeams(items, config, onProgress) {
+  // Ranking follows the saved rules every time:
+  // item power already includes attributes, sticker numbers, and local word-based combos;
+  // team score adds shared Earrings / Bracelet / Logo bonuses;
+  // once an orc is locked into a higher-ranked team, it cannot be reused later.
+  const rankedTeams = [];
+  const usedAddresses = new Set();
+  const maxTeams = 10;
+
+  for (let teamIndex = 0; teamIndex < maxTeams; teamIndex += 1) {
+    const remainingItems = items.filter((item) => !usedAddresses.has(item.address));
+    if (!remainingItems.length) {
+      break;
+    }
+
+    const bestEntry = await buildBeamBestTeam(remainingItems, config, (message, meta) => {
+      if (typeof onProgress === "function") {
+        onProgress(`Building unique teams: ${teamIndex + 1}/${maxTeams} · ${message}`, meta);
+      }
+    });
+
+    if (!bestEntry || bestEntry.result.coverage === 0) {
+      break;
+    }
+
+    rankedTeams.push(bestEntry);
+    bestEntry.team.filter(Boolean).forEach((item) => usedAddresses.add(item.address));
+
+    if (typeof onProgress === "function") {
+      onProgress(
+        `Locked unique team ${teamIndex + 1}/${maxTeams} · ${bestEntry.result.coverage} Orcs · ${formatNumber(bestEntry.result.totalScore)} PWR`,
+        { step: teamIndex + 1, total: maxTeams, coverage: bestEntry.result.coverage }
+      );
+    }
+    await sleep(0);
+  }
+
+  return rankedTeams;
+}
+
+function normalizeItem(rawItem, config) {
+  const metadata = rawItem.metadata || {};
+  const attributes = Array.isArray(metadata.attributes) ? metadata.attributes : [];
+  const cleanAttributes = attributes
+    .filter((attr) => attr && attr.trait_type && attr.value !== undefined && attr.value !== null)
+    .map((attr) => ({
+      trait_type: canonicalTraitType(attr.trait_type),
+      value: String(attr.value).trim()
+    }));
+
+  const targetTrait = norm(config.traitType);
+  const targetValue = norm(config.traitValue);
+
+  const matchesFocus = cleanAttributes.some((attr) =>
+    norm(attr.trait_type) === targetTrait && norm(attr.value) === targetValue
+  );
+
+  const name = metadata.name || `Orc #${rawItem.index ?? "?"}`;
+  const number = extractNumber(name);
+  const emotion = extractEmotion(name);
+  const attributeBreakdown = cleanAttributes.map((attr) => ({
+    trait_type: attr.trait_type,
+    value: attr.value,
+    power: getAttributePower(attr.trait_type, attr.value, config.fallbackPower)
+  }));
+  const attributePower = attributeBreakdown.reduce((sum, attr) => sum + attr.power, 0);
+  const numberPower = getStickerNumberPower(number);
+  const localCombo = buildLocalAttributeCombo(cleanAttributes);
+  const power = attributePower + numberPower + localCombo.bonus;
+  const score = power + (matchesFocus ? config.focusBonus : 0);
+  const saleValueRaw = rawItem?.sale?.price?.value;
+  const saleDecimals = Number(rawItem?.sale?.price?.decimals || 0);
+  const salePriceValue = saleValueRaw ? Number(saleValueRaw) / Math.pow(10, saleDecimals) : 0;
+  const synergyTraits = cleanAttributes
+    .filter((attr) => norm(attr.trait_type) !== targetTrait)
+    .map((attr) => `${attr.trait_type}: ${attr.value}`);
+
+  return {
+    address: rawItem.address,
+    name,
+    number,
+    emotion,
+    attributePower,
+    numberPower,
+    localComboBonus: localCombo.bonus,
+    localComboLabels: localCombo.labels,
+    localComboTokens: localCombo.tokens,
+    power,
+    score,
+    matchesFocus,
+    image: getImage(rawItem),
+    attributes: cleanAttributes,
+    attributeBreakdown,
+    synergyTraits,
+    synergyTraitSet: new Set(synergyTraits),
+    logoMatches: getLogoMatches(cleanAttributes),
+    market: metadata.marketplace || "getgems.io",
+    saleAddress: rawItem?.sale?.address || null,
+    saleMarket: rawItem?.sale?.market?.name || null,
+    salePriceValue,
+    saleOwner: rawItem?.sale?.owner?.address || null
+  };
+}
+
+async function fetchJsonWithRetry(url, options = {}, context = {}) {
+  const maxAttempts = context.maxAttempts || 6;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), context.timeoutMs || REQUEST_TIMEOUT_MS);
+    let response;
+    try {
+      response = await fetch(url, { ...options, signal: controller.signal });
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (attempt === maxAttempts) {
+        throw new Error(createNetworkErrorMessage(error, url));
+      }
+      const waitMs = Math.min(10000, 1200 * Math.pow(2, attempt - 1));
+      if (typeof context.onRetry === "function") {
+        context.onRetry(waitMs, attempt, createNetworkErrorMessage(error, url));
+      }
+      await sleep(waitMs);
+      continue;
+    }
+    clearTimeout(timeoutId);
+    if (response.ok) {
+      return response.json();
+    }
+
+    if (response.status !== 429) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error(`TonAPI rejected the request with ${response.status}. This can happen because of region, firewall, VPN, or API protection.`);
+      }
+      if (response.status >= 500) {
+        throw new Error(`TonAPI returned ${response.status}. The service may be temporarily unstable, so try again in a minute.`);
+      }
+      throw new Error(`TonAPI returned ${response.status}.`);
+    }
+
+    if (attempt === maxAttempts) {
+      throw new Error("TonAPI kept returning 429 for too long. Please wait a bit and try again.");
+    }
+
+    const retryAfter = Number(response.headers.get("retry-after"));
+    const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
+      ? retryAfter * 1000
+      : Math.min(12000, 1200 * Math.pow(2, attempt - 1));
+
+    if (typeof context.onRetry === "function") {
+      context.onRetry(waitMs, attempt, null);
+    }
+
+    await sleep(waitMs);
+  }
+
+  throw new Error("Failed to get a response from TonAPI.");
+}
+
+async function fetchCollectionItems(address, pageLimit, config, onProgress) {
+  const matchedItems = [];
+  const seenAddresses = new Set();
+  let matchedFocusCount = 0;
+  let checkedCount = 0;
+  let offset = 0;
+  let page = 0;
+  const maxPages = 1000;
+
+  while (page < maxPages) {
+    const url = `https://tonapi.io/v2/nfts/collections/${encodeURIComponent(address)}/items?limit=${pageLimit}&offset=${offset}`;
+    const data = await fetchJsonWithRetry(
+      url,
+      { headers: { accept: "application/json" } },
+      {
+        maxAttempts: 6,
+        onRetry(waitMs, attempt, retryReason) {
+          onProgress(
+            retryReason
+              ? `${retryReason} Waiting ${Math.ceil(waitMs / 1000)}s and retrying (${attempt}/6)...`
+              : `TonAPI 429 on page ${page + 1}. Waiting ${Math.ceil(waitMs / 1000)}s and retrying (${attempt}/6)...`,
+            { checkedCount, matchedCount: matchedFocusCount, page: page + 1 }
+          );
+        }
+      }
+    );
+    const batch = Array.isArray(data.nft_items) ? data.nft_items : [];
+    let uniqueAdded = 0;
+    for (const rawItem of batch) {
+      const key = rawItem?.address || `${rawItem?.collection?.address || "collection"}:${rawItem?.index ?? checkedCount}`;
+      if (seenAddresses.has(key)) {
+        continue;
+      }
+      seenAddresses.add(key);
+      checkedCount += 1;
+      uniqueAdded += 1;
+      if (rawItemMatchesFocus(rawItem, config)) {
+        matchedFocusCount += 1;
+        matchedItems.push(rawItem);
+      }
+    }
+
+    onProgress(
+      `Checked ${checkedCount} NFTs · found ${matchedFocusCount} Cavern · page ${page + 1}...`,
+      { checkedCount, matchedCount: matchedFocusCount, page: page + 1 }
+    );
+
+    if (!batch.length || batch.length < pageLimit) {
+      break;
+    }
+
+    offset += batch.length;
+    page += 1;
+    await sleep(250);
+  }
+
+  if (page >= maxPages) {
+    throw new Error("The collection is too large for a single pass. Increase the page limit in code.");
+  }
+
+  return {
+    checkedCount,
+    matchedCount: matchedFocusCount,
+    items: matchedItems
+  };
+}
+
+async function fetchCollectionSize(address) {
+  const url = `https://tonapi.io/v2/nfts/collections/${encodeURIComponent(address)}`;
+  const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, { maxAttempts: 4 });
+  const nextItemIndex = Number(data?.next_item_index);
+  return Number.isFinite(nextItemIndex) && nextItemIndex > 0 ? nextItemIndex : null;
+}
+
+function buildTraitFrequency(items) {
+  const map = new Map();
+  for (const item of items) {
+    for (const trait of item.synergyTraits) {
+      map.set(trait, (map.get(trait) || 0) + 1);
+    }
+  }
+  return [...map.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ru"))
+    .slice(0, 16);
+}
+
+function buildEmotionCoverage(items) {
+  return EMOTIONS.map((emotion) => ({
+    emotion,
+    count: items.filter((item) => item.emotion === emotion).length
+  }));
+}
+
+function evaluateTeam(team, config) {
+  const realTeam = team.filter(Boolean);
+  let synergyScore = 0;
+  const synergyDetails = [];
+
+  [
+    { traitType: "Earrings", table: EARRING_TEAM_BONUS, label: "Earrings" },
+    { traitType: "Bracelet", table: BRACELET_TEAM_BONUS, label: "Bracelet" }
+  ].forEach((rule) => {
+    const counts = new Map();
+    for (const item of realTeam) {
+      const attr = item.attributes.find((entry) => norm(entry.trait_type) === norm(rule.traitType));
+      if (!attr) {
+        continue;
+      }
+      const key = norm(attr.value);
+      counts.set(key, {
+        value: attr.value,
+        count: (counts.get(key)?.count || 0) + 1
+      });
+    }
+
+    for (const { value, count } of counts.values()) {
+      const bonus = getTierBonus(count, rule.table);
+      if (!bonus) {
+        continue;
+      }
+      synergyScore += bonus;
+      synergyDetails.push({
+        trait: `${rule.label}: ${value}`,
+        count,
+        bonus
+      });
+    }
+  });
+
+  const logoCounts = new Map();
+  for (const item of realTeam) {
+    for (const match of item.logoMatches) {
+      logoCounts.set(match.token, (logoCounts.get(match.token) || 0) + 1);
+    }
+  }
+  for (const [token, count] of logoCounts.entries()) {
+    const bonus = getTierBonus(count, LOGO_TEAM_BONUS);
+    if (!bonus) {
+      continue;
+    }
+    synergyScore += bonus;
+    synergyDetails.push({
+      trait: `Logo: ${formatTokenLabel(token)}`,
+      count,
+      bonus
+    });
+  }
+
+  if (realTeam.length === EMOTIONS.length) {
+    const sameTribe = realTeam.every((item) => item.matchesFocus);
+    if (sameTribe) {
+      const sameTribeTotal = config.sameTribeBonus * realTeam.length;
+      if (sameTribeTotal) {
+        synergyScore += sameTribeTotal;
+        synergyDetails.push({
+          trait: `Full team: ${config.traitValue} tribe`,
+          count: realTeam.length,
+          bonus: sameTribeTotal
+        });
+      }
+    }
+  }
+
+  synergyDetails.sort((a, b) => b.bonus - a.bonus || b.count - a.count || a.trait.localeCompare(b.trait, "ru"));
+
+  const teamPower = realTeam.reduce((sum, item) => sum + item.power, 0);
+  const totalScore = teamPower + synergyScore;
+
+  return {
+    teamPower,
+    synergyScore,
+    totalScore,
+    coverage: realTeam.length,
+    synergyDetails
+  };
+}
+
+function buildBestTeam(items, config) {
+  const legacyCap = Math.max(5, Math.min(24, Math.floor((config.searchWidth || 120) / 12)));
+  const groups = EMOTIONS.map((emotion) =>
+    items
+      .filter((item) => item.emotion === emotion)
+      .sort((a, b) => b.score - a.score || b.synergyTraits.length - a.synergyTraits.length)
+      .slice(0, legacyCap)
+  );
+
+  let best = {
+    team: Array(EMOTIONS.length).fill(null),
+    result: evaluateTeam([], config)
+  };
+
+  function dfs(index, current) {
+    if (index === groups.length) {
+      const result = evaluateTeam(current, config);
+      if (
+        result.coverage > best.result.coverage ||
+        (result.coverage === best.result.coverage && result.totalScore > best.result.totalScore)
+      ) {
+        best = { team: [...current], result };
+      }
+      return;
+    }
+
+    const candidates = groups[index];
+    if (!candidates.length) {
+      current.push(null);
+      dfs(index + 1, current);
+      current.pop();
+      return;
+    }
+
+    for (const item of candidates) {
+      current.push(item);
+      dfs(index + 1, current);
+      current.pop();
+    }
+  }
+
+  dfs(0, []);
+  return best;
+}
+
+function renderMetrics(rawCount, filteredCount, bestTeamResult, coverage) {
+  const grid = document.getElementById("metricsGrid");
+  const coverageCount = coverage.filter((item) => item.count > 0).length;
+  grid.innerHTML = `
+    <div class="metric">
+      <div class="n">${formatNumber(rawCount)}</div>
+      <div class="k">Total NFTs</div>
+      <div class="v">The full collection size reached through the live API.</div>
+    </div>
+    <div class="metric">
+      <div class="n">${formatNumber(filteredCount)}</div>
+      <div class="k">Cavern Orcs</div>
+      <div class="v">Passed the current target trait filter.</div>
+    </div>
+    <div class="metric">
+      <div class="n">${coverageCount} / 7</div>
+      <div class="k">Emotion Coverage</div>
+      <div class="v">${coverageCount === 7 ? "A full lineup can be built." : "Some emotions are still uncovered."}</div>
+    </div>
+    <div class="metric">
+      <div class="n">${formatNumber(bestTeamResult.totalScore)}</div>
+      <div class="k">Best Total</div>
+      <div class="v">The sum of personal power and all team bonuses in the strongest lineup.</div>
+    </div>
+  `;
+}
+
+function renderTopTeams(teams) {
+  const root = document.getElementById("topTeamsGrid");
+  const totalBox = document.getElementById("topTeamsTotal");
+  const totalValue = totalBox?.querySelector(".variant-total-value");
+  const totalSub = totalBox?.querySelector(".variant-total-sub");
+  const combinedPower = teams.reduce((sum, entry) => sum + (entry?.result?.totalScore || 0), 0);
+  if (totalValue) {
+    totalValue.textContent = `${formatNumber(combinedPower)} PWR`;
+  }
+  if (totalSub) {
+    totalSub.textContent = teams.length
+      ? `Combined total score of ${teams.length} ranked teams.`
+      : "Combined total score of all ranked teams.";
+  }
+  if (!teams.length) {
+    root.innerHTML = `<div class="empty-state">No team variants could be built yet.</div>`;
+    return;
+  }
+
+  root.innerHTML = teams.map((entry, index) => {
+    const teamSignals = computeTeamSignals(entry.team);
+    const leadLabel = getTeamLeadLabel(entry);
+    const headlineBadges = [];
+    if (teamSignals.fullCavern) {
+      headlineBadges.push(`<span class="team-pill green">FULL TEAM</span>`);
+    }
+    headlineBadges.push(`<span class="team-pill orange">${formatNumber(entry.result.totalScore)} PWR</span>`);
+    entry.result.synergyDetails
+      .filter((detail) => !detail.trait.startsWith("Full team:"))
+      .slice(0, 3)
+      .forEach((detail) => {
+        const shortLabel = detail.trait
+          .replace(/^Logo:\s*/i, "Logo: ")
+          .replace(/^Earrings:\s*/i, "Earring: ")
+          .replace(/^Bracelet:\s*/i, "Bracelet: ");
+        headlineBadges.push(`<span class="team-pill blue">${escapeHtml(shortLabel)} x${detail.count} +${formatNumber(detail.bonus)} PWR</span>`);
+      });
+
+    const slots = EMOTIONS.map((emotion, emotionIndex) => {
+      const item = entry.team[emotionIndex];
+      if (!item) {
+        return `
+          <div class="slot empty">
+            <div class="slot-cover"></div>
+            <div class="slot-body">
+              <div class="slot-tag">${escapeHtml(emotion)}</div>
+              <div class="slot-meta">0</div>
+              <div class="slot-score">
+                <div class="score-main">No candidate</div>
+                <div class="score-sub">empty</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const badges = getItemTeamBadges(item, teamSignals)
+        .map((badge) => `<span class="slot-pill ${badge.kind}">${escapeHtml(badge.label)}</span>`)
+        .join("");
+      const breakdownLines = getItemSynergyBreakdown(item, teamSignals)
+        .map((line) => `<div class="slot-breakdown-line">${escapeHtml(line)}</div>`)
+        .join("");
+      const synergyAction = hasItemSynergyDetails(item, teamSignals)
+        ? `<button type="button" class="slot-action" data-open-item-modal="true" data-team-index="${index}" data-item-address="${escapeHtml(item.address)}">Synergy</button>`
+        : "";
+      return `
+        <div class="slot">
+          <div class="slot-cover">
+            <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'">
+          </div>
+          <div class="slot-body">
+            <div class="slot-tag">${escapeHtml(emotion)}</div>
+            <div class="slot-meta">${formatNumber(item.power)} PWR</div>
+            <div class="slot-badges">${badges || '<span class="slot-pill">Base</span>'}</div>
+            <div class="slot-score">
+              <div class="score-main">${escapeHtml(item.name)}</div>
+              <div class="score-sub">${escapeHtml(emotion)}</div>
+            </div>
+            ${breakdownLines ? `<div class="slot-breakdown">${breakdownLines}</div>` : ""}
+            ${synergyAction}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <article class="variant-card">
+        <div class="team-board">
+          <div class="team-head">
+            <div class="variant-titleline">
+              <span class="variant-rank">#${index + 1}</span>
+              <span class="variant-title">${escapeHtml(leadLabel)}</span>
+              <span class="variant-meta">(${entry.result.coverage} Orcs, ${formatNumber(entry.result.teamPower)} PWR)</span>
+            </div>
+            <div class="team-badges">${headlineBadges.join("")}</div>
+          </div>
+          <div class="team-slots">${slots}</div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderRoster(items) {
+  const rosterGrid = document.getElementById("rosterGrid");
+  if (!items.length) {
+    rosterGrid.innerHTML = `<div class="empty-state">No matching Cavern orcs were found for the current filter.</div>`;
+    return;
+  }
+
+  const sorted = [...items].sort((a, b) => {
+    if (state.sortMode === "emotion") {
+      return a.emotion.localeCompare(b.emotion, "ru") || b.score - a.score;
+    }
+    return b.score - a.score || b.power - a.power || a.name.localeCompare(b.name, "ru");
+  });
+
+  rosterGrid.innerHTML = sorted.slice(0, 120).map((item) => {
+    const attrs = item.attributeBreakdown.map((attr) => `
+      <div class="attr">
+        <b>${escapeHtml(attr.trait_type)}</b>
+        <span>${escapeHtml(attr.value)} · +${formatNumber(attr.power)}</span>
+      </div>
+    `).join("");
+    const extras = [
+      item.numberPower > 0 ? `
+        <div class="attr">
+          <b>Sticker Number</b>
+          <span>#${escapeHtml(item.number ?? "?")} · +${formatNumber(item.numberPower)}</span>
+        </div>
+      ` : "",
+      item.localComboBonus > 0 ? `
+        <div class="attr">
+          <b>Local Combo</b>
+          <span>+${formatNumber(item.localComboBonus)}</span>
+        </div>
+      ` : ""
+    ].join("");
+
+    return `
+      <article class="orc-card">
+        <div class="orc-cover">
+          <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'">
+        </div>
+        <div class="orc-body">
+          <div class="orc-name">${escapeHtml(item.name)}</div>
+          <div class="orc-sub">${escapeHtml(item.emotion)} · ${escapeHtml(item.address)}</div>
+          <div class="orc-stats">
+            <span class="tag">Power ${formatNumber(item.power)}</span>
+            <span class="tag">Traits ${formatNumber(item.attributePower)}</span>
+            <span class="tag">Number +${formatNumber(item.numberPower)}</span>
+            <span class="tag">Combo +${formatNumber(item.localComboBonus)}</span>
+            <span class="tag">Score ${formatNumber(item.score)}</span>
+          </div>
+          <div class="attr-stack">${attrs || '<div class="attr"><b>No</b><span>No attributes found</span></div>'}${extras}</div>
+          <div class="hint">${escapeHtml(item.market)}${item.localComboLabels.length ? ` · combo: ${escapeHtml(item.localComboLabels.join(" / "))}` : ""}</div>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  if (sorted.length > 120) {
+    rosterGrid.insertAdjacentHTML("beforeend", `
+      <div class="empty-state">Showing the first 120 cards out of ${formatNumber(sorted.length)}. The rest are already loaded and included in the team calculation.</div>
+    `);
+  }
+}
+
+function renderTraits(items) {
+  const traitList = document.getElementById("traitList");
+  const traitFrequency = buildTraitFrequency(items);
+  traitList.innerHTML = traitFrequency.length ? traitFrequency.map(([trait, count]) => `
+    <div class="trait-item">
+      <div>
+        <strong>${escapeHtml(trait)}</strong>
+        <span>Repeated across multiple Cavern orcs.</span>
+      </div>
+      <strong>${formatNumber(count)}</strong>
+    </div>
+  `).join("") : `<div class="trait-item"><strong>No data</strong><span>There is not enough data yet to build frequencies.</span></div>`;
+
+  const coverage = buildEmotionCoverage(items);
+  const emotionList = document.getElementById("emotionList");
+  emotionList.innerHTML = coverage.map((item) => `
+    <div class="emotion-item">
+      <div>
+        <strong>${escapeHtml(item.emotion)}</strong>
+        <span>${item.count > 0 ? "The slot can be filled." : "No candidates yet."}</span>
+      </div>
+      <strong>${formatNumber(item.count)}</strong>
+    </div>
+  `).join("");
+
+  const pills = document.getElementById("coveragePills");
+  pills.innerHTML = coverage
+    .filter((item) => item.count > 0)
+    .map((item) => `<span class="pill">${escapeHtml(item.emotion)}: ${formatNumber(item.count)}</span>`)
+    .join("");
+}
+
+function getWalletConfig() {
+  const base = getConfig();
+  return {
+    ...base,
+    traitType: "Skin Tone",
+    traitValue: "Cavern",
+    focusBonus: 0
+  };
+}
+
+function isWalletCollectionMatch(rawItem) {
+  return norm(rawItem?.collection?.name) === norm(WALLET_COLLECTION_NAME);
+}
+
+function formatTonPrice(item) {
+  const value = Number(item?.salePriceValue || 0);
+  return Number.isFinite(value) && value > 0
+    ? `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value)} TON`
+    : "No price";
+}
+
+function formatTonAmount(value) {
+  const numeric = Number(value || 0);
+  return Number.isFinite(numeric) && numeric > 0
+    ? `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(numeric)} TON`
+    : "0 TON";
+}
+
+async function fetchWalletCavernItems(walletAddress, config, onProgress) {
+  const items = [];
+  const seen = new Set();
+  let offset = 0;
+  let page = 0;
+  const limit = 100;
+
+  while (true) {
+    const url = `https://tonapi.io/v2/accounts/${encodeURIComponent(walletAddress)}/nfts?limit=${limit}&offset=${offset}`;
+    const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
+      maxAttempts: 5,
+      onRetry(waitMs, attempt, retryReason) {
+        onProgress(
+          retryReason
+            ? `${retryReason} Waiting ${Math.ceil(waitMs / 1000)}s and retrying wallet scan (${attempt}/5)...`
+            : `Wallet scan retry ${attempt}/5...`,
+          { page: page + 1, count: items.length }
+        );
+      }
+    });
+    const batch = Array.isArray(data?.nft_items) ? data.nft_items : [];
+
+    for (const rawItem of batch) {
+      const key = rawItem?.address;
+      if (!key || seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      if (isWalletCollectionMatch(rawItem) && rawItemMatchesFocus(rawItem, config)) {
+        items.push(rawItem);
+      }
+    }
+
+    onProgress(`Wallet scan: page ${page + 1} · found ${items.length} owned Cavern orcs...`, { page: page + 1, count: items.length });
+
+    if (!batch.length || batch.length < limit) {
+      break;
+    }
+    offset += batch.length;
+    page += 1;
+    await sleep(120);
+  }
+
+  return items;
+}
+
+async function fetchListedWalletMarketItems(config, onProgress) {
+  const matchedItems = [];
+  const seen = new Set();
+  const totalCount = await fetchCollectionSize(KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe);
+  let offset = 0;
+  let page = 0;
+  const limit = 100;
+  let checkedCount = 0;
+
+  while (true) {
+    const url = `https://tonapi.io/v2/nfts/collections/${encodeURIComponent(KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe)}/items?limit=${limit}&offset=${offset}`;
+    const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
+      maxAttempts: 6,
+      onRetry(waitMs, attempt, retryReason) {
+        onProgress(
+          retryReason
+            ? `${retryReason} Waiting ${Math.ceil(waitMs / 1000)}s and retrying market scan (${attempt}/6)...`
+            : `TonAPI 429 during market scan. Retrying (${attempt}/6)...`,
+          { checkedCount, totalCount }
+        );
+      }
+    });
+    const batch = Array.isArray(data?.nft_items) ? data.nft_items : [];
+
+    for (const rawItem of batch) {
+      const key = rawItem?.address;
+      if (!key || seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      checkedCount += 1;
+      if (rawItem?.sale?.price?.value && rawItemMatchesFocus(rawItem, config)) {
+        matchedItems.push(rawItem);
+      }
+    }
+
+    onProgress(
+      `Market scan: checked ${formatNumber(checkedCount)}/${formatNumber(totalCount || checkedCount)} items · found ${matchedItems.length} listed Cavern orcs...`,
+      { checkedCount, totalCount }
+    );
+
+    if (!batch.length || batch.length < limit) {
+      break;
+    }
+    offset += batch.length;
+    page += 1;
+    await sleep(120);
+  }
+
+  return matchedItems;
+}
+
+function renderWalletSummary(walletItems, currentTeam, marketItems, walletPlan) {
+  const finalScore = walletPlan?.finalEntry?.result?.totalScore || currentTeam?.result?.totalScore || 0;
+  const buyCount = walletPlan?.buyCount || 0;
+  const buyCost = walletPlan?.buyCost || 0;
+  document.getElementById("walletOwnedCount").textContent = formatNumber(walletItems.length);
+  document.getElementById("walletFinalTeamScore").textContent = `${formatNumber(finalScore)} PWR`;
+  document.getElementById("walletMarketCount").textContent = formatNumber(marketItems.length);
+  document.getElementById("walletBuyCount").textContent = formatNumber(buyCount);
+  document.getElementById("walletBuyCostText").textContent = `Current plan buy cost: ${formatTonAmount(buyCost)}.`;
+}
+
+function getWalletTeamBadges(item, entry, extraBadges = []) {
+  const badges = extraBadges.map((badge) => `<span class="slot-pill ${escapeHtml(badge.className)}">${escapeHtml(badge.label)}</span>`);
+  const earring = getAttributeValue(item, "Earrings");
+  const bracelet = getAttributeValue(item, "Bracelet");
+  if (item.numberPower > 0) badges.push('<span class="slot-pill number">Number</span>');
+  if (item.localComboBonus > 0) badges.push('<span class="slot-pill combo">Combo</span>');
+  if (earring && entry?.result?.synergyDetails?.some((detail) => detail.trait === `Earrings: ${earring}`)) {
+    badges.push('<span class="slot-pill earring">Earring</span>');
+  }
+  if (bracelet && entry?.result?.synergyDetails?.some((detail) => detail.trait === `Bracelet: ${bracelet}`)) {
+    badges.push('<span class="slot-pill bracelet">Bracelet</span>');
+  }
+  return badges.join("");
+}
+
+function renderWalletCurrentTeam(entry) {
+  const root = document.getElementById("walletCurrentTeamCard");
+  const meta = document.getElementById("walletCurrentTeamMeta");
+  if (!entry || !entry.result.coverage) {
+    root.innerHTML = `<div class="empty-state">This wallet does not have enough owned Cavern orcs to build a current team yet.</div>`;
+    meta.textContent = "No owned Cavern lineup is available yet.";
+    return;
+  }
+
+  meta.textContent = `${entry.result.coverage} owned orcs used · ${formatNumber(entry.result.totalScore)} total PWR · ${formatNumber(entry.result.synergyScore)} synergy PWR`;
+  const slots = EMOTIONS.map((emotion, index) => {
+    const item = entry.team[index];
+    if (!item) {
+      return `<div class="slot empty"><div class="slot-cover"></div><div class="slot-body"><div class="slot-tag">${escapeHtml(emotion)}</div><div class="slot-meta">0 PWR</div><div class="slot-score"><div class="score-main">No owned orc</div><div class="score-sub">empty slot</div></div></div></div>`;
+    }
+    const breakdown = [];
+    if (item.numberPower > 0) breakdown.push(`<div class="slot-breakdown-line">Number Power: +${formatNumber(item.numberPower)}</div>`);
+    if (item.localComboBonus > 0) breakdown.push(`<div class="slot-breakdown-line">Local Combo: +${formatNumber(item.localComboBonus)}</div>`);
+    return `
+      <div class="slot">
+        <div class="slot-cover"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'"></div>
+        <div class="slot-body">
+          <div class="slot-tag">${escapeHtml(emotion)}</div>
+          <div class="slot-meta">${formatNumber(item.power)} PWR</div>
+          <div class="slot-badges">${getWalletTeamBadges(item, entry) || '<span class="slot-pill">Base</span>'}</div>
+          <div class="slot-score"><div class="score-main">${escapeHtml(item.name)}</div><div class="score-sub">${escapeHtml(emotion)}</div></div>
+          ${breakdown.length ? `<div class="slot-breakdown">${breakdown.join("")}</div>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+  root.innerHTML = `<div class="team-board"><div class="team-slots">${slots}</div></div>`;
+}
+
+function renderWalletOwnedGrid(items) {
+  const root = document.getElementById("walletOwnedGrid");
+  if (!items.length) {
+    root.innerHTML = `<div class="empty-state">No Cavern orcs were found in this wallet.</div>`;
+    return;
+  }
+  const sorted = [...items].sort((a, b) => b.score - a.score || b.power - a.power || a.name.localeCompare(b.name, "ru"));
+  root.innerHTML = sorted.map((item) => `
+    <article class="orc-card">
+      <div class="orc-cover"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'"></div>
+      <div class="orc-body">
+        <div class="orc-name">${escapeHtml(item.name)}</div>
+        <div class="orc-sub">${escapeHtml(item.emotion)} · #${escapeHtml(item.number ?? "?")}</div>
+        <div class="orc-stats">
+          <span class="tag">Power ${formatNumber(item.power)}</span>
+          <span class="tag">Traits ${formatNumber(item.attributePower)}</span>
+          ${item.numberPower > 0 ? `<span class="tag">Number +${formatNumber(item.numberPower)}</span>` : ""}
+          ${item.localComboBonus > 0 ? `<span class="tag">Combo +${formatNumber(item.localComboBonus)}</span>` : ""}
+        </div>
+      </div>
+    </article>
+  `).join("");
+}
+
+function buildWalletMarketShortlist(items) {
+  const selected = new Map();
+  const overall = [...items].sort((a, b) => b.score - a.score || a.salePriceValue - b.salePriceValue);
+  overall.slice(0, 36).forEach((item) => selected.set(item.address, item));
+  EMOTIONS.forEach((emotion) => {
+    overall
+      .filter((item) => item.emotion === emotion)
+      .slice(0, 14)
+      .forEach((item) => selected.set(item.address, item));
+  });
+  return [...selected.values()].slice(0, 110);
+}
+
+function evaluateWalletPlanEntry(team, config) {
+  const result = evaluateTeam(team, config);
+  const keepItems = team.filter((item) => item && item.source === "owned");
+  const buyItems = team.filter((item) => item && item.source === "market");
+  const buyCost = buyItems.reduce((sum, item) => sum + Number(item.salePriceValue || 0), 0);
+  return {
+    team,
+    result,
+    keepItems,
+    buyItems,
+    buyCount: buyItems.length,
+    buyCost
+  };
+}
+
+function compareWalletPlanEntries(a, b) {
+  return (
+    b.result.coverage - a.result.coverage
+    || b.result.totalScore - a.result.totalScore
+    || a.buyCount - b.buyCount
+    || a.buyCost - b.buyCost
+    || b.result.synergyScore - a.result.synergyScore
+  );
+}
+
+function buildWalletPlanReasons(currentEntry, finalEntry, candidate) {
+  const reasons = [];
+  const currentSlot = currentEntry?.team?.[EMOTIONS.indexOf(candidate.emotion)] || null;
+  if (!currentSlot) {
+    reasons.push(`Closes ${candidate.emotion} slot`);
+  } else {
+    reasons.push(`Upgrades ${candidate.emotion} slot over ${currentSlot.name}`);
+    const slotGain = candidate.power - currentSlot.power;
+    if (slotGain > 0) {
+      reasons.push(`Adds +${formatNumber(slotGain)} base PWR before team bonuses`);
+    }
+  }
+  const baseMap = new Map((currentEntry?.result?.synergyDetails || []).map((detail) => [detail.trait, detail]));
+  for (const detail of finalEntry.result.synergyDetails) {
+    const previous = baseMap.get(detail.trait);
+    if (!previous) {
+      reasons.push(`Activates ${detail.trait} (+${formatNumber(detail.bonus)})`);
+    } else if (detail.bonus > previous.bonus) {
+      reasons.push(`Boosts ${detail.trait} to +${formatNumber(detail.bonus)}`);
+    }
+  }
+  if (candidate.numberPower > 0) reasons.push(`Includes Number Power +${formatNumber(candidate.numberPower)}`);
+  if (candidate.localComboBonus > 0) reasons.push(`Includes Local Combo +${formatNumber(candidate.localComboBonus)}`);
+  return [...new Set(reasons)].slice(0, 4);
+}
+
+async function buildBestWalletPlan(walletItems, marketItems, config, onProgress) {
+  const shortlist = buildWalletMarketShortlist(marketItems);
+  const unionItems = [...walletItems, ...shortlist];
+  if (!unionItems.length) {
+    return null;
+  }
+
+  const groups = EMOTIONS.map((emotion) =>
+    buildEmotionCandidatePool(unionItems.filter((item) => item.emotion === emotion), config.searchWidth)
+  );
+  const beamWidth = Math.max(140, Math.min(2200, config.searchWidth * 7));
+  let beam = [{
+    ...evaluateWalletPlanEntry([], config),
+    optimistic: getRemainingMaxPower(groups, 0)
+  }];
+
+  for (let index = 0; index < groups.length; index += 1) {
+    const candidates = groups[index];
+    const seen = new Map();
+
+    if (!candidates.length) {
+      beam = beam.map((entry) => {
+        const team = [...entry.team, null];
+        const result = evaluateWalletPlanEntry(team, config);
+        return {
+          ...result,
+          optimistic: result.result.totalScore + getRemainingMaxPower(groups, index + 1)
+        };
+      });
+      continue;
+    }
+
+    for (const entry of beam) {
+      for (const item of candidates) {
+        const team = [...entry.team, item];
+        const result = evaluateWalletPlanEntry(team, config);
+        const optimistic = result.result.totalScore + getRemainingMaxPower(groups, index + 1);
+        const key = getTeamIdentity(team);
+        const current = seen.get(key);
+        const candidateEntry = { ...result, optimistic };
+        if (!current || compareWalletPlanEntries(candidateEntry, current) < 0 || candidateEntry.optimistic > current.optimistic) {
+          seen.set(key, candidateEntry);
+        }
+      }
+    }
+
+    beam = [...seen.values()]
+      .sort((a, b) =>
+        b.result.coverage - a.result.coverage
+        || b.optimistic - a.optimistic
+        || b.result.totalScore - a.result.totalScore
+        || a.buyCount - b.buyCount
+        || a.buyCost - b.buyCost
+      )
+      .slice(0, beamWidth);
+
+    if (typeof onProgress === "function") {
+      onProgress(`Building strongest keep + buy plan: emotion ${index + 1}/7...`, { step: index + 1, total: groups.length, beamSize: beam.length });
+    }
+    await sleep(0);
+  }
+
+  return beam
+    .filter((entry) => entry.result.coverage > 0)
+    .sort(compareWalletPlanEntries)[0] || null;
+}
+
+function buildWalletPlan(currentTeam, finalEntry) {
+  if (!finalEntry) {
+    return null;
+  }
+  const buyDetails = finalEntry.buyItems.map((item) => ({
+    item,
+    reasons: buildWalletPlanReasons(currentTeam, finalEntry, item)
+  }));
+  return {
+    currentTeam,
+    finalEntry,
+    keepItems: finalEntry.keepItems,
+    buyItems: finalEntry.buyItems,
+    buyDetails,
+    buyCount: finalEntry.buyCount,
+    buyCost: finalEntry.buyCost,
+    delta: finalEntry.result.totalScore - (currentTeam?.result?.totalScore || 0)
+  };
+}
+
+function renderWalletPlan(walletPlan) {
+  const root = document.getElementById("walletUpgradeCard");
+  const meta = document.getElementById("walletUpgradeMeta");
+  if (!walletPlan || !walletPlan.finalEntry || !walletPlan.finalEntry.result.coverage) {
+    root.innerHTML = `<div class="empty-state">No combined Cavern team could be built from the wallet and current market listings.</div>`;
+    meta.textContent = "No final keep + buy plan is available right now.";
+    return;
+  }
+
+  const { finalEntry, buyItems, keepItems, buyDetails, buyCost, delta } = walletPlan;
+  meta.textContent = `Final plan: ${formatNumber(finalEntry.result.totalScore)} total PWR · keep ${keepItems.length} · buy ${buyItems.length} · ${formatTonAmount(buyCost)}`;
+  const slots = EMOTIONS.map((emotion, index) => {
+    const item = finalEntry.team[index];
+    if (!item) {
+      return `<div class="slot empty"><div class="slot-cover"></div><div class="slot-body"><div class="slot-tag">${escapeHtml(emotion)}</div><div class="slot-meta">0 PWR</div><div class="slot-score"><div class="score-main">No candidate</div><div class="score-sub">empty slot</div></div></div></div>`;
+    }
+    const breakdown = [];
+    if (item.numberPower > 0) breakdown.push(`<div class="slot-breakdown-line">Number Power: +${formatNumber(item.numberPower)}</div>`);
+    if (item.localComboBonus > 0) breakdown.push(`<div class="slot-breakdown-line">Local Combo: +${formatNumber(item.localComboBonus)}</div>`);
+    if (item.source === "market" && item.salePriceValue > 0) breakdown.push(`<div class="slot-breakdown-line">${escapeHtml(formatTonPrice(item))}</div>`);
+    return `
+      <div class="slot">
+        <div class="slot-cover"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'"></div>
+        <div class="slot-body">
+          <div class="slot-tag">${escapeHtml(emotion)}</div>
+          <div class="slot-meta">${formatNumber(item.power)} PWR</div>
+          <div class="slot-badges">${getWalletTeamBadges(item, finalEntry, [{ className: item.source === "market" ? "buy" : "keep", label: item.source === "market" ? "Buy" : "Keep" }]) || '<span class="slot-pill">Base</span>'}</div>
+          <div class="slot-score"><div class="score-main">${escapeHtml(item.name)}</div><div class="score-sub">${escapeHtml(emotion)}</div></div>
+          ${breakdown.length ? `<div class="slot-breakdown">${breakdown.join("")}</div>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+  const buyRows = buyDetails.map((entry) => `
+    <div class="mini-row">
+      <div>
+        <strong>${escapeHtml(entry.item.name)}</strong>
+        <span>${escapeHtml(entry.item.emotion)} · ${escapeHtml(entry.item.saleMarket || "Getgems")} · ${escapeHtml(entry.reasons.join(" · "))}</span>
+      </div>
+      <strong>${escapeHtml(formatTonPrice(entry.item))}</strong>
+    </div>
+  `).join("");
+  const keepRows = keepItems.map((item) => `
+    <div class="mini-row">
+      <div>
+        <strong>${escapeHtml(item.name)}</strong>
+        <span>${escapeHtml(item.emotion)} · already owned · ${formatNumber(item.power)} base PWR</span>
+      </div>
+      <strong>Keep</strong>
+    </div>
+  `).join("");
+  const teamSignals = finalEntry.result.synergyDetails.slice(0, 5).map((detail) => `
+    <div class="mini-row">
+      <div>
+        <strong>${escapeHtml(detail.trait)}</strong>
+        <span>${formatNumber(detail.count)} matches in the final team.</span>
+      </div>
+      <strong>+${formatNumber(detail.bonus)}</strong>
+    </div>
+  `).join("");
+  root.innerHTML = `
+    <div class="wallet-plan-stack">
+      <div class="team-board">
+        <div class="team-head">
+          <div class="variant-titleline">
+            <span class="variant-rank">Plan</span>
+            <span class="variant-title">Final Team</span>
+            <span class="variant-meta">(${finalEntry.result.coverage} Orcs, ${formatNumber(finalEntry.result.teamPower)} PWR)</span>
+          </div>
+          <div class="team-badges">
+            <span class="team-pill green">Keep x${formatNumber(keepItems.length)}</span>
+            <span class="team-pill orange">Buy x${formatNumber(buyItems.length)}</span>
+            <span class="team-pill blue">${escapeHtml(formatTonAmount(buyCost))}</span>
+            <span class="team-pill violet">Delta +${formatNumber(delta)} PWR</span>
+          </div>
+        </div>
+        <div class="team-slots">${slots}</div>
+      </div>
+      <div class="wallet-plan-panels">
+        <div class="wallet-plan-panel">
+          <div class="lbl">Buy List</div>
+          <div class="mini-list">${buyRows || '<div class="empty-state wallet-plan-empty">No purchases needed. The current owned roster already gives the best plan from the analyzed pool.</div>'}</div>
+        </div>
+        <div class="wallet-plan-panel">
+          <div class="lbl">Keep Core</div>
+          <div class="mini-list">${keepRows || '<div class="empty-state wallet-plan-empty">No owned Cavern orcs are used in the final plan.</div>'}</div>
+        </div>
+      </div>
+      <div class="wallet-plan-panel">
+        <div class="lbl">Final Team Signals</div>
+        <div class="mini-list">${teamSignals || '<div class="empty-state wallet-plan-empty">No active team signals in the final plan.</div>'}</div>
+      </div>
+    </div>`;
+}
+
+function setActiveMode(mode) {
+  state.activeMode = mode;
+  const modeTabs = document.getElementById("modeTabs");
+  const heroSection = document.getElementById("heroSection");
+  const heroStatsBar = document.getElementById("heroStatsBar");
+  const heroTopDivider = document.getElementById("heroTopDivider");
+  const heroBottomDivider = document.getElementById("heroBottomDivider");
+  const hideHeroChrome = mode === "defence" || mode === "lore" || mode === "tribe" || mode === "vibe" || mode === "battle";
+  if (modeTabs) {
+    modeTabs.classList.toggle("hidden", hideHeroChrome);
+  }
+  if (heroSection) {
+    heroSection.classList.toggle("hidden", hideHeroChrome);
+  }
+  if (heroStatsBar) {
+    heroStatsBar.classList.toggle("hidden", hideHeroChrome);
+  }
+  if (heroTopDivider) {
+    heroTopDivider.classList.toggle("hidden", hideHeroChrome);
+  }
+  if (heroBottomDivider) {
+    heroBottomDivider.classList.toggle("hidden", hideHeroChrome);
+  }
+  document.querySelectorAll("[data-mode-tab]").forEach((button) => {
+    button.classList.toggle("active", button.getAttribute("data-mode-tab") === mode);
+  });
+  document.querySelectorAll("[data-mode-nav]").forEach((button) => {
+    button.classList.toggle("active", button.getAttribute("data-mode-nav") === mode);
+  });
+  document.querySelectorAll(".mode-page").forEach((panel) => {
+    panel.classList.toggle("active", panel.id === `${mode}ModePanel`);
+  });
+  document.querySelectorAll("[data-mode-section]").forEach((section) => {
+    section.classList.toggle("active", section.getAttribute("data-mode-section") === mode);
+  });
+}
+
+async function runWalletAnalysis() {
+  if (state.walletRunning) {
+    return;
+  }
+  const button = document.getElementById("analyzeWalletBtn");
+  const walletAddress = String(getElementValue("walletInput", "")).trim();
+  if (!walletAddress) {
+    setWalletStatus("Enter a TON wallet address first.", "err", 100);
+    return;
+  }
+  state.walletRunning = true;
+  resetStatusProgress("walletStatus");
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Analyzing...";
+  }
+  try {
+    const config = getWalletConfig();
+    setWalletStatus("Loading owned Cavern orcs from the wallet...", "warn", 0);
+    const walletRaw = await fetchWalletCavernItems(walletAddress, config, (message, meta) => {
+      setWalletStatus(message, "warn", getWalletOwnedFetchProgress(meta?.page || 0));
+    });
+    const walletItems = walletRaw
+      .map((item) => ({ ...normalizeItem(item, config), source: "owned" }))
+      .filter((item) => item.matchesFocus);
+    let currentTeam = null;
+    if (walletItems.length) {
+      setWalletStatus(`Loaded ${walletItems.length} owned Cavern orcs. Building current owned team...`, "warn", 24);
+      currentTeam = await buildBeamBestTeam(walletItems, config, (message, meta) => {
+        setWalletStatus(`Owned team: ${message}`, "warn", getWalletOwnedBuildProgress(meta?.step || 0, meta?.total || 7));
+      });
+    } else {
+      setWalletStatus("No owned Cavern orcs found. Building a market-assisted plan instead...", "warn", 44);
+    }
+    setWalletStatus("Scanning live listed Cavern market orcs...", "warn", 48);
+    const marketRaw = await fetchListedWalletMarketItems(config, (message, meta) => {
+      const progress = getWalletMarketFetchProgress(meta?.checkedCount || 0, meta?.totalCount || Math.max(meta?.checkedCount || 1, 1));
+      setWalletStatus(message, "warn", progress);
+    });
+    const ownedSet = new Set(walletItems.map((item) => item.address));
+    const marketItems = marketRaw
+      .map((item) => ({ ...normalizeItem(item, config), source: "market" }))
+      .filter((item) => item.matchesFocus && !ownedSet.has(item.address) && item.salePriceValue > 0);
+    setWalletStatus(`Loaded ${marketItems.length} listed Cavern orcs. Building the strongest keep + buy plan...`, "warn", 80);
+    const finalEntry = await buildBestWalletPlan(walletItems, marketItems, config, (message, meta) => {
+      setWalletStatus(message, "warn", getWalletPlanBuildProgress(meta?.step || 0, meta?.total || 1));
+    });
+    const walletPlan = buildWalletPlan(currentTeam, finalEntry);
+    state.walletItems = walletItems;
+    state.walletMarketItems = marketItems;
+    state.walletCurrentTeam = currentTeam;
+    state.walletPlan = walletPlan;
+    renderWalletSummary(walletItems, currentTeam, marketItems, walletPlan);
+    renderWalletCurrentTeam(currentTeam);
+    renderWalletOwnedGrid(walletItems);
+    renderWalletPlan(walletPlan);
+    if (!walletItems.length && (!walletPlan || !walletPlan.finalEntry)) {
+      setWalletStatus("No Cavern orcs were found in this wallet or in the current listed market sample.", "err", 100);
+      return;
+    }
+    if (!walletItems.length) {
+      setWalletStatus(`Done: no owned Cavern orcs found, but built a market-assisted plan with ${walletPlan?.buyCount || 0} buys.`, "ok", 100);
+      return;
+    }
+    setWalletStatus(`Done: loaded ${walletItems.length} owned Cavern orcs and built a final plan with ${walletPlan?.buyCount || 0} buys from ${marketItems.length} listed candidates.`, "ok", 100);
+  } catch (error) {
+    console.error(error);
+    setWalletStatus(error.message || "Failed to analyze wallet.", "err", 100);
+  } finally {
+    state.walletRunning = false;
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Analyze Wallet";
+    }
+  }
+}
+
+/* ===================== CLAN WARS ===================== */
+const CLAN_SIZE = 20;
+const clanState = { members: [], market: [], running: false };
+
+function getClanConfig() {
+  return { ...getConfig(), traitType: "Skin Tone", traitValue: "Cavern", focusBonus: 0 };
+}
+
+function buildClanCells() {
+  const grid = document.getElementById("clanWalletGrid");
+  if (!grid || grid.dataset.built === "1") return;
+  let html = "";
+  for (let i = 0; i < CLAN_SIZE; i += 1) {
+    html += `
+      <div class="clan-cell">
+        <div class="idx">${i + 1}</div>
+        <input type="text" class="clan-nick" data-clan-nick="${i}" placeholder="Nickname (optional)">
+        <input type="text" data-clan-input="${i}" placeholder="UQ... / EQ... wallet">
+        <div class="st" data-clan-st="${i}"></div>
+      </div>`;
+  }
+  grid.innerHTML = html;
+  grid.dataset.built = "1";
+}
+
+function getClanWallets() {
+  return [...document.querySelectorAll("[data-clan-input]")]
+    .map((el, i) => {
+      const nickEl = document.querySelector(`[data-clan-nick="${i}"]`);
+      return { index: i, addr: String(el.value || "").trim(), nick: String(nickEl?.value || "").trim() };
+    })
+    .filter((w) => w.addr);
+}
+
+function memberLabel(m) {
+  return m && m.nick ? m.nick : `Member ${(m ? m.index : 0) + 1}`;
+}
+function labelForIndex(idx) {
+  const m = clanState.members.find((x) => x.index === idx);
+  return memberLabel(m || { index: idx, nick: "" });
+}
+
+function setClanCellState(index, kind) {
+  const dot = document.querySelector(`[data-clan-st="${index}"]`);
+  if (dot) dot.className = `st ${kind || ""}`;
+}
+
+async function fetchWalletClanItems(walletAddress, onProgress) {
+  const items = [];
+  const seen = new Set();
+  let offset = 0, page = 0;
+  const limit = 100;
+  const maxPages = 40; // safety cap
+  const col = KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe;
+  while (page < maxPages) {
+    // server-side collection filter → only tribe orcs, no paging through whale wallets
+    const url = `https://tonapi.io/v2/accounts/${encodeURIComponent(walletAddress)}/nfts?collection=${encodeURIComponent(col)}&limit=${limit}&offset=${offset}`;
+    const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
+      maxAttempts: 5,
+      onRetry(waitMs, attempt) { onProgress(`Скан кошелька: повтор ${attempt}/5...`); }
+    });
+    const batch = Array.isArray(data?.nft_items) ? data.nft_items : [];
+    for (const rawItem of batch) {
+      const key = rawItem?.address;
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      items.push(rawItem);
+    }
+    onProgress(`Скан кошелька · страница ${page + 1} · найдено орков: ${items.length}...`);
+    if (!batch.length || batch.length < limit) break;
+    offset += batch.length; page += 1; await sleep(100);
+  }
+  return items;
+}
+
+async function fetchListedClanMarketItems(onProgress) {
+  const matched = [];
+  const seen = new Set();
+  const totalCount = await fetchCollectionSize(KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe);
+  let offset = 0, page = 0, checked = 0;
+  const limit = 100;
+  while (true) {
+    const url = `https://tonapi.io/v2/nfts/collections/${encodeURIComponent(KNOWN_GETGEMS_COLLECTIONS.unstoppabletribe)}/items?limit=${limit}&offset=${offset}`;
+    const data = await fetchJsonWithRetry(url, { headers: { accept: "application/json" } }, {
+      maxAttempts: 6,
+      onRetry(waitMs, attempt) { onProgress(`Скан рынка: повтор ${attempt}/6...`, checked, totalCount); }
+    });
+    const batch = Array.isArray(data?.nft_items) ? data.nft_items : [];
+    for (const rawItem of batch) {
+      const key = rawItem?.address;
+      if (!key || seen.has(key)) continue;
+      seen.add(key); checked += 1;
+      if (rawItem?.sale?.price?.value) matched.push(rawItem);
+    }
+    onProgress(`Market scan: ${formatNumber(checked)}/${formatNumber(totalCount || checked)} · ${matched.length} listed orcs...`, checked, totalCount);
+    if (!batch.length || batch.length < limit) break;
+    offset += batch.length; page += 1; await sleep(120);
+  }
+  return matched;
+}
+
+// ── skin tone (tribe) helpers — a team must be one single color ──
+function orcTone(item) { return norm(getAttributeValue(item, "Skin Tone") || ""); }
+function groupByTone(items) {
+  const map = new Map();
+  for (const it of items) {
+    const t = orcTone(it);
+    if (!t) continue;
+    if (!map.has(t)) map.set(t, []);
+    map.get(t).push(it);
+  }
+  return map;
+}
+
+// light, emotion-aligned single-color team builder (small beam → fast, no crashes)
+function lightBestTeam(items, config) {
+  const CAP = 5, W = 18;
+  const groups = EMOTIONS.map((e) =>
+    items.filter((i) => i.emotion === e).sort((a, b) => b.power - a.power).slice(0, CAP)
+  );
+  let beam = [[]];
+  for (const cand of groups) {
+    const pool = cand.length ? cand : [null];
+    const next = [];
+    for (const team of beam) for (const it of pool) next.push([...team, it]);
+    next.sort((a, b) => evaluateTeam(b, config).totalScore - evaluateTeam(a, config).totalScore);
+    beam = next.slice(0, W);
+  }
+  let best = beam[0] || [];
+  let bestScore = evaluateTeam(best, config).totalScore;
+  for (const t of beam) { const s = evaluateTeam(t, config).totalScore; if (s > bestScore) { bestScore = s; best = t; } }
+  return { team: best, result: evaluateTeam(best, config) };
+}
+
+function teamScore(team, config) { return evaluateTeam(team, config).totalScore; }
+function withSlot(team, e, orc) { const t = team.slice(); t[e] = orc; return t; }
+
+// COMPLETE (7-orc, single-color) teams buildable from one color group, best-first.
+function colorCompleteTeams(group, config, limit) {
+  const out = [];
+  const used = new Set();
+  for (let k = 0; k < limit; k += 1) {
+    const remaining = group.filter((it) => !used.has(it.address));
+    if (remaining.length < EMOTIONS.length) break;
+    const r = lightBestTeam(remaining, config);
+    if (r.result.coverage !== EMOTIONS.length) break; // STRICTLY 7 — anything less is not a team
+    out.push({ team: r.team, result: r.result, score: r.result.totalScore });
+    r.team.filter(Boolean).forEach((o) => used.add(o.address));
+  }
+  return out;
+}
+
+// a member's top-N COMPLETE teams across all their colors (the only thing that counts)
+function memberCompleteTeams(items, config, n) {
+  const all = [];
+  for (const [tone, group] of groupByTone(items)) {
+    colorCompleteTeams(group, config, n).forEach((t) => all.push({ ...t, tone }));
+  }
+  return all.sort((a, b) => b.score - a.score).slice(0, n);
+}
+// kept name/signature for callers (now returns complete teams only)
+async function buildClanMemberTeams(items, config, n) { return memberCompleteTeams(items, config, n); }
+
+// rich per-member snapshot for fast incremental value deltas
+function clanMemberState(items, config) {
+  const byTone = new Map();
+  for (const [tone, group] of groupByTone(items)) {
+    const teams = colorCompleteTeams(group, config, 3);
+    const covered = new Set(group.map((o) => o.emotion));
+    byTone.set(tone, { group, teams, scores: teams.map((t) => t.score), covered });
+  }
+  const all = [];
+  for (const [tone, v] of byTone) v.scores.forEach((s) => all.push({ s, tone }));
+  all.sort((a, b) => b.s - a.s);
+  const top = all.slice(0, 3);
+  const value = top.reduce((acc, x) => acc + x.s, 0);
+  const topColors = new Set(top.map((x) => x.tone)); // the colors of the member's fielded top-3 teams
+  const nComplete = all.length;                       // how many complete teams they can field
+  return { items, byTone, value, topColors, nComplete };
+}
+
+// clan value = Σ each member's top-3 complete teams; recompute one color, re-merge top-3
+function valueWithColorScores(state, tone, newScores) {
+  const all = [];
+  let replaced = false;
+  for (const [t, v] of state.byTone) {
+    if (t === tone) { newScores.forEach((s) => all.push(s)); replaced = true; }
+    else v.scores.forEach((s) => all.push(s));
+  }
+  if (!replaced) newScores.forEach((s) => all.push(s));
+  all.sort((a, b) => b - a);
+  return all.slice(0, 3).reduce((s, x) => s + x, 0);
+}
+function colorScoresAfter(state, tone, removeAddr, addOrc, config) {
+  const cur = state.byTone.get(tone);
+  let group = cur ? cur.group.slice() : [];
+  if (removeAddr) group = group.filter((o) => o.address !== removeAddr);
+  if (addOrc) group = [...group, addOrc];
+  return colorCompleteTeams(group, config, 3).map((t) => t.score);
+}
+// member value delta from removing one orc and/or adding one orc (same color)
+function deltaRemoveAdd(state, tone, removeAddr, addOrc, config) {
+  const newScores = colorScoresAfter(state, tone, removeAddr, addOrc, config);
+  return valueWithColorScores(state, tone, newScores) - state.value;
+}
+// value delta from just adding an orc (its color only)
+function addValueGain(state, orc, config) {
+  const tone = orcTone(orc);
+  const newScores = colorScoresAfter(state, tone, null, orc, config);
+  return { gain: valueWithColorScores(state, tone, newScores) - state.value, tone, newScores };
+}
+
+function orcSynergyTokens(item) {
+  const s = new Set();
+  const e = getAttributeValue(item, "Earrings"); if (e) s.add("e:" + norm(e));
+  const b = getAttributeValue(item, "Bracelet"); if (b) s.add("b:" + norm(b));
+  for (const m of item.logoMatches) s.add("l:" + m.token);
+  return s;
+}
+function rosterTokenSet(items) { const s = new Set(); for (const it of items) for (const t of orcSynergyTokens(it)) s.add(t); return s; }
+function orcSharesToken(item, set) { for (const t of orcSynergyTokens(item)) if (set.has(t)) return true; return false; }
+
+function clanTeamCardHTML(entry, rank) {
+  const signals = computeTeamSignals(entry.team);
+  const tone = entry.tone || orcTone((entry.team.filter(Boolean)[0]) || {});
+  const toneLabel = tone ? tone.replace(/\b\w/g, (c) => c.toUpperCase()) : "Mixed";
+  const badges = [
+    `<span class="team-pill green">племя ${escapeHtml(toneLabel)}</span>`,
+    `<span class="team-pill orange">${formatNumber(entry.result.totalScore)} PWR</span>`
+  ];
+  entry.result.synergyDetails.filter((d) => !d.trait.startsWith("Full team:")).slice(0, 2).forEach((d) => {
+    const lbl = d.trait.replace(/^Logo:\s*/i, "Logo: ").replace(/^Earrings:\s*/i, "Earring: ").replace(/^Bracelet:\s*/i, "Bracelet: ");
+    badges.push(`<span class="team-pill blue">${escapeHtml(lbl)} x${d.count} +${formatNumber(d.bonus)}</span>`);
+  });
+  const slots = EMOTIONS.map((emotion, i) => {
+    const item = entry.team[i];
+    if (!item) {
+      return `<div class="slot empty"><div class="slot-cover"></div><div class="slot-body"><div class="slot-tag">${escapeHtml(emotion)}</div><div class="slot-score"><div class="score-main">No candidate</div><div class="score-sub">empty</div></div></div></div>`;
+    }
+    const itemBadges = getItemTeamBadges(item, signals).map((b) => `<span class="slot-pill ${b.kind}">${escapeHtml(b.label)}</span>`).join("");
+    return `
+      <div class="slot">
+        <div class="slot-cover"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'"></div>
+        <div class="slot-body">
+          <div class="slot-tag">${escapeHtml(emotion)}</div>
+          <div class="slot-meta">${formatNumber(item.power)} PWR</div>
+          <div class="slot-badges">${itemBadges || '<span class="slot-pill">Base</span>'}</div>
+          <div class="slot-score"><div class="score-main">${escapeHtml(item.name)}</div><div class="score-sub">${escapeHtml(emotion)}</div></div>
+        </div>
+      </div>`;
+  }).join("");
+  return `
+    <article class="variant-card">
+      <div class="team-board">
+        <div class="team-head">
+          <div class="variant-titleline"><span class="variant-rank">#${rank}</span><span class="variant-meta">(${entry.result.coverage} Orcs, ${formatNumber(entry.result.teamPower)} PWR)</span></div>
+          <div class="team-badges">${badges.join("")}</div>
+        </div>
+        <div class="team-slots">${slots}</div>
+      </div>
+    </article>`;
+}
+
+function memberTop3Total(member) {
+  return member.teams.reduce((s, t) => s + (t.result.totalScore || 0), 0);
+}
+
+function renderClanMembers() {
+  const grid = document.getElementById("clanMembersGrid");
+  const members = clanState.members;
+  if (!members.length) {
+    grid.innerHTML = `<div class="empty-state">В указанных кошельках не найдено орков Unstoppable Tribe.</div>`;
+    return;
+  }
+  grid.innerHTML = members.map((m, mi) => {
+    const teams = m.teams.length
+      ? `<div class="clan-teams">${m.teams.map((t, i) => clanTeamCardHTML(t, i + 1)).join("")}</div>`
+      : `<div class="empty-state">Орков: ${m.items.length} — недостаточно для полной команды (нужно 7 одного цвета).</div>`;
+    return `
+      <div class="clan-member">
+        <div class="clan-member-head">
+          <div>
+            <div class="clan-member-name">${escapeHtml(memberLabel(m))}</div>
+            <div class="clan-member-sub">${escapeHtml(m.addr)}</div>
+          </div>
+          <div class="clan-member-stats">
+            <span class="team-pill dark">${m.items.length} орков</span>
+            <span class="team-pill orange">${formatNumber(memberTop3Total(m))} PWR (топ-3)</span>
+          </div>
+        </div>
+        ${teams}
+      </div>`;
+  }).join("");
+}
+
+function renderClanSummary() {
+  const members = clanState.members;
+  const totalOrcs = members.reduce((s, m) => s + m.items.length, 0);
+  const clanPower = members.reduce((s, m) => s + memberTop3Total(m), 0);
+  let top = null;
+  members.forEach((m) => { const v = memberTop3Total(m); if (!top || v > top.v) top = { m, v }; });
+  document.getElementById("clanMemberCount").textContent = formatNumber(members.length);
+  document.getElementById("clanOrcCount").textContent = formatNumber(totalOrcs);
+  document.getElementById("clanPower").textContent = `${formatNumber(clanPower)} PWR`;
+  document.getElementById("clanTopMember").textContent = top ? memberLabel(top.m) : "—";
+}
+
+async function runClanAnalysis() {
+  if (clanState.running) return;
+  const wallets = getClanWallets();
+  if (!wallets.length) { setClanStatus("Paste at least one TON wallet first.", "err", 100); return; }
+  clanState.running = true;
+  const btn = document.getElementById("analyzeClanBtn");
+  btn.disabled = true; btn.textContent = "Анализ...";
+  document.getElementById("clanSwapBtn").disabled = true;
+  document.getElementById("clanMarketBtn").disabled = true;
+  resetStatusProgress("clanStatus");
+  const config = getClanConfig();
+  const members = [];
+  try {
+    for (let i = 0; i < wallets.length; i += 1) {
+      const w = wallets[i];
+      setClanCellState(w.index, "run");
+      const base = Math.round((i / wallets.length) * 100);
+      setClanStatus(`Участник ${w.index + 1}/${wallets.length}: сканирование кошелька...`, "warn", base);
+      let raw;
+      try {
+        raw = await fetchWalletClanItems(w.addr, (msg) => setClanStatus(`Member ${w.index + 1}: ${msg}`, "warn", base));
+      } catch (e) {
+        setClanCellState(w.index, "err");
+        continue;
+      }
+      const items = raw.map((it) => normalizeItem(it, config));
+      if (!items.length) { setClanCellState(w.index, "warn"); continue; }
+      setClanStatus(`Участник ${w.index + 1}: строим топ-3 команды из ${items.length} орков...`, "warn", base + 3);
+      const teams = await buildClanMemberTeams(items, config, 3, () => {});
+      members.push({ index: w.index, addr: w.addr, nick: w.nick, items, teams });
+      setClanCellState(w.index, "ok");
+    }
+    clanState.members = members;
+    clanState.swapDone = false; // market stays locked until swap runs
+    clanState.marketRaw = null; // fresh clan → re-scan market once
+    renderClanSummary();
+    renderClanMembers();
+    if (!members.length) {
+      setClanStatus("В кошельках не найдено орков Unstoppable Tribe.", "err", 100);
+    } else {
+      document.getElementById("clanSwapBtn").disabled = false;
+      const mkt = document.getElementById("clanMarketBtn");
+      mkt.disabled = false; mkt.classList.remove("ready"); // clickable, but guarded by popup until swap done
+      setClanStatus(`Готово: проанализировано участников — ${members.length}. Сначала запустите ① Анализ обменов.`, "ok", 100);
+      setClanActionStatus("Клан просканирован. Сначала ① Анализ обменов — рынок откроется после него.", "ok", 100);
+      document.getElementById("clan-members").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  } catch (error) {
+    console.error(error);
+    setClanStatus(error.message || "Анализ клана не удался.", "err", 100);
+  } finally {
+    clanState.running = false;
+    btn.disabled = false; btn.textContent = "Анализ клана";
+  }
+}
+
+// why a trade helps: the synergy it creates/upgrades, else raw slot power
+function moveReason(beforeTeam, afterTeam, config) {
+  const bd = new Map();
+  evaluateTeam(beforeTeam || [], config).synergyDetails.forEach((d) => bd.set(d.trait, d.bonus));
+  let best = null;
+  for (const d of evaluateTeam(afterTeam || [], config).synergyDetails) {
+    const was = bd.get(d.trait) || 0;
+    if (d.bonus > was && (!best || d.bonus - was > best.delta)) best = { trait: d.trait, count: d.count, bonus: d.bonus, delta: d.bonus - was };
+  }
+  if (best) {
+    const label = best.trait.replace(/^Earrings?:/i, "Серьги:").replace(/^Logo:/i, "Лого:").replace(/^Bracelet:/i, "Браслет:");
+    return `закрывает синергию ${label} ×${best.count} (+${formatNumber(best.bonus)})`;
+  }
+  return "ставит в слот более сильного орка";
+}
+function cap1(s) { return String(s || "").replace(/\b\w/g, (c) => c.toUpperCase()); }
+// note when a move pushes a NEW color team into the member's top-3, displacing another
+function displaceNote(beforeColors, afterColors) {
+  const entered = [...afterColors].filter((c) => !beforeColors.has(c));
+  const left = [...beforeColors].filter((c) => !afterColors.has(c));
+  if (!entered.length || !left.length) return "";
+  return `команда ${cap1(entered[0])} входит в топ-3 игрока и вытесняет команду ${cap1(left[0])}`;
+}
+
+async function runClanSwapAnalysis() {
+  if (clanState.running || !clanState.members.length) return;
+  clanState.running = true;
+  const btn = document.getElementById("clanSwapBtn");
+  btn.disabled = true; btn.textContent = "Анализ...";
+  resetStatusProgress("clanActionStatus");
+  const config = getClanConfig();
+  const rosters = clanState.members.map((m) => ({ index: m.index, addr: m.addr, items: [...m.items] }));
+  const transfers = [];
+  const MAX = 14;     // hill-climb passes
+  try {
+    // value of the clan = Σ each member's top-3 COMPLETE (7-orc) teams. Partial/leftover orcs = 0.
+    let states = rosters.map((r) => clanMemberState(r.items, config));
+    const baseline = states.reduce((s, st) => s + st.value, 0);
+    const moved = new Set(); // every orc trades AT MOST once across the whole plan
+    const bestCTeam = (st, C) => { const v = st.byTone.get(C); return v && v.teams[0] ? v.teams[0] : null; };
+
+    for (let iter = 0; iter < MAX; iter += 1) {
+      setClanActionStatus(`Анализ обменов: проход ${iter + 1}...`, "warn", Math.round((iter / MAX) * 100));
+      let best = null;
+      const consider = (cand) => { if (cand.total > 1e-6 && (!best || cand.total > best.total)) best = cand; };
+
+      // pool of tradable orcs indexed by color|emotion
+      const poolCE = new Map();
+      for (let mi = 0; mi < rosters.length; mi += 1) {
+        for (const o of rosters[mi].items) {
+          if (moved.has(o.address)) continue;
+          const key = `${orcTone(o)}|${o.emotion}`;
+          if (!poolCE.has(key)) poolCE.set(key, []);
+          poolCE.get(key).push({ orc: o, owner: mi });
+        }
+      }
+      poolCE.forEach((arr) => arr.sort((x, y) => y.orc.power - x.orc.power));
+
+      // colors a member can RECEIVE into: any color where they field a full team or are one short.
+      // A new color may enter the top-3 (displacing a weaker team) — that's allowed and is
+      // explained on the move ("this team enters your top-3, replaces …").
+      const recvColors = states.map((st) => {
+        const set = new Set();
+        for (const [C, v] of st.byTone) if (v.teams.length || v.covered.size >= EMOTIONS.length - 1) set.add(C);
+        return set;
+      });
+
+      for (let ti = 0; ti < rosters.length; ti += 1) {
+        // (1) ONE-WAY: bring an orc from another wallet to improve / complete one of T's real teams.
+        //     A donor may lose power — accepted as long as the CLAN total rises.
+        for (const C of recvColors[ti]) {
+          for (let e = 0; e < EMOTIONS.length; e += 1) {
+            const arr = poolCE.get(`${C}|${EMOTIONS[e]}`);
+            if (!arr) continue;
+            let tried = 0;
+            for (const { orc: Y, owner: di } of arr) {
+              if (di === ti) continue;
+              if (tried++ >= 5) break; // top few candidates per slot
+              const gT = addValueGain(states[ti], Y, config).gain;
+              if (gT <= 0) continue;
+              const gD = deltaRemoveAdd(states[di], orcTone(Y), Y.address, null, config); // ≤ 0
+              const net = gT + gD;
+              if (net > 0) consider({ kind: "give", total: net, recv: ti, donor: di, orc: Y, tone: C, gT, gD });
+            }
+          }
+        }
+        await sleep(0);
+      }
+
+      // (2) TWO-WAY: swap the same role between two members' full same-color teams — net clan rise.
+      const colorMembers = new Map();
+      for (let ti = 0; ti < states.length; ti += 1) for (const [C, v] of states[ti].byTone) {
+        if (!v.teams.length) continue;
+        if (!colorMembers.has(C)) colorMembers.set(C, []);
+        colorMembers.get(C).push(ti);
+      }
+      for (const [C, mem] of colorMembers) {
+        for (let x = 0; x < mem.length; x += 1) for (let y = x + 1; y < mem.length; y += 1) {
+          const ti = mem[x], tj = mem[y];
+          const Ki = bestCTeam(states[ti], C), Kj = bestCTeam(states[tj], C);
+          if (!Ki || !Kj) continue;
+          for (let e = 0; e < EMOTIONS.length; e += 1) {
+            const oI = Ki.team[e], oJ = Kj.team[e];
+            if (!oI || !oJ || oI.address === oJ.address) continue;
+            if (moved.has(oI.address) || moved.has(oJ.address)) continue;
+            const gI = deltaRemoveAdd(states[ti], C, oI.address, oJ, config);
+            const gJ = deltaRemoveAdd(states[tj], C, oJ.address, oI, config);
+            const net = gI + gJ;
+            if (net > 0) consider({ kind: "swap", total: net, i: ti, j: tj, orcI: oI, orcJ: oJ, tone: C, gI, gJ });
+          }
+        }
+        await sleep(0);
+      }
+
+      if (!best) break;
+
+      // capture before-teams, apply, recompute, capture after-teams
+      if (best.kind === "give") {
+        const T = rosters[best.recv], D = rosters[best.donor], C = best.tone;
+        const beforeRecv = (bestCTeam(states[best.recv], C) || {}).team || [];
+        const beforeRecvScore = (bestCTeam(states[best.recv], C) || {}).score || 0;
+        const beforeColors = new Set(states[best.recv].topColors);
+        D.items = D.items.filter((it) => it.address !== best.orc.address);
+        T.items = [...T.items, best.orc];
+        moved.add(best.orc.address);
+        states[best.recv] = clanMemberState(T.items, config);
+        states[best.donor] = clanMemberState(D.items, config);
+        const afterRecv = (bestCTeam(states[best.recv], C) || {}).team || [];
+        const afterRecvScore = (bestCTeam(states[best.recv], C) || {}).score || 0;
+        const gReason = moveReason(beforeRecv, afterRecv, config);
+        const gDisp = displaceNote(beforeColors, states[best.recv].topColors);
+        const gExplain = `${labelForIndex(D.index)} отдаёт ${best.orc.name} игроку ${labelForIndex(T.index)}: ${gReason} в команде ${cap1(C)} у ${labelForIndex(T.index)} (${formatNumber(beforeRecvScore)} → ${formatNumber(afterRecvScore)} PWR). Прирост клана +${formatNumber(best.total)} PWR.${gDisp ? " " + gDisp + "." : ""}`;
+        transfers.push({
+          kind: "give", total: best.total, tone: C, orcA: best.orc,
+          fromIndex: D.index, toIndex: T.index,
+          bBefore: beforeRecv, bAfter: afterRecv, bBeforeScore: beforeRecvScore, bAfterScore: afterRecvScore,
+          reason: gReason, displace: gDisp, explain: gExplain
+        });
+      } else {
+        const I = rosters[best.i], J = rosters[best.j], C = best.tone;
+        const beI = (bestCTeam(states[best.i], C) || {}); const beJ = (bestCTeam(states[best.j], C) || {});
+        I.items = I.items.filter((it) => it.address !== best.orcI.address).concat(best.orcJ);
+        J.items = J.items.filter((it) => it.address !== best.orcJ.address).concat(best.orcI);
+        moved.add(best.orcI.address); moved.add(best.orcJ.address);
+        states[best.i] = clanMemberState(I.items, config);
+        states[best.j] = clanMemberState(J.items, config);
+        const afI = (bestCTeam(states[best.i], C) || {}); const afJ = (bestCTeam(states[best.j], C) || {});
+        transfers.push({
+          kind: "swap", total: best.total, tone: C, orcA: best.orcI, orcB: best.orcJ,
+          aIndex: I.index, bIndex: J.index, gA: best.gI, gB: best.gJ,
+          aBefore: beI.team || [], aAfter: afI.team || [], aBeforeScore: beI.score || 0, aAfterScore: afI.score || 0,
+          bBefore: beJ.team || [], bAfter: afJ.team || [], bBeforeScore: beJ.score || 0, bAfterScore: afJ.score || 0,
+          reasonA: moveReason(beI.team || [], afI.team || [], config),
+          reasonB: moveReason(beJ.team || [], afJ.team || [], config),
+          explain: `${labelForIndex(I.index)} и ${labelForIndex(J.index)} меняются ${best.orcI.name} ↔ ${best.orcJ.name} в командах ${cap1(C)}: у ${labelForIndex(I.index)} ${moveReason(beI.team || [], afI.team || [], config)} (${formatNumber(beI.score || 0)} → ${formatNumber(afI.score || 0)}), у ${labelForIndex(J.index)} ${moveReason(beJ.team || [], afJ.team || [], config)} (${formatNumber(beJ.score || 0)} → ${formatNumber(afJ.score || 0)}). Прирост клана +${formatNumber(best.total)} PWR.`
+        });
+      }
+    }
+
+    const after = states.reduce((s, st) => s + st.value, 0);
+    const planGain = after - baseline;
+    clanState.swapDone = true;
+    const mkt = document.getElementById("clanMarketBtn");
+    if (mkt) { mkt.disabled = false; mkt.classList.add("ready"); }
+    renderClanSwaps(transfers, planGain, baseline, after);
+    document.getElementById("clan-swaps").scrollIntoView({ behavior: "smooth", block: "start" });
+    setClanActionStatus(transfers.length ? `Найдено выгодных ходов: ${transfers.length}, +${formatNumber(planGain)} к силе клана (только полные команды). Анализ рынка разблокирован.` : "Выгодных обменов между полными командами нет — клан уже оптимально распределён. Анализ рынка разблокирован.", "ok", 100);
+  } catch (error) {
+    console.error(error);
+    setClanActionStatus(error.message || "Анализ обменов не удался.", "err", 100);
+  } finally {
+    clanState.running = false;
+    btn.disabled = false; btn.textContent = "① Анализ обменов (синергии)";
+  }
+}
+
+function bestExclTone(info, T) {
+  let m = 0;
+  for (const [t, v] of info.byTone) if (t !== T && v.score > m) m = v.score;
+  return m;
+}
+function looseOrcs(info, items) {
+  const used = new Set();
+  for (const [, v] of info.byTone) v.team.filter(Boolean).forEach((it) => used.add(it.address));
+  return items.filter((it) => !used.has(it.address));
+}
+
+function diffSets(before, after) {
+  const b = new Set((before || []).filter(Boolean).map((it) => it.address));
+  const a = new Set((after || []).filter(Boolean).map((it) => it.address));
+  return { removed: new Set([...b].filter((x) => !a.has(x))), added: new Set([...a].filter((x) => !b.has(x))) };
+}
+function baBlock(label, beforeTeam, afterTeam, beforeScore, afterScore) {
+  const d = diffSets(beforeTeam, afterTeam);
+  return `
+    <div class="clan-ba-col">
+      <div class="clan-ba-lbl">${escapeHtml(label)} — До · ${formatNumber(beforeScore)} PWR</div>
+      ${swapTeamMiniHTML(beforeTeam, d.removed, "removed")}
+    </div>
+    <div class="clan-ba-col">
+      <div class="clan-ba-lbl">После · ${formatNumber(afterScore)} PWR</div>
+      ${swapTeamMiniHTML(afterTeam, d.added, "added")}
+    </div>`;
+}
+
+function renderClanSwaps(transfers, totalGain, before, after) {
+  const grid = document.getElementById("clanSwapGrid");
+  const summary = document.getElementById("clanSwapSummary");
+  if (summary && before != null) {
+    summary.style.display = "flex";
+    document.getElementById("clanResBefore").textContent = formatNumber(before);
+    document.getElementById("clanResAfter").textContent = formatNumber(after);
+    document.getElementById("clanResGain").textContent = `+${formatNumber(totalGain)} PWR`;
+    document.getElementById("clanResMoves").textContent = transfers.length;
+  }
+  document.getElementById("clanSwapMeta").textContent = transfers.length
+    ? `Выполняйте эти ${transfers.length} шаг(ов) по порядку — цепочка строится на предыдущих обменах, итог +${formatNumber(totalGain)} к силе клана. Передача (→) и обмен (⇄) берутся только если суммарная сила клана растёт.`
+    : "Выгодных обменов нет — клан уже оптимально распределён.";
+  if (!transfers.length) { grid.innerHTML = `<div class="empty-state">Выгодных обменов не найдено.</div>`; return; }
+
+  grid.innerHTML = transfers.map((t, i) => {
+    const toneLabel = (t.tone || "").replace(/\b\w/g, (c) => c.toUpperCase());
+    const step = `<div class="clan-step">${i + 1}</div>`;
+    if (t.kind === "swap") {
+      return `
+      <details class="clan-swap">
+        <summary class="clan-sum">
+          <div class="clan-swap-row">
+            ${step}
+            <div class="clan-swap-orc">
+              <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
+              <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.aIndex))} · ${formatNumber(t.orcA.power)} PWR</div></div>
+            </div>
+            <div class="arrow">⇄</div>
+            <div class="clan-swap-orc">
+              <img src="${escapeHtml(t.orcB.image)}" onerror="this.src='c-logo-nobg.png'">
+              <div><div class="nm">${escapeHtml(t.orcB.name)}</div><div class="ow">${escapeHtml(labelForIndex(t.bIndex))} · ${formatNumber(t.orcB.power)} PWR</div></div>
+            </div>
+            <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
+            <span class="clan-exp"></span>
+          </div>
+          <div class="clan-why">↳ ${escapeHtml(t.explain || "")}</div>
+        </summary>
+        <div class="clan-ba-lbl" style="padding:0 2px 4px;">${escapeHtml(labelForIndex(t.aIndex))} · ${escapeHtml(toneLabel)} (получает ${escapeHtml(t.orcB.name)}) · +${formatNumber(t.gA)} PWR</div>
+        <div class="clan-ba">${baBlock(escapeHtml(labelForIndex(t.aIndex)), t.aBefore, t.aAfter, t.aBeforeScore, t.aAfterScore)}</div>
+        <div class="clan-ba-lbl" style="padding:10px 2px 4px;">${escapeHtml(labelForIndex(t.bIndex))} · ${escapeHtml(toneLabel)} (получает ${escapeHtml(t.orcA.name)}) · +${formatNumber(t.gB)} PWR</div>
+        <div class="clan-ba">${baBlock(escapeHtml(labelForIndex(t.bIndex)), t.bBefore, t.bAfter, t.bBeforeScore, t.bAfterScore)}</div>
+      </details>`;
+    }
+    // one-way give
+    return `
+    <details class="clan-swap">
+      <summary class="clan-sum">
+        <div class="clan-swap-row">
+          ${step}
+          <div class="clan-swap-orc">
+            <img src="${escapeHtml(t.orcA.image)}" onerror="this.src='c-logo-nobg.png'">
+            <div><div class="nm">${escapeHtml(t.orcA.name)}</div><div class="ow">${formatNumber(t.orcA.power)} PWR · ${escapeHtml(t.orcA.emotion)}</div></div>
+          </div>
+          <div class="ow">${escapeHtml(labelForIndex(t.fromIndex))}</div>
+          <div class="arrow">→</div>
+          <div class="ow">${escapeHtml(labelForIndex(t.toIndex))}</div>
+          <div class="clan-gain">+${formatNumber(t.total)} PWR</div>
+          <span class="clan-exp"></span>
+        </div>
+        <div class="clan-why">↳ ${escapeHtml(t.explain || "")}</div>
+      </summary>
+      <div class="clan-ba">${baBlock(`${labelForIndex(t.toIndex)} · ${toneLabel} team`, t.bBefore, t.bAfter, t.bBeforeScore, t.bAfterScore)}</div>
+    </details>`;
+  }).join("");
+}
+
+function swapTeamMiniHTML(team, markSet, mode) {
+  const list = (team || []).filter(Boolean);
+  if (!list.length) return `<div class="ow" style="padding:6px 2px;">Нет полной команды.</div>`;
+  const tag = mode === "removed" ? "OUT" : "NEW";
+  const cells = list.map((it) => {
+    const hit = markSet && markSet.has(it.address);
+    return `
+    <div class="ba-cell ${hit ? mode : ""}">
+      <img src="${escapeHtml(it.image)}" onerror="this.src='c-logo-nobg.png'">
+      <div class="ba-em">${escapeHtml(it.emotion)}</div>
+      <div class="ba-pw">${formatNumber(it.power)}</div>
+      ${hit ? `<div class="ba-tag ${mode}">${tag}</div>` : ""}
+    </div>`;
+  }).join("");
+  return `<div class="ba-row">${cells}</div>`;
+}
+
+async function runClanMarketAnalysis() {
+  if (clanState.running || !clanState.members.length) return;
+  if (!clanState.swapDone) { showClanGate(); return; } // swap has priority
+  clanState.running = true;
+  const btn = document.getElementById("clanMarketBtn");
+  btn.disabled = true; btn.textContent = "Анализ...";
+  resetStatusProgress("clanActionStatus");
+  const config = getClanConfig();
+  try {
+    let raw;
+    if (clanState.marketRaw) {
+      raw = clanState.marketRaw; // cached from a previous run this session
+      setClanActionStatus(`Анализ рынка: используем кэш — ${formatNumber(raw.length)} листингов...`, "warn", 60);
+    } else {
+      setClanActionStatus("Анализ рынка: сканируем живые листинги...", "warn", 5);
+      raw = await fetchListedClanMarketItems((msg, checked, total) => {
+        const pct = total ? clamp(Math.round((checked / total) * 70), 5, 70) : 30;
+        setClanActionStatus(msg, "warn", pct);
+      });
+      clanState.marketRaw = raw;
+    }
+    let market = raw.map((it) => ({ ...normalizeItem(it, config), salePriceValue: (() => {
+      const v = it?.sale?.price?.value; const d = Number(it?.sale?.price?.decimals || 0);
+      return v ? Number(v) / Math.pow(10, d) : 0;
+    })() })).filter((it) => it.salePriceValue > 0);
+    // keep the strongest 120 listings to bound the per-member search
+    market = market.sort((a, b) => b.power - a.power).slice(0, 120);
+    const owned = new Set();
+    clanState.members.forEach((m) => m.items.forEach((it) => owned.add(it.address)));
+    const perMember = [];
+    for (let i = 0; i < clanState.members.length; i += 1) {
+      const m = clanState.members[i];
+      setClanActionStatus(`Анализ рынка: участник ${i + 1}/${clanState.members.length}...`, "warn", 70 + Math.round((i / clanState.members.length) * 28));
+      const state = clanMemberState(m.items, config); // value = top-3 complete teams
+      // buy orcs for any color where a full team exists or is one short of complete
+      const usable = new Set();
+      for (const [C, v] of state.byTone) if (v.teams.length || v.covered.size >= EMOTIONS.length - 1) usable.add(C);
+      const picks = market
+        .filter((o) => !owned.has(o.address))
+        .filter((o) => usable.has(orcTone(o)))
+        .map((o) => ({ orc: o, gain: addValueGain(state, o, config).gain })) // gain to member's full-team value
+        .filter((x) => x.gain > 0)
+        .sort((a, b) => (b.gain / Math.max(1, b.orc.salePriceValue)) - (a.gain / Math.max(1, a.orc.salePriceValue)) || b.gain - a.gain)
+        .slice(0, 3);
+      perMember.push({ member: m, picks });
+      await sleep(0);
+    }
+    renderClanMarket(perMember);
+    document.getElementById("clan-market").scrollIntoView({ behavior: "smooth", block: "start" });
+    const totalBuys = perMember.reduce((s, p) => s + p.picks.length, 0);
+    setClanActionStatus(`Анализ рынка готов: ${totalBuys} рекомендаций к покупке у ${perMember.length} участник(ов).`, "ok", 100);
+  } catch (error) {
+    console.error(error);
+    setClanActionStatus(error.message || "Анализ рынка не удался.", "err", 100);
+  } finally {
+    clanState.running = false;
+    btn.disabled = false; btn.textContent = "② Анализ рынка (что докупить)";
+  }
+}
+
+function showClanGate() {
+  const pop = document.getElementById("clanGatePop");
+  if (!pop) return;
+  pop.classList.add("show");
+  pop.setAttribute("aria-hidden", "false");
+}
+function hideClanGate() {
+  const pop = document.getElementById("clanGatePop");
+  if (!pop) return;
+  pop.classList.remove("show");
+  pop.setAttribute("aria-hidden", "true");
+}
+
+function renderClanMarket(perMember) {
+  const grid = document.getElementById("clanMarketGrid");
+  const withPicks = perMember.filter((p) => p.picks.length);
+  document.getElementById("clanMarketMeta").textContent = withPicks.length
+    ? "Для каждого кошелька — листинги, которые сильнее всего поднимают силу и синергию полных команд, по соотношению польза/цена."
+    : "Сейчас на рынке нет орков, которые усилили бы чью-то полную команду.";
+  if (!withPicks.length) { grid.innerHTML = `<div class="empty-state">Подходящих покупок на рынке сейчас нет.</div>`; return; }
+  grid.innerHTML = withPicks.map((p) => `
+    <div class="clan-buy-group">
+      <h4>${escapeHtml(memberLabel(p.member))} · ${escapeHtml(p.member.addr)}</h4>
+      ${p.picks.map((pick) => `
+        <div class="clan-buy-row">
+          <img src="${escapeHtml(pick.orc.image)}" onerror="this.src='c-logo-nobg.png'">
+          <div>
+            <div class="nm">${escapeHtml(pick.orc.name)}</div>
+            <div class="meta">${escapeHtml(pick.orc.emotion)} · ${formatNumber(pick.orc.power)} PWR</div>
+          </div>
+          <div class="clan-gain">+${formatNumber(pick.gain)} PWR</div>
+          <div class="clan-buy-price">${formatTonPrice(pick.orc)}</div>
+        </div>`).join("")}
+    </div>`).join("");
+}
+
+async function runAnalysis() {
+  if (state.isRunning) {
+    return;
+  }
+  state.isRunning = true;
+  resetStatusProgress();
+  const config = getConfig();
+  const startButton = document.getElementById("startAnalysisBtn");
+  if (startButton) {
+    startButton.disabled = true;
+    startButton.textContent = "Analyzing...";
+  }
+
+  try {
+    const address = await parseCollectionAddress(config.collectionInput);
+    setStatus("Starting collection scan...", "warn", 0);
+    const totalCount = await fetchCollectionSize(address);
+
+    const fetchResult = await fetchCollectionItems(address, config.pageLimit, config, (message, meta) => {
+      setStatus(message, "warn", getFetchProgress(meta?.checkedCount || 0, totalCount));
+    });
+    const normalized = fetchResult.items.map((item) => normalizeItem(item, config));
+    const filtered = normalized;
+    setStatus(`Found ${fetchResult.matchedCount} Cavern orcs. Building top 10 teams...`, "warn", 76);
+    const topTeams = await buildTopTeams(filtered, config, (message, meta) => {
+      setStatus(message, "warn", getBuildProgress(meta?.step || 0, meta?.total || 7));
+    });
+    const best = topTeams[0] || buildBestTeam(filtered, config);
+
+    state.items = normalized;
+    state.filtered = filtered;
+    state.topTeams = topTeams;
+    state.lastRun = Date.now();
+
+    renderTopTeams(topTeams);
+
+    if (!filtered.length) {
+      setStatus("No Cavern orcs found for the current collection.", "err", 100);
+      return;
+    }
+
+    setStatus(`Done: found ${fetchResult.matchedCount} Cavern orcs and built ${topTeams.length} strongest teams.`, "ok", 100);
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Failed to load collection.", "err", 100);
+  } finally {
+    state.isRunning = false;
+    if (startButton) {
+      startButton.disabled = false;
+      startButton.textContent = "Start Analysis";
+    }
+  }
+}
+
+function setupTermsPopup() {
+  const KEY = "cavern_terms_agreed";
+  const pop = document.getElementById("termsPop");
+  const chk = document.getElementById("termsAgree");
+  const accept = document.getElementById("termsAcceptBtn");
+  const readLink = document.getElementById("termsReadLink");
+  if (!pop || !chk || !accept) return;
+  let agreed = false;
+  try { agreed = localStorage.getItem(KEY) === "1"; } catch (_e) { /* noop */ }
+  if (agreed) return;
+
+  // show immediately on entry and lock page scroll behind it
+  pop.classList.add("show");
+  pop.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  function hide() {
+    pop.classList.remove("show");
+    pop.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  chk.addEventListener("change", () => { accept.disabled = !chk.checked; });
+  accept.addEventListener("click", () => {
+    if (!chk.checked) return;
+    try { localStorage.setItem(KEY, "1"); } catch (_e) { /* noop */ }
+    hide();
+  });
+  if (readLink) {
+    readLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      const tos = document.querySelector(".legal-block");
+      if (tos) {
+        tos.setAttribute("open", "");
+        // temporarily lift the popup so the user can read, then it stays until they accept
+        pop.style.display = "none";
+        document.body.style.overflow = "";
+        tos.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => { if (localStorage.getItem(KEY) !== "1") { pop.style.display = ""; document.body.style.overflow = "hidden"; } }, 4000);
+      }
+    });
+  }
+}
+
+
+try{ if(window.Telegram&&Telegram.WebApp){ Telegram.WebApp.ready(); Telegram.WebApp.expand(); } }catch(e){}
+const CFG = getClanConfig();
+const LSKEY = "cavern_tma_wallet";
+let ORCS = [];
+function st(t,k){ const e=document.getElementById("st"); e.textContent=t||""; e.className="status"+(k?(" "+k):""); }
+
+// all teams per color, complete AND incomplete (greedy: best team, lock its orcs, repeat)
+function buildAllTeams(items){
+  const out=[];
+  for(const [tone,group] of groupByTone(items)){
+    const used=new Set();
+    let guard=0;
+    while(guard++<12){
+      const rem=group.filter(it=>!used.has(it.address));
+      if(!rem.length) break;
+      const r=lightBestTeam(rem,CFG);
+      const filled=r.team.filter(Boolean);
+      if(!filled.length) break;
+      out.push({team:r.team,result:r.result,tone,score:r.result.totalScore});
+      filled.forEach(o=>used.add(o.address));
+    }
+  }
+  return out.sort((a,b)=>b.score-a.score);
+}
+
+function teamHTML(t,idx){
+  const sig=computeTeamSignals(t.team);
+  const cov=t.result.coverage;
+  const full=cov===EMOTIONS.length;
+  const tone=cap1(t.tone||"—");
+  const chips=[];
+  t.result.synergyDetails.filter(d=>!d.trait.startsWith("Full team:")).slice(0,3).forEach(d=>{
+    const lbl=d.trait.replace(/^Earrings?:/,"Серьги:").replace(/^Logo:/,"Лого:").replace(/^Bracelet:/,"Браслет:");
+    chips.push('<span class="chip">'+escapeHtml(lbl)+' ×'+d.count+' +'+formatNumber(d.bonus)+'</span>');
+  });
+  const cells=EMOTIONS.map((emo,i)=>{
+    const o=t.team[i];
+    if(!o) return '<div class="cell empty"><div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;color:#333;font-size:18px;">—</div><div class="em">'+esc(emo)+'</div><div class="pw">·</div></div>';
+    return '<div class="cell" onclick="openOrc(\''+o.address+'\')"><img src="'+esc(o.image)+'" loading="lazy" onerror="this.src=\'c-logo-nobg.png\'"><div class="em">'+esc(emo)+'</div><div class="pw">'+formatNumber(o.power)+'</div></div>';
+  }).join("");
+  return '<div class="team'+(full?'':' partial')+'">'+
+    '<div class="team-top"><div class="team-name">'+esc(tone)+'<span class="cov">'+cov+'/7'+(full?'':' · неполная')+'</span></div><div class="team-pwr">'+formatNumber(t.score)+' PWR</div></div>'+
+    (chips.length?'<div class="chips">'+chips.join("")+'</div>':'')+
+    '<div class="row">'+cells+'</div></div>';
+}
+function esc(s){return escapeHtml(s);}
+
+let _idmap={};
+function render(orcs){
+  ORCS=orcs; _idmap={}; orcs.forEach(o=>_idmap[o.address]=o);
+  const teams=buildAllTeams(orcs);
+  const tones=new Set(orcs.map(orcTone).filter(Boolean));
+  document.getElementById("kOrcs").textContent=formatNumber(orcs.length);
+  document.getElementById("kFull").textContent=teams.filter(t=>t.result.coverage===EMOTIONS.length).length;
+  document.getElementById("kTones").textContent=tones.size;
+  document.getElementById("kpis").style.display="grid";
+  document.getElementById("teams").innerHTML = teams.length? teams.map((t,i)=>teamHTML(t,i)).join("") : '<div class="empty">Орки не найдены.</div>';
+}
+
+function openOrc(addr){
+  const o=_idmap[addr]; if(!o) return;
+  const rows=[];
+  o.attributeBreakdown.forEach(a=>{
+    rows.push('<div class="brk"><span class="v">'+esc(a.trait_type)+': '+esc(a.value)+'</span><span class="p'+(a.power?'':' zero')+'">'+(a.power?'+'+formatNumber(a.power):'0')+'</span></div>');
+  });
+  if(o.numberPower>0) rows.push('<div class="brk"><span class="v">Номер #'+esc(o.number)+' (особый)</span><span class="p">+'+formatNumber(o.numberPower)+'</span></div>');
+  if(o.localComboBonus>0) rows.push('<div class="brk"><span class="v">Комбо: совпадение слов'+(o.localComboLabels&&o.localComboLabels.length?' ('+esc(o.localComboLabels.join(" / "))+')':'')+'</span><span class="p">+'+formatNumber(o.localComboBonus)+'</span></div>');
+  rows.push('<div class="brk total"><span>Итого сила орка</span><span class="p">'+formatNumber(o.power)+'</span></div>');
+
+  const ear=getAttributeValue(o,"Earrings"), br=getAttributeValue(o,"Bracelet");
+  const logos=o.logoMatches.map(m=>formatTokenLabel(m.token));
+  const synParts=[];
+  if(ear) synParts.push('серьги <b>'+esc(ear)+'</b>');
+  if(br) synParts.push('браслет <b>'+esc(br)+'</b>');
+  if(logos.length) synParts.push('лого <b>'+esc(logos.join(", "))+'</b>');
+  const synNote = synParts.length
+    ? 'Этот орк участвует в командных синергиях: '+synParts.join(", ")+'. Командный бонус начисляется, когда в одной команде <b>4+</b> орков с одинаковыми серьгами / браслетом / лого (×4 +400, ×5 +500, ×6 +700, ×7 +1000).'
+    : 'У этого орка нет атрибутов, дающих командную синергию.';
+
+  document.getElementById("sheet").innerHTML =
+    '<button class="x" onclick="closeOrc()">×</button>'+
+    '<div class="sheet-hero"><img src="'+esc(o.image)+'" onerror="this.src=\'c-logo-nobg.png\'"><div>'+
+      '<div class="nm">'+esc(o.name)+'</div><div class="sub">'+esc(cap1(orcTone(o)||"—"))+' · '+esc(o.emotion)+'</div>'+
+      '<div class="big">'+formatNumber(o.power)+' PWR</div></div></div>'+
+    '<div class="sec-t">Из чего сила</div>'+rows.join("")+
+    '<div class="sec-t">Синергии</div><div class="note">'+synNote+'</div>'+
+    '<div class="note" style="margin-top:8px;">Сила орка = сумма силы атрибутов + бонус за особый номер + локальное комбо (совпадение слов между атрибутами). Командные синергии добавляются уже к <b>команде</b>, а не к одному орку.</div>';
+  document.getElementById("modal").classList.add("show");
+}
+function closeOrc(){ document.getElementById("modal").classList.remove("show"); }
+document.getElementById("modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeOrc(); });
+
+async function load(){
+  const addr=document.getElementById("w").value.trim();
+  if(!addr){ st("Вставьте адрес кошелька TON.","err"); return; }
+  try{ localStorage.setItem(LSKEY,addr); }catch(e){}
+  const btn=document.getElementById("go"); btn.disabled=true; btn.textContent="...";
+  try{
+    st("Сканируем кошелёк...");
+    const raw=await fetchWalletClanItems(addr,(m)=>st(m));
+    if(!raw.length){ st("На этом кошельке нет орков Unstoppable Tribe.","err"); document.getElementById("teams").innerHTML=""; document.getElementById("kpis").style.display="none"; return; }
+    st("Считаем силу "+raw.length+" орков...");
+    render(raw.map(r=>normalizeItem(r,CFG)));
+    st("Готово: "+raw.length+" орков.","ok");
+  }catch(e){ console.error(e); st(e.message||"Ошибка загрузки.","err"); }
+  finally{ btn.disabled=false; btn.textContent="Показать"; }
+}
+document.getElementById("go").addEventListener("click",load);
+document.getElementById("w").addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault();load();} });
+// cached wallet — prefill & auto-load
+try{ const saved=localStorage.getItem(LSKEY); if(saved){ document.getElementById("w").value=saved; load(); } }catch(e){}
+
+</script>
+</body>
+</html>
