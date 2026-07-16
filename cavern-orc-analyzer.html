@@ -2394,6 +2394,7 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   </div>
 </div>
 
+<script src="cavern-addresses.js"></script>
 <script>
 const EMOTIONS = ["In Love", "Greeting", "Capped", "Shoked", "Do Something", "To The Moon", "Wen TGE"];
 const KNOWN_GETGEMS_COLLECTIONS = {
@@ -4393,6 +4394,78 @@ async function fetchListedWalletMarketItems(config, onProgress) {
   return matchedItems;
 }
 
+const CAVERN_MARKET_CACHE_TTL_MS = 60 * 1000;
+let cavernMarketCache = null;
+
+async function fetchListedCavernMarketItems(config, onProgress) {
+  const addresses = Array.isArray(window.CAVERN_NFT_ADDRESSES)
+    ? window.CAVERN_NFT_ADDRESSES.filter(Boolean)
+    : [];
+  if (!addresses.length) {
+    throw new Error("The Cavern address index is missing. Refresh the page and try again.");
+  }
+
+  if (cavernMarketCache && Date.now() - cavernMarketCache.loadedAt < CAVERN_MARKET_CACHE_TTL_MS) {
+    onProgress(
+      `Using ${cavernMarketCache.items.length} recently checked listed Cavern orcs...`,
+      { checkedCount: addresses.length, totalCount: addresses.length }
+    );
+    return cavernMarketCache.items;
+  }
+
+  const chunks = [];
+  for (let index = 0; index < addresses.length; index += 100) {
+    chunks.push(addresses.slice(index, index + 100));
+  }
+
+  const listedItems = [];
+  let nextChunk = 0;
+  let checkedCount = 0;
+  const workerCount = Math.min(4, chunks.length);
+
+  async function worker() {
+    while (nextChunk < chunks.length) {
+      const chunkIndex = nextChunk;
+      nextChunk += 1;
+      const accountIds = chunks[chunkIndex];
+      const data = await fetchJsonWithRetry(
+        "https://tonapi.io/v2/nfts/_bulk",
+        {
+          method: "POST",
+          headers: { accept: "application/json", "content-type": "application/json" },
+          body: JSON.stringify({ account_ids: accountIds })
+        },
+        {
+          maxAttempts: 6,
+          onRetry(waitMs, attempt, retryReason) {
+            onProgress(
+              retryReason
+                ? `${retryReason} Waiting ${Math.ceil(waitMs / 1000)}s and retrying Cavern batch (${attempt}/6)...`
+                : `TonAPI 429 during Cavern batch scan. Retrying (${attempt}/6)...`,
+              { checkedCount, totalCount: addresses.length }
+            );
+          }
+        }
+      );
+      const items = Array.isArray(data?.nft_items) ? data.nft_items : [];
+      for (const rawItem of items) {
+        if (rawItem?.sale?.price?.value && rawItemMatchesFocus(rawItem, config)) {
+          listedItems.push(rawItem);
+        }
+      }
+      checkedCount += accountIds.length;
+      onProgress(
+        `Cavern-only scan: checked ${formatNumber(checkedCount)}/${formatNumber(addresses.length)} · found ${listedItems.length} listed orcs...`,
+        { checkedCount, totalCount: addresses.length }
+      );
+    }
+  }
+
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  cavernMarketCache = { items: listedItems, loadedAt: Date.now() };
+  return listedItems;
+}
+
 function renderWalletSummary(walletItems, currentTeam, marketItems, walletPlan) {
   const finalScore = walletPlan?.finalEntry?.result?.totalScore || currentTeam?.result?.totalScore || 0;
   const buyCount = walletPlan?.buyCount || 0;
@@ -4785,7 +4858,7 @@ async function runLinkAnalysis() {
     }
 
     setLinkStatus(`Loaded ${targetItem.name}. Scanning live listed Cavern market orcs...`, "warn", 18);
-    const marketRaw = await fetchListedWalletMarketItems(config, (message, meta) => {
+    const marketRaw = await fetchListedCavernMarketItems(config, (message, meta) => {
       setLinkStatus(message, "warn", getRangedProgress(meta?.checkedCount || 0, meta?.totalCount || Math.max(meta?.checkedCount || 1, 1), 18, 72));
     });
     const marketItems = marketRaw
