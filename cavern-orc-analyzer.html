@@ -1146,8 +1146,8 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
           <h3>Orc Link Advisor</h3>
         </div>
         <p style="margin-bottom:18px;">
-          Вставьте ссылку GetGems на конкретного орка. Анализатор закрепит этого орка в команде, найдёт сильнейший состав с рынка
-          и покажет только варианты, где есть активная синергия серёжек или браслетов.
+          Вставьте ссылку GetGems на Cavern-орка. Анализатор закрепит его в команде и найдёт до трёх сильнейших составов среди всех
+          Cavern-орков. В каждой команде одновременно обязательны активные синергии серёжек, браслетов и логотипа.
         </p>
         <div class="field-grid">
           <div class="field full">
@@ -1259,8 +1259,8 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   <div class="wrap">
     <div class="metrics-grid">
       <div class="metric"><div class="n" id="linkTargetPower">0 PWR</div><div class="k">Target Orc</div><div class="v" id="linkTargetMeta">Paste a GetGems link to start.</div></div>
-      <div class="metric"><div class="n" id="linkTeamPower">0 PWR</div><div class="k">Best Team</div><div class="v">Team must include Earrings or Bracelet synergy.</div></div>
-      <div class="metric"><div class="n" id="linkMarketCount">0</div><div class="k">Market Orcs Checked</div><div class="v">Live listed Cavern candidates.</div></div>
+      <div class="metric"><div class="n" id="linkTeamPower">0 PWR</div><div class="k">Best Team</div><div class="v">Earrings, Bracelet and Logo synergies are all required.</div></div>
+      <div class="metric"><div class="n" id="linkMarketCount">0</div><div class="k">Cavern Orcs Checked</div><div class="v">All Cavern orcs, listed or not.</div></div>
       <div class="metric"><div class="n" id="linkReplacementCount">0</div><div class="k">Number Replacements</div><div class="v">Shown when beautiful-number synergy orcs can be replaced.</div></div>
     </div>
   </div>
@@ -1271,9 +1271,9 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
 <section id="link-team" class="mode-section" data-mode-section="link">
   <div class="wrap">
     <div class="lbl">Matched Team</div>
-    <div class="ttl">Best <em>Synergy Team</em></div>
-    <div class="desc" id="linkTeamMeta">The selected orc stays locked in its emotion slot. The rest of the team comes from live market listings.</div>
-    <div class="variant-card" id="linkTeamCard">
+    <div class="ttl">Top 3 <em>Synergy Teams</em></div>
+    <div class="desc" id="linkTeamMeta">The selected orc stays locked in its emotion slot. Candidates come from every Cavern orc, whether listed for sale or not.</div>
+    <div class="variant-grid" id="linkTeamCard">
       <div class="empty-state">No orc link analyzed yet.</div>
     </div>
   </div>
@@ -2504,7 +2504,9 @@ const state = {
   activeMode: "analyzer",
   linkRunning: false,
   linkTarget: null,
+  linkItems: [],
   linkMarketItems: [],
+  linkTeams: [],
   linkTeam: null,
   linkReplacements: [],
   walletRunning: false,
@@ -4049,6 +4051,20 @@ function hasJewelrySynergy(entry) {
   ));
 }
 
+function getRequiredSynergyTypes(entry) {
+  const types = new Set();
+  for (const detail of entry?.result?.synergyDetails || []) {
+    if (/^Earrings:\s/i.test(detail.trait)) types.add("Earrings");
+    if (/^Bracelet:\s/i.test(detail.trait)) types.add("Bracelet");
+    if (/^Logo:\s/i.test(detail.trait)) types.add("Logo");
+  }
+  return types;
+}
+
+function hasRequiredTripleSynergy(entry) {
+  return getRequiredSynergyTypes(entry).size === 3;
+}
+
 function hasTargetJewelrySynergy(entry, targetItem) {
   if (!entry || !targetItem) {
     return false;
@@ -4058,28 +4074,30 @@ function hasTargetJewelrySynergy(entry, targetItem) {
 
 function compareAnchoredTeamEntries(a, b) {
   return (
-    Number(hasJewelrySynergy(b)) - Number(hasJewelrySynergy(a))
+    Number(hasRequiredTripleSynergy(b)) - Number(hasRequiredTripleSynergy(a))
+    || getRequiredSynergyTypes(b).size - getRequiredSynergyTypes(a).size
     || b.result.coverage - a.result.coverage
     || b.result.totalScore - a.result.totalScore
     || b.result.synergyScore - a.result.synergyScore
     || b.result.teamPower - a.result.teamPower
+    || getTeamIdentity(a.team).localeCompare(getTeamIdentity(b.team))
   );
 }
 
-async function buildAnchoredJewelryTeam(targetItem, marketItems, config, onProgress) {
+async function buildAnchoredSynergyTeams(targetItem, cavernItems, config, onProgress, maxTeams = 3) {
   const targetEmotionIndex = EMOTIONS.indexOf(targetItem.emotion);
   if (targetEmotionIndex === -1) {
     throw new Error(`The target orc emotion "${targetItem.emotion}" is not one of the 7 team slots.`);
   }
 
-  const sourceItems = marketItems.filter((item) => item.address !== targetItem.address);
+  const sourceItems = cavernItems.filter((item) => item.address !== targetItem.address);
   const groups = EMOTIONS.map((emotion, index) => {
     if (index === targetEmotionIndex) {
       return [targetItem];
     }
     return buildEmotionCandidatePool(sourceItems.filter((item) => item.emotion === emotion), config.searchWidth);
   });
-  const beamWidth = Math.max(160, Math.min(2400, config.searchWidth * 7));
+  const beamWidth = Math.max(240, Math.min(900, config.searchWidth * 6));
   let beam = [{
     team: [],
     result: evaluateTeam([], config),
@@ -4108,24 +4126,26 @@ async function buildAnchoredJewelryTeam(targetItem, marketItems, config, onProgr
 
     beam = [...seen.values()]
       .sort((a, b) =>
-        Number(hasTargetJewelrySynergy(b, targetItem)) - Number(hasTargetJewelrySynergy(a, targetItem))
-        || Number(hasJewelrySynergy(b)) - Number(hasJewelrySynergy(a))
+        getRequiredSynergyTypes(b).size - getRequiredSynergyTypes(a).size
         || b.result.coverage - a.result.coverage
         || b.optimistic - a.optimistic
         || b.result.totalScore - a.result.totalScore
+        || getTeamIdentity(a.team).localeCompare(getTeamIdentity(b.team))
       )
       .slice(0, beamWidth);
 
     if (typeof onProgress === "function") {
-      onProgress(`Building anchored team: emotion ${index + 1}/7...`, { step: index + 1, total: groups.length, beamSize: beam.length });
+      onProgress(`Building top synergy teams: emotion ${index + 1}/7...`, { step: index + 1, total: groups.length, beamSize: beam.length });
     }
     await sleep(0);
   }
 
   return beam
     .filter((entry) => entry.team[targetEmotionIndex]?.address === targetItem.address)
-    .filter((entry) => hasTargetJewelrySynergy(entry, targetItem))
-    .sort(compareAnchoredTeamEntries)[0] || null;
+    .filter((entry) => entry.result.coverage === EMOTIONS.length)
+    .filter(hasRequiredTripleSynergy)
+    .sort(compareAnchoredTeamEntries)
+    .slice(0, maxTeams);
 }
 
 function getActiveJewelrySignals(entry) {
@@ -4177,63 +4197,72 @@ function findLinkReplacements(entry, marketItems) {
   return replacements;
 }
 
-function renderLinkSummary(targetItem, entry, marketItems, replacements) {
+function renderLinkSummary(targetItem, entries, cavernItems, replacements) {
+  const bestEntry = entries[0] || null;
   document.getElementById("linkTargetPower").textContent = targetItem ? `${formatNumber(targetItem.power)} PWR` : "0 PWR";
   document.getElementById("linkTargetMeta").textContent = targetItem ? `${targetItem.name} · ${targetItem.emotion}` : "Paste a GetGems link to start.";
-  document.getElementById("linkTeamPower").textContent = entry ? `${formatNumber(entry.result.totalScore)} PWR` : "0 PWR";
-  document.getElementById("linkMarketCount").textContent = formatNumber(marketItems.length);
+  document.getElementById("linkTeamPower").textContent = bestEntry ? `${formatNumber(bestEntry.result.totalScore)} PWR` : "0 PWR";
+  document.getElementById("linkMarketCount").textContent = formatNumber(cavernItems.length);
   document.getElementById("linkReplacementCount").textContent = formatNumber(replacements.length);
 }
 
-function renderLinkTeam(entry, targetItem) {
+function renderLinkTeams(entries, targetItem) {
   const root = document.getElementById("linkTeamCard");
   const meta = document.getElementById("linkTeamMeta");
-  if (!entry || !entry.result.coverage) {
-    root.innerHTML = `<div class="empty-state">No market team with Earrings or Bracelet synergy could be built for this orc right now.</div>`;
-    meta.textContent = "Try another orc link or run the scan again later when the market changes.";
+  if (!entries.length) {
+    root.innerHTML = `<div class="empty-state">No full Cavern team with simultaneous Earrings, Bracelet and Logo synergies could be built for this orc.</div>`;
+    meta.textContent = "Try another Cavern orc. Every result must contain all three required synergy types.";
     return;
   }
-  const signals = computeTeamSignals(entry.team);
-  const jewelrySignals = getActiveJewelrySignals(entry);
-  meta.textContent = `${targetItem.name} locked · ${entry.result.coverage} orcs · ${formatNumber(entry.result.totalScore)} total PWR · ${jewelrySignals.map((signal) => `${signal.type}: ${signal.value} x${signal.count}`).join(" / ")}`;
-  const slots = EMOTIONS.map((emotion, index) => {
-    const item = entry.team[index];
-    if (!item) {
-      return `<div class="slot empty"><div class="slot-cover"></div><div class="slot-body"><div class="slot-tag">${escapeHtml(emotion)}</div><div class="slot-meta">0 PWR</div><div class="slot-score"><div class="score-main">No candidate</div><div class="score-sub">empty slot</div></div></div></div>`;
-    }
-    const extra = item.address === targetItem.address ? [{ className: "keep", label: "Target" }] : [{ className: "buy", label: "Market" }];
-    const breakdown = getItemSynergyBreakdown(item, signals).map((line) => `<div class="slot-breakdown-line">${escapeHtml(line)}</div>`);
-    if (item.salePriceValue > 0 && item.address !== targetItem.address) {
-      breakdown.push(`<div class="slot-breakdown-line">${escapeHtml(formatTonPrice(item))}</div>`);
-    }
+  meta.textContent = `${targetItem.name} locked · ${entries.length} strongest valid team variant${entries.length === 1 ? "" : "s"} from all Cavern orcs.`;
+  root.innerHTML = entries.map((entry, teamIndex) => {
+    const signals = computeTeamSignals(entry.team);
+    const requiredDetails = entry.result.synergyDetails.filter((detail) =>
+      /^(Earrings|Bracelet|Logo):\s/i.test(detail.trait)
+    );
+    const slots = EMOTIONS.map((emotion, index) => {
+      const item = entry.team[index];
+      if (!item) {
+        return `<div class="slot empty"><div class="slot-cover"></div><div class="slot-body"><div class="slot-tag">${escapeHtml(emotion)}</div><div class="slot-meta">0 PWR</div><div class="slot-score"><div class="score-main">No candidate</div><div class="score-sub">empty slot</div></div></div></div>`;
+      }
+      const extra = item.address === targetItem.address
+        ? [{ className: "keep", label: "Target" }]
+        : [{ className: "keep", label: "Cavern" }];
+      const breakdown = getItemSynergyBreakdown(item, signals).map((line) => `<div class="slot-breakdown-line">${escapeHtml(line)}</div>`);
+      if (item.salePriceValue > 0 && item.address !== targetItem.address) {
+        breakdown.push(`<div class="slot-breakdown-line">Listed: ${escapeHtml(formatTonPrice(item))}</div>`);
+      }
+      return `
+        <div class="slot">
+          <div class="slot-cover"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'"></div>
+          <div class="slot-body">
+            <div class="slot-tag">${escapeHtml(emotion)}</div>
+            <div class="slot-meta">${formatNumber(item.power)} PWR</div>
+            <div class="slot-badges">${getWalletTeamBadges(item, entry, extra) || '<span class="slot-pill">Base</span>'}</div>
+            <div class="slot-score"><div class="score-main">${escapeHtml(item.name)}</div><div class="score-sub">${escapeHtml(item.emotion)}</div></div>
+            ${breakdown.length ? `<div class="slot-breakdown">${breakdown.join("")}</div>` : ""}
+          </div>
+        </div>`;
+    }).join("");
+    const badges = [
+      `<span class="team-pill orange">${formatNumber(entry.result.totalScore)} PWR</span>`,
+      ...requiredDetails.map((detail) => `<span class="team-pill blue">${escapeHtml(detail.trait)} x${detail.count} +${formatNumber(detail.bonus)}</span>`)
+    ];
     return `
-      <div class="slot">
-        <div class="slot-cover"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='c-logo-nobg.png'"></div>
-        <div class="slot-body">
-          <div class="slot-tag">${escapeHtml(emotion)}</div>
-          <div class="slot-meta">${formatNumber(item.power)} PWR</div>
-          <div class="slot-badges">${getWalletTeamBadges(item, entry, extra) || '<span class="slot-pill">Base</span>'}</div>
-          <div class="slot-score"><div class="score-main">${escapeHtml(item.name)}</div><div class="score-sub">${escapeHtml(item.emotion)}</div></div>
-          ${breakdown.length ? `<div class="slot-breakdown">${breakdown.join("")}</div>` : ""}
+      <article class="variant-card">
+        <div class="team-board">
+          <div class="team-head">
+            <div class="variant-titleline">
+              <span class="variant-rank">#${teamIndex + 1}</span>
+              <span class="variant-title">Triple Synergy</span>
+              <span class="variant-meta">(${entry.result.coverage} Orcs, ${formatNumber(entry.result.teamPower)} PWR)</span>
+            </div>
+            <div class="team-badges">${badges.join("")}</div>
+          </div>
+          <div class="team-slots">${slots}</div>
         </div>
-      </div>`;
+      </article>`;
   }).join("");
-  const badges = [
-    `<span class="team-pill orange">${formatNumber(entry.result.totalScore)} PWR</span>`,
-    ...jewelrySignals.map((signal) => `<span class="team-pill blue">${escapeHtml(signal.type)}: ${escapeHtml(signal.value)} x${signal.count} +${formatNumber(signal.bonus)}</span>`)
-  ];
-  root.innerHTML = `
-    <div class="team-board">
-      <div class="team-head">
-        <div class="variant-titleline">
-          <span class="variant-rank">Link</span>
-          <span class="variant-title">Locked Team</span>
-          <span class="variant-meta">(${entry.result.coverage} Orcs, ${formatNumber(entry.result.teamPower)} PWR)</span>
-        </div>
-        <div class="team-badges">${badges.join("")}</div>
-      </div>
-      <div class="team-slots">${slots}</div>
-    </div>`;
 }
 
 function renderLinkReplacements(replacements) {
@@ -4394,10 +4423,10 @@ async function fetchListedWalletMarketItems(config, onProgress) {
   return matchedItems;
 }
 
-const CAVERN_MARKET_CACHE_TTL_MS = 60 * 1000;
-let cavernMarketCache = null;
+const CAVERN_ITEMS_CACHE_TTL_MS = 60 * 1000;
+let cavernItemsCache = null;
 
-async function fetchListedCavernMarketItems(config, onProgress) {
+async function fetchAllCavernItems(config, onProgress) {
   const addresses = Array.isArray(window.CAVERN_NFT_ADDRESSES)
     ? window.CAVERN_NFT_ADDRESSES.filter(Boolean)
     : [];
@@ -4405,12 +4434,12 @@ async function fetchListedCavernMarketItems(config, onProgress) {
     throw new Error("The Cavern address index is missing. Refresh the page and try again.");
   }
 
-  if (cavernMarketCache && Date.now() - cavernMarketCache.loadedAt < CAVERN_MARKET_CACHE_TTL_MS) {
+  if (cavernItemsCache && Date.now() - cavernItemsCache.loadedAt < CAVERN_ITEMS_CACHE_TTL_MS) {
     onProgress(
-      `Using ${cavernMarketCache.items.length} recently checked listed Cavern orcs...`,
+      `Using ${cavernItemsCache.items.length} recently checked Cavern orcs...`,
       { checkedCount: addresses.length, totalCount: addresses.length }
     );
-    return cavernMarketCache.items;
+    return cavernItemsCache.items;
   }
 
   const chunks = [];
@@ -4418,52 +4447,62 @@ async function fetchListedCavernMarketItems(config, onProgress) {
     chunks.push(addresses.slice(index, index + 100));
   }
 
-  const listedItems = [];
+  const cavernItems = [];
   let nextChunk = 0;
   let checkedCount = 0;
-  const workerCount = Math.min(4, chunks.length);
+  let scanError = null;
+  const workerCount = Math.min(2, chunks.length);
 
   async function worker() {
-    while (nextChunk < chunks.length) {
+    while (!scanError && nextChunk < chunks.length) {
       const chunkIndex = nextChunk;
       nextChunk += 1;
       const accountIds = chunks[chunkIndex];
-      const data = await fetchJsonWithRetry(
-        "https://tonapi.io/v2/nfts/_bulk",
-        {
-          method: "POST",
-          headers: { accept: "application/json", "content-type": "application/json" },
-          body: JSON.stringify({ account_ids: accountIds })
-        },
-        {
-          maxAttempts: 6,
-          onRetry(waitMs, attempt, retryReason) {
-            onProgress(
-              retryReason
-                ? `${retryReason} Waiting ${Math.ceil(waitMs / 1000)}s and retrying Cavern batch (${attempt}/6)...`
-                : `TonAPI 429 during Cavern batch scan. Retrying (${attempt}/6)...`,
-              { checkedCount, totalCount: addresses.length }
-            );
+      let data;
+      try {
+        data = await fetchJsonWithRetry(
+          "https://tonapi.io/v2/nfts/_bulk",
+          {
+            method: "POST",
+            headers: { accept: "application/json", "content-type": "application/json" },
+            body: JSON.stringify({ account_ids: accountIds })
+          },
+          {
+            maxAttempts: 6,
+            onRetry(waitMs, attempt, retryReason) {
+              onProgress(
+                retryReason
+                  ? `${retryReason} Waiting ${Math.ceil(waitMs / 1000)}s and retrying Cavern batch (${attempt}/6)...`
+                  : `TonAPI 429 during Cavern batch scan. Retrying (${attempt}/6)...`,
+                { checkedCount, totalCount: addresses.length }
+              );
+            }
           }
-        }
-      );
+        );
+      } catch (error) {
+        scanError = error;
+        break;
+      }
       const items = Array.isArray(data?.nft_items) ? data.nft_items : [];
       for (const rawItem of items) {
-        if (rawItem?.sale?.price?.value && rawItemMatchesFocus(rawItem, config)) {
-          listedItems.push(rawItem);
+        if (rawItemMatchesFocus(rawItem, config)) {
+          cavernItems.push(rawItem);
         }
       }
       checkedCount += accountIds.length;
       onProgress(
-        `Cavern-only scan: checked ${formatNumber(checkedCount)}/${formatNumber(addresses.length)} · found ${listedItems.length} listed orcs...`,
+        `Cavern-only scan: checked ${formatNumber(checkedCount)}/${formatNumber(addresses.length)} orcs...`,
         { checkedCount, totalCount: addresses.length }
       );
     }
   }
 
   await Promise.all(Array.from({ length: workerCount }, () => worker()));
-  cavernMarketCache = { items: listedItems, loadedAt: Date.now() };
-  return listedItems;
+  if (scanError) {
+    throw scanError;
+  }
+  cavernItemsCache = { items: cavernItems, loadedAt: Date.now() };
+  return cavernItems;
 }
 
 function renderWalletSummary(walletItems, currentTeam, marketItems, walletPlan) {
@@ -4856,34 +4895,49 @@ async function runLinkAnalysis() {
     if (!EMOTIONS.includes(targetItem.emotion)) {
       throw new Error(`The target NFT does not look like a supported orc emotion. Found: ${targetItem.emotion}.`);
     }
+    if (!targetItem.matchesFocus) {
+      throw new Error("The selected orc is not Skin Tone = Cavern. Use a Cavern orc link.");
+    }
 
-    setLinkStatus(`Loaded ${targetItem.name}. Scanning live listed Cavern market orcs...`, "warn", 18);
-    const marketRaw = await fetchListedCavernMarketItems(config, (message, meta) => {
+    setLinkStatus(`Loaded ${targetItem.name}. Loading all Cavern orcs...`, "warn", 18);
+    const cavernRaw = await fetchAllCavernItems(config, (message, meta) => {
       setLinkStatus(message, "warn", getRangedProgress(meta?.checkedCount || 0, meta?.totalCount || Math.max(meta?.checkedCount || 1, 1), 18, 72));
     });
-    const marketItems = marketRaw
-      .map((item) => ({ ...normalizeItem(item, config), source: "market" }))
-      .filter((item) => item.matchesFocus && item.address !== targetItem.address && item.salePriceValue > 0);
+    const cavernItems = cavernRaw
+      .map((item) => ({ ...normalizeItem(item, config), source: "collection" }))
+      .filter((item) => item.matchesFocus);
+    const marketItems = cavernItems
+      .filter((item) => item.address !== targetItem.address && item.salePriceValue > 0)
+      .map((item) => ({ ...item, source: "market" }));
 
-    setLinkStatus(`Found ${marketItems.length} listed Cavern orcs. Building the strongest team with Earrings / Bracelet synergy...`, "warn", 74);
-    const entry = await buildAnchoredJewelryTeam(targetItem, marketItems, config, (message, meta) => {
+    setLinkStatus(`Loaded ${cavernItems.length} Cavern orcs. Building up to 3 teams with Earrings + Bracelet + Logo synergy...`, "warn", 74);
+    const entries = await buildAnchoredSynergyTeams(targetItem, cavernItems, config, (message, meta) => {
       setLinkStatus(message, "warn", getRangedProgress(meta?.step || 0, meta?.total || 7, 76, 96));
     });
-    const replacements = findLinkReplacements(entry, marketItems);
+    const replacementMap = new Map();
+    entries.forEach((entry) => {
+      findLinkReplacements(entry, marketItems).forEach((replacement) => {
+        const key = `${replacement.original.address}:${replacement.replacement.address}`;
+        if (!replacementMap.has(key)) replacementMap.set(key, replacement);
+      });
+    });
+    const replacements = [...replacementMap.values()];
 
     state.linkTarget = targetItem;
+    state.linkItems = cavernItems;
     state.linkMarketItems = marketItems;
-    state.linkTeam = entry;
+    state.linkTeams = entries;
+    state.linkTeam = entries[0] || null;
     state.linkReplacements = replacements;
-    renderLinkSummary(targetItem, entry, marketItems, replacements);
-    renderLinkTeam(entry, targetItem);
+    renderLinkSummary(targetItem, entries, cavernItems, replacements);
+    renderLinkTeams(entries, targetItem);
     renderLinkReplacements(replacements);
 
-    if (!entry) {
-      setLinkStatus("No valid team with Earrings or Bracelet synergy was found on the current market.", "err", 100);
+    if (!entries.length) {
+      setLinkStatus("No full Cavern team with simultaneous Earrings, Bracelet and Logo synergies was found for this orc.", "err", 100);
       return;
     }
-    setLinkStatus(`Done: built a ${formatNumber(entry.result.totalScore)} PWR team with ${getActiveJewelrySignals(entry).length} jewelry synergy signal(s).`, "ok", 100);
+    setLinkStatus(`Done: built ${entries.length} ranked triple-synergy team variant${entries.length === 1 ? "" : "s"}. Best: ${formatNumber(entries[0].result.totalScore)} PWR.`, "ok", 100);
     document.getElementById("link-team")?.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
     console.error(error);
