@@ -1147,7 +1147,7 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
         </div>
         <p style="margin-bottom:18px;">
           Вставьте ссылку GetGems на Cavern-орка. Анализатор закрепит его в команде и найдёт до трёх сильнейших составов среди всех
-          Cavern-орков. В каждой команде одновременно обязательны активные синергии серёжек, браслетов и логотипа.
+          Cavern-орков. В каждой команде нужны 4 браслета как у исходного орка, минимум 4 одинаковых серьги любого вида и активная синергия логотипа.
         </p>
         <div class="field-grid">
           <div class="field full">
@@ -1259,7 +1259,7 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   <div class="wrap">
     <div class="metrics-grid">
       <div class="metric"><div class="n" id="linkTargetPower">0 PWR</div><div class="k">Target Orc</div><div class="v" id="linkTargetMeta">Paste a GetGems link to start.</div></div>
-      <div class="metric"><div class="n" id="linkTeamPower">0 PWR</div><div class="k">Best Team</div><div class="v">Earrings, Bracelet and Logo synergies are all required.</div></div>
+      <div class="metric"><div class="n" id="linkTeamPower">0 PWR</div><div class="k">Best Team</div><div class="v">Target Bracelet x4, any matching Earrings x4, and Logo synergy.</div></div>
       <div class="metric"><div class="n" id="linkMarketCount">0</div><div class="k">Cavern Orcs Checked</div><div class="v">All Cavern orcs, listed or not.</div></div>
       <div class="metric"><div class="n" id="linkReplacementCount">0</div><div class="k">Number Replacements</div><div class="v">Shown when beautiful-number synergy orcs can be replaced.</div></div>
     </div>
@@ -1272,7 +1272,7 @@ h1.ht{font-size:clamp(82px,12.8vw,176px);font-weight:900;letter-spacing:1px;line
   <div class="wrap">
     <div class="lbl">Matched Team</div>
     <div class="ttl">Top 3 <em>Synergy Teams</em></div>
-    <div class="desc" id="linkTeamMeta">The selected orc stays locked in its emotion slot. Candidates come from every Cavern orc, whether listed for sale or not.</div>
+    <div class="desc" id="linkTeamMeta">The selected orc stays locked. Its Bracelet must reach x4; Earrings may be any value but must match at least x4; Logo synergy is also required.</div>
     <div class="variant-grid" id="linkTeamCard">
       <div class="empty-state">No orc link analyzed yet.</div>
     </div>
@@ -4065,6 +4065,40 @@ function hasRequiredTripleSynergy(entry) {
   return getRequiredSynergyTypes(entry).size === 3;
 }
 
+function getAnchoredSynergyProgress(entry, targetItem) {
+  const team = entry?.team?.filter(Boolean) || [];
+  const targetBracelet = norm(getAttributeValue(targetItem, "Bracelet"));
+  let braceletCount = 0;
+  const earringCounts = new Map();
+  const logoCounts = new Map();
+
+  for (const item of team) {
+    const bracelet = norm(getAttributeValue(item, "Bracelet"));
+    const earring = norm(getAttributeValue(item, "Earrings"));
+    if (targetBracelet && bracelet === targetBracelet) braceletCount += 1;
+    if (earring) earringCounts.set(earring, (earringCounts.get(earring) || 0) + 1);
+    for (const match of item.logoMatches || []) {
+      logoCounts.set(match.token, (logoCounts.get(match.token) || 0) + 1);
+    }
+  }
+
+  const earringCount = Math.max(0, ...earringCounts.values());
+  const logoCount = Math.max(0, ...logoCounts.values());
+  const counts = [braceletCount, earringCount, logoCount];
+  return {
+    braceletCount,
+    earringCount,
+    logoCount,
+    completeCount: counts.filter((count) => count >= 4).length,
+    progressScore: counts.reduce((sum, count) => sum + Math.min(count, 4), 0)
+  };
+}
+
+function hasAnchoredRequiredSynergies(entry, targetItem) {
+  const progress = getAnchoredSynergyProgress(entry, targetItem);
+  return progress.braceletCount >= 4 && progress.earringCount >= 4 && progress.logoCount >= 4;
+}
+
 function hasTargetJewelrySynergy(entry, targetItem) {
   if (!entry || !targetItem) {
     return false;
@@ -4072,10 +4106,25 @@ function hasTargetJewelrySynergy(entry, targetItem) {
   return getItemActiveJewelrySignals(targetItem, entry).length > 0;
 }
 
-function compareAnchoredTeamEntries(a, b) {
+function compareAnchoredTeamEntries(a, b, targetItem) {
+  const aProgress = getAnchoredSynergyProgress(a, targetItem);
+  const bProgress = getAnchoredSynergyProgress(b, targetItem);
+  const aComplete = hasAnchoredRequiredSynergies(a, targetItem);
+  const bComplete = hasAnchoredRequiredSynergies(b, targetItem);
+  if (aComplete && bComplete) {
+    return (
+      b.result.coverage - a.result.coverage
+      || b.result.totalScore - a.result.totalScore
+      || b.result.synergyScore - a.result.synergyScore
+      || b.result.teamPower - a.result.teamPower
+      || getTeamIdentity(a.team).localeCompare(getTeamIdentity(b.team))
+    );
+  }
   return (
-    Number(hasRequiredTripleSynergy(b)) - Number(hasRequiredTripleSynergy(a))
-    || getRequiredSynergyTypes(b).size - getRequiredSynergyTypes(a).size
+    Number(bComplete) - Number(aComplete)
+    || bProgress.completeCount - aProgress.completeCount
+    || bProgress.progressScore - aProgress.progressScore
+    || bProgress.braceletCount - aProgress.braceletCount
     || b.result.coverage - a.result.coverage
     || b.result.totalScore - a.result.totalScore
     || b.result.synergyScore - a.result.synergyScore
@@ -4091,11 +4140,30 @@ async function buildAnchoredSynergyTeams(targetItem, cavernItems, config, onProg
   }
 
   const sourceItems = cavernItems.filter((item) => item.address !== targetItem.address);
+  const targetBracelet = norm(getAttributeValue(targetItem, "Bracelet"));
+  if (!targetBracelet) {
+    throw new Error("The selected orc has no Bracelet trait, so a target-bracelet synergy cannot be built.");
+  }
+  const matchingBraceletEmotions = new Set(
+    [targetItem, ...sourceItems]
+      .filter((item) => norm(getAttributeValue(item, "Bracelet")) === targetBracelet)
+      .map((item) => item.emotion)
+      .filter((emotion) => EMOTIONS.includes(emotion))
+  );
+  if (matchingBraceletEmotions.size < 4) {
+    throw new Error(`The target Bracelet appears in only ${matchingBraceletEmotions.size} different emotion slots. Four different slots are required for a team synergy.`);
+  }
   const groups = EMOTIONS.map((emotion, index) => {
     if (index === targetEmotionIndex) {
       return [targetItem];
     }
-    return buildEmotionCandidatePool(sourceItems.filter((item) => item.emotion === emotion), config.searchWidth);
+    const emotionItems = sourceItems.filter((item) => item.emotion === emotion);
+    const basePool = buildEmotionCandidatePool(emotionItems, config.searchWidth);
+    const targetBraceletPool = emotionItems
+      .filter((item) => norm(getAttributeValue(item, "Bracelet")) === targetBracelet)
+      .sort((a, b) => b.score - a.score || b.power - a.power || a.name.localeCompare(b.name, "ru"))
+      .slice(0, 40);
+    return [...new Map([...basePool, ...targetBraceletPool].map((item) => [item.address, item])).values()];
   });
   const beamWidth = Math.max(240, Math.min(900, config.searchWidth * 6));
   let beam = [{
@@ -4118,20 +4186,14 @@ async function buildAnchoredSynergyTeams(targetItem, cavernItems, config, onProg
         const key = getTeamIdentity(team);
         const candidateEntry = { team, result, optimistic };
         const current = seen.get(key);
-        if (!current || compareAnchoredTeamEntries(candidateEntry, current) < 0 || candidateEntry.optimistic > current.optimistic) {
+        if (!current || compareAnchoredTeamEntries(candidateEntry, current, targetItem) < 0 || candidateEntry.optimistic > current.optimistic) {
           seen.set(key, candidateEntry);
         }
       }
     }
 
     beam = [...seen.values()]
-      .sort((a, b) =>
-        getRequiredSynergyTypes(b).size - getRequiredSynergyTypes(a).size
-        || b.result.coverage - a.result.coverage
-        || b.optimistic - a.optimistic
-        || b.result.totalScore - a.result.totalScore
-        || getTeamIdentity(a.team).localeCompare(getTeamIdentity(b.team))
-      )
+      .sort((a, b) => compareAnchoredTeamEntries(a, b, targetItem) || b.optimistic - a.optimistic)
       .slice(0, beamWidth);
 
     if (typeof onProgress === "function") {
@@ -4143,8 +4205,8 @@ async function buildAnchoredSynergyTeams(targetItem, cavernItems, config, onProg
   return beam
     .filter((entry) => entry.team[targetEmotionIndex]?.address === targetItem.address)
     .filter((entry) => entry.result.coverage === EMOTIONS.length)
-    .filter(hasRequiredTripleSynergy)
-    .sort(compareAnchoredTeamEntries)
+    .filter((entry) => hasAnchoredRequiredSynergies(entry, targetItem))
+    .sort((a, b) => compareAnchoredTeamEntries(a, b, targetItem))
     .slice(0, maxTeams);
 }
 
@@ -4210,11 +4272,11 @@ function renderLinkTeams(entries, targetItem) {
   const root = document.getElementById("linkTeamCard");
   const meta = document.getElementById("linkTeamMeta");
   if (!entries.length) {
-    root.innerHTML = `<div class="empty-state">No full Cavern team with simultaneous Earrings, Bracelet and Logo synergies could be built for this orc.</div>`;
-    meta.textContent = "Try another Cavern orc. Every result must contain all three required synergy types.";
+    root.innerHTML = `<div class="empty-state">No full Cavern team reached target Bracelet x4, matching Earrings x4 and Logo synergy at the same time.</div>`;
+    meta.textContent = `Required target Bracelet: ${getAttributeValue(targetItem, "Bracelet") || "none"}. Earrings may use any value, but four team members must match.`;
     return;
   }
-  meta.textContent = `${targetItem.name} locked · ${entries.length} strongest valid team variant${entries.length === 1 ? "" : "s"} from all Cavern orcs.`;
+  meta.textContent = `${targetItem.name} locked · Bracelet: ${getAttributeValue(targetItem, "Bracelet")} x4 required · ${entries.length} strongest valid team variant${entries.length === 1 ? "" : "s"} from all Cavern orcs.`;
   root.innerHTML = entries.map((entry, teamIndex) => {
     const signals = computeTeamSignals(entry.team);
     const requiredDetails = entry.result.synergyDetails.filter((detail) =>
