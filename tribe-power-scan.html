@@ -1131,7 +1131,7 @@ details[open]>summary .tb-chev{transform:rotate(180deg);}
   <div class="wrap">
     <div class="lbl">Private intel</div>
     <div class="ttl">Рейтинг команд <em>по племенам</em></div>
-    <div class="desc">Сканирует всю коллекцию Unstoppable Tribe, находит у каждого владельца полные команды (7 орков одного цвета, по одному на эмоцию) и показывает по каждому из 18 цветов кожи суммарный повер сильнейших команд: <b>Cavern — топ-20</b>, остальные племена — топ-10 (для сравнения). Сканирование всей коллекции (~42k) занимает 1–3 минуты.</div>
+    <div class="desc">Сканирует всю коллекцию Unstoppable Tribe, находит у каждого владельца полные команды (7 орков одного цвета, по одному на эмоцию) и показывает по каждому из 18 цветов кожи суммарный повер сильнейших команд: <b>Cavern — топ-30</b>, остальные племена — топ-10 (для сравнения). Сканирование всей коллекции (~42k) занимает 1–3 минуты.</div>
     <div class="panel">
       <div class="actions"><button type="button" class="btn-m" id="scanBtn">Сканировать коллекцию</button></div>
       <div class="status" id="st">
@@ -1158,7 +1158,7 @@ details[open]>summary .tb-chev{transform:rotate(180deg);}
   <div class="wrap">
     <div class="lbl">Рейтинг племён</div>
     <div class="ttl">Сумма <em>сильнейших команд</em> каждого цвета</div>
-    <div class="desc">Cavern — сумма топ-20 команд, остальные племена — топ-10. Разверни строку — увидишь эти команды с владельцами. Раскрой <b>Cavern</b>, кнопкой «исключить» убери чужие команды — останутся ваши, затем жми анализ обменов ниже.</div>
+    <div class="desc">Cavern — сумма топ-30 команд, остальные племена — топ-10. Разверни строку — увидишь эти команды с владельцами. Раскрой <b>Cavern</b>, кнопкой «исключить» убери чужие команды — останутся ваши, затем жми анализ обменов ниже.</div>
     <div class="actions" style="margin-bottom:18px;"><button type="button" class="btn-m" id="analyzeBtn">Анализ обменов по нашим Cavern-командам →</button></div>
     <div id="board"></div>
   </div>
@@ -4241,7 +4241,7 @@ async function analyze(orcs, onProgress){
   const rows=[];
   for(const [tone,d] of perTribe){
     d.teams.sort((a,b)=>b.score-a.score);
-    const N=tone===CAV?20:10;                 // только Cavern — топ-20, остальные племена — топ-10
+    const N=tone===CAV?30:10;                 // только Cavern — топ-30, остальные племена — топ-10
     const teams=d.teams.slice(0,N);
     rows.push({tone,teams,sum:teams.reduce((s,t)=>s+t.score,0),totalTeams:d.teams.length,owners:d.owners.size});
   }
